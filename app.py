@@ -28,4 +28,15 @@ def ai_solution():
     )
 
     reply = response.choices[0].message.content
-    return jsonify(eval(reply))
+
+    import json
+    try:
+        parsed = json.loads(reply)
+        return jsonify(parsed)
+    except Exception as e:
+        return jsonify({"error": "Could not parse response", "details": str(e), "raw": reply})
+
+# ✅ Required for Render to detect the port
+if __name__ == '__main__':
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
