@@ -5,7 +5,7 @@ import os
 import json
 
 app = Flask(__name__)
-CORS(app)  # Allow all origins — or restrict with: CORS(app, origins=["https://cliniconex.com"])
+CORS(app, origins=["https://cliniconex.com"])  # 🔒 Only allow your live site
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
@@ -28,7 +28,7 @@ def ai_solution():
 
     try:
         response = openai.ChatCompletion.create(
-            model="gpt-4",  
+            model="gpt-4",
             messages=[{"role": "user", "content": prompt}]
         )
         reply = response.choices[0].message.content
@@ -37,7 +37,7 @@ def ai_solution():
     except Exception as e:
         return jsonify({"error": "Could not complete request", "details": str(e)})
 
-# Render-compatible server start
+# Render-compatible start
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
