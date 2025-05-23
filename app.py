@@ -22,21 +22,10 @@ def ai_solution():
     }}
     """
 
-    response = openai.ChatCompletion.create(
+    response = openai.chat.completions.create(
         model="gpt-4",
         messages=[{"role": "user", "content": prompt}]
     )
 
-    reply = response['choices'][0]['message']['content']
-    
-    # Safely parse the reply
-    import json
-    try:
-        parsed = json.loads(reply)
-        return jsonify(parsed)
-    except Exception as e:
-        return jsonify({"error": "Could not parse response", "details": str(e), "raw": reply})
-
-# ✅ Required for Render — expose the correct host/port
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10000)
+    reply = response.choices[0].message.content
+    return jsonify(eval(reply))
