@@ -1,16 +1,20 @@
-
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from openai import OpenAI
 import os
 import json
 
 app = Flask(__name__)
+CORS(app)  # <- Allows requests from browsers (important!)
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 @app.route('/ai', methods=['POST'])
 def ai_solution():
     data = request.get_json()
-    message = data['message']
+    message = data.get('message', '').strip()
+
+    if not message:
+        return jsonify({"error": "Missing input", "details": "No message provided"}), 400
 
     # Refined prompt with clarification logic for vague inputs
     prompt = f"""
@@ -48,16 +52,23 @@ User input: "{message}"
             model="gpt-3.5-turbo-0125",
             messages=[{"role": "user", "content": prompt}]
         )
-        reply = response.choices[0].message.content
+        reply = response.choices[0].message.content.strip()
 
         try:
             parsed = json.loads(reply)
             return jsonify(parsed)
         except Exception as e:
-            return jsonify({"error": "Could not parse response", "details": str(e), "raw": reply})
+            return jsonify({
+                "error": "Could not parse JSON",
+                "details": str(e),
+                "raw": reply
+            }), 500
 
     except Exception as e:
-        return jsonify({"error": "Could not complete request", "details": str(e)})
+        return jsonify({
+            "error": "Could not complete request",
+            "details": str(e)
+        }), 500
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
