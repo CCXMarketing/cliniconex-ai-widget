@@ -1,10 +1,10 @@
 from flask import Flask, request, jsonify
-from openai import OpenAI
+import openai
 import os
 import json
 
 app = Flask(__name__)
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 @app.route('/ai', methods=['POST'])
 def ai_solution():
@@ -24,7 +24,7 @@ def ai_solution():
     """
 
     try:
-        response = client.chat.completions.create(
+        response = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}]
         )
@@ -34,7 +34,7 @@ def ai_solution():
     except Exception as e:
         return jsonify({"error": "Could not complete request", "details": str(e)})
 
-# ✅ Required for Render
+# Render-specific port binding
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
