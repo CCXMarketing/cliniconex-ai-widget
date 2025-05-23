@@ -1,16 +1,19 @@
 from flask import Flask, request, jsonify
+from openai import OpenAI
 import os
 import json
-import openai
 
 app = Flask(__name__)
-client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+# Initialize the OpenAI client with your API key
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 @app.route('/ai', methods=['POST'])
 def ai_solution():
     data = request.get_json()
     message = data['message']
 
+    # Refined GPT prompt
     prompt = f"""
 You are a helpful assistant working for Cliniconex, a healthcare communication company.
 
@@ -42,16 +45,20 @@ User input: "{message}"
 
     try:
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo-0125",
+            model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": prompt}]
         )
+
         reply = response.choices[0].message.content
 
         try:
             parsed = json.loads(reply)
             return jsonify(parsed)
-        except Exception as e:
-            return jsonify({"type": "unclear", "message": "Sorry, I didn't quite understand. Could you try asking that another way?"})
+        except Exception:
+            return jsonify({
+                "type": "unclear",
+                "message": "Sorry, I didn't quite understand. Could you try asking that another way?"
+            })
 
     except Exception as e:
         return jsonify({"error": "Could not complete request", "details": str(e)})
