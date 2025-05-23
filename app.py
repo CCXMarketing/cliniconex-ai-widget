@@ -9,7 +9,7 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 @app.route('/ai', methods=['POST'])
 def ai_solution():
     data = request.get_json()
-    message = data['message']
+    message = data.get('message', '').strip()
 
     prompt = f"""
 You are a helpful assistant working for Cliniconex, a healthcare communication company.
@@ -45,6 +45,7 @@ User input: "{message}"
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": prompt}]
         )
+
         reply = response.choices[0].message.content
 
         try:
@@ -57,7 +58,10 @@ User input: "{message}"
             })
 
     except Exception as e:
-        return jsonify({"error": "Could not complete request", "details": str(e)})
+        return jsonify({
+            "error": "Could not complete request",
+            "details": str(e)
+        })
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
