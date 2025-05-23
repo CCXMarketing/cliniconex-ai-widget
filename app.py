@@ -2,8 +2,11 @@ from flask import Flask, request, jsonify
 import os
 import json
 import openai
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
+
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 @app.route('/ai', methods=['POST'])
@@ -45,21 +48,13 @@ User input: "{message}"
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": prompt}]
         )
-
-        reply = response.choices[0].message.content
-
-        try:
-            parsed = json.loads(reply)
-            return jsonify(parsed)
-        except Exception:
-            return jsonify({
-                "type": "unclear",
-                "message": "Sorry, I didn't quite understand. Could you try asking that another way?"
-            })
-
+        reply = response['choices'][0]['message']['content']
+        parsed = json.loads(reply)
+        return jsonify(parsed)
     except Exception as e:
         return jsonify({
-            "error": "Could not complete request",
+            "type": "unclear",
+            "message": "Sorry, I didn't quite understand. Could you try asking that another way?",
             "details": str(e)
         })
 
