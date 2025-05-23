@@ -1,15 +1,18 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import openai
 import os
 import json
 
 app = Flask(__name__)
+CORS(app)  # Allow all origins — or restrict with: CORS(app, origins=["https://cliniconex.com"])
+
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 @app.route('/ai', methods=['POST'])
 def ai_solution():
     data = request.get_json()
-    message = data['message']
+    message = data.get('message', '')
 
     prompt = f"""You are a helpful assistant for a healthcare company. Based on the input, suggest the most relevant Cliniconex product or module.
 
@@ -25,7 +28,7 @@ def ai_solution():
 
     try:
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4",  
             messages=[{"role": "user", "content": prompt}]
         )
         reply = response.choices[0].message.content
@@ -34,7 +37,7 @@ def ai_solution():
     except Exception as e:
         return jsonify({"error": "Could not complete request", "details": str(e)})
 
-# Render-specific port binding
+# Render-compatible server start
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
