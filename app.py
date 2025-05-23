@@ -1,11 +1,9 @@
 from flask import Flask, request, jsonify
-import openai
 import os
 import json
+import openai
 
 app = Flask(__name__)
-
-# Set OpenAI API key
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 @app.route('/ai', methods=['POST'])
@@ -47,8 +45,7 @@ User input: "{message}"
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": prompt}]
         )
-
-        reply = response.choices[0].message['content']
+        reply = response.choices[0].message.content
 
         try:
             parsed = json.loads(reply)
