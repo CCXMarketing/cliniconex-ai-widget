@@ -1,8 +1,9 @@
 from flask import Flask, request, jsonify
 import os
 import json
-import openai
 import traceback
+from openai import OpenAI
+
 
 print("OpenAI SDK version:", openai.__version__)
 
@@ -51,10 +52,15 @@ User input: "{message}"
 """
 
     try:
-        response = openai.chat.completions.create(
-            model="gpt-4",
-            messages=[{"role": "user", "content": prompt}]
-        )
+        from openai import OpenAI
+
+client = OpenAI()
+
+response = client.chat.completions.create(
+    model="gpt-4",
+    messages=[{"role": "user", "content": prompt}]
+)
+
 
         reply = response.choices[0].message.content
 
