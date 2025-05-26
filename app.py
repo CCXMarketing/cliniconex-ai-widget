@@ -2,14 +2,13 @@ from flask import Flask, request, jsonify
 import os
 import json
 import traceback
-from openai import OpenAI
+import openai
 
-print("OpenAI SDK version:", OpenAI.__module__)
+print("OpenAI SDK version:", openai.__version__)
 
-openai_api_key = os.environ.get("OPENAI_API_KEY")
+openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 app = Flask(__name__)
-client = OpenAI(api_key=openai_api_key)  # ✅ Correct usage for 1.x SDK
 
 @app.route("/ai", methods=["POST"])
 def ai_solution():
@@ -46,12 +45,12 @@ User input: "{message}"
 """
 
     try:
-        response = client.chat.completions.create(
+        response = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}]
         )
 
-        reply = response.choices[0].message.content
+        reply = response.choices[0].message["content"]
 
         try:
             return jsonify(json.loads(reply))
@@ -67,7 +66,6 @@ User input: "{message}"
             "details": str(e),
             "trace": traceback.format_exc()
         })
-
 
 @app.route("/", methods=["GET"])
 def health_check():
