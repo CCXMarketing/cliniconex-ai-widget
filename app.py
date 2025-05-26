@@ -43,10 +43,10 @@ User input: "{message}"
 """
 
     try:
-        response = openai.chat.completions.create(
-            model="gpt-4",
-            messages=[{"role": "user", "content": prompt}]
-        )
+      response = openai.ChatCompletion.create(
+    model="gpt-4",
+    messages=[{"role": "user", "content": prompt}]
+)
 
         reply = response.choices[0].message.content
 
