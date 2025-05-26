@@ -2,7 +2,10 @@ services:
   - type: web
     name: cliniconex-ai-widget
     env: python
-    buildCommand: "pip install -r requirements.txt"
+    buildCommand: |
+      python -m venv venv
+      . venv/bin/activate
+      pip install -r requirements.txt
     startCommand: "python app.py"
     envVars:
       - key: OPENAI_API_KEY
