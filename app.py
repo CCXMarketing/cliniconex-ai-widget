@@ -3,9 +3,9 @@ from flask_cors import CORS
 import os
 import json
 import traceback
-import openai  # Do NOT import OpenAI class directly when using global client
+import openai
 
-# ✅ Set OpenAI API key using global configuration
+# ✅ Set your OpenAI API key
 openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 # ✅ Flask app setup
@@ -33,7 +33,7 @@ Your job:
 1. If the meaning is clear, respond with a product **module**, **feature**, **solution explanation**, and **product link**.
 2. If the input is too unclear to confidently answer, return a polite message asking them to rephrase.
 
-Respond in **strict JSON** with NO markdown, code blocks, or additional explanation.
+Respond in **strict JSON** in one of these two formats:
 
 # If input is clear:
 {{
@@ -53,27 +53,20 @@ Respond in **strict JSON** with NO markdown, code blocks, or additional explanat
 User input: "{message}"
 """
 
-        # ✅ OpenAI SDK v1.x call (global client)
-        response = openai.chat.completions.create(
+        # ✅ Use GPT-4 with legacy SDK
+        response = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}]
         )
 
-        raw_reply = response.choices[0].message.content
-        print("RAW GPT RESPONSE >>>", raw_reply)
+        reply = response.choices[0].message.content
 
-        # ✅ Extract just the JSON from GPT output
         try:
-            start = raw_reply.index("{")
-            end = raw_reply.rindex("}") + 1
-            json_str = raw_reply[start:end]
-            parsed = json.loads(json_str)
-            return jsonify(parsed)
-        except Exception as e:
-            print("❌ JSON Parse Error >>>", str(e))
+            return jsonify(json.loads(reply))
+        except json.JSONDecodeError:
             return jsonify({
                 "type": "unclear",
-                "message": "Unexpected response format. Please try again later."
+                "message": "Sorry, I didn't quite understand. Could you try asking that another way?"
             })
 
     except Exception as e:
