@@ -2,7 +2,8 @@ from flask import Flask, request, jsonify
 import os
 import json
 import openai
-print("OpenAI version:", openai.__version__)
+print("OpenAI SDK version:", openai.__version__)
+
 
 # Set your OpenAI API key (openai>=1.0.0)
 openai.api_key = os.environ["OPENAI_API_KEY"]
