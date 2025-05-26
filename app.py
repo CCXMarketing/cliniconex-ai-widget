@@ -3,9 +3,9 @@ from flask_cors import CORS
 import os
 import json
 import traceback
-import openai
+import openai  # Do NOT import OpenAI class directly when using global client
 
-# ✅ Use global client configuration (correct for SDK 1.x)
+# ✅ Set OpenAI API key using global configuration
 openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 # ✅ Flask app setup
@@ -33,7 +33,7 @@ Your job:
 1. If the meaning is clear, respond with a product **module**, **feature**, **solution explanation**, and **product link**.
 2. If the input is too unclear to confidently answer, return a polite message asking them to rephrase.
 
-Respond in **strict JSON** in one of these two formats:
+Respond in **strict JSON** with NO markdown, code blocks, or additional explanation.
 
 # If input is clear:
 {{
@@ -41,7 +41,7 @@ Respond in **strict JSON** in one of these two formats:
   "module": "Name of the most relevant Cliniconex product module",
   "feature": "Name of one key feature in that module",
   "solution": "Plain-English explanation of how it helps solve their problem",
- 
+  "link": "https://cliniconex.com/products/#relevant-feature-anchor"
 }}
 
 # If input is vague:
@@ -53,20 +53,27 @@ Respond in **strict JSON** in one of these two formats:
 User input: "{message}"
 """
 
-        # ✅ Correct method for SDK 1.x (no client instance)
+        # ✅ OpenAI SDK v1.x call (global client)
         response = openai.chat.completions.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}]
         )
 
-        reply = response.choices[0].message.content
+        raw_reply = response.choices[0].message.content
+        print("RAW GPT RESPONSE >>>", raw_reply)
 
+        # ✅ Extract just the JSON from GPT output
         try:
-            return jsonify(json.loads(reply))
-        except json.JSONDecodeError:
+            start = raw_reply.index("{")
+            end = raw_reply.rindex("}") + 1
+            json_str = raw_reply[start:end]
+            parsed = json.loads(json_str)
+            return jsonify(parsed)
+        except Exception as e:
+            print("❌ JSON Parse Error >>>", str(e))
             return jsonify({
                 "type": "unclear",
-                "message": "Sorry, I didn't quite understand. Could you try asking that another way?"
+                "message": "Unexpected response format. Please try again later."
             })
 
     except Exception as e:
