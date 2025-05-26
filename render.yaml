@@ -2,5 +2,9 @@ services:
   - type: web
     name: cliniconex-ai-widget
     env: python
-    buildCommand: pip install --no-cache-dir -r requirements.txt
-    startCommand: python app.py
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python app.py"
+    envVars:
+      - key: OPENAI_API_KEY
+        value: your-real-openai-key-here
+    pythonVersion: 3.11
