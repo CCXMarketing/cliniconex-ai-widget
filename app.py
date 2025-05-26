@@ -1,13 +1,12 @@
 from flask import Flask, request, jsonify
-from flask_cors import CORS
-from openai import OpenAI
 import os
 import json
+import openai
 
 app = Flask(__name__)
-CORS(app)
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# ✅ Set API key correctly for openai>=1.0.0
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 @app.route('/ai', methods=['POST'])
 def ai_solution():
@@ -44,10 +43,11 @@ User input: "{message}"
 """
 
     try:
-        response = client.chat.completions.create(
+        response = openai.chat.completions.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}]
         )
+
         reply = response.choices[0].message.content
 
         try:
@@ -64,6 +64,9 @@ User input: "{message}"
             "error": "Could not complete request",
             "details": str(e)
         })
+
+        # 🔒 Google Sheets logging will be added after successful testing
+        # log_to_google_sheets(data, parsed or fallback)
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
