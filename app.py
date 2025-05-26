@@ -1,4 +1,8 @@
 from flask import Flask, request, jsonify
+@app.before_request
+def log_request_info():
+    print(f"➡️ Incoming request: {request.method} {request.path}")
+
 import os
 import json
 import openai
