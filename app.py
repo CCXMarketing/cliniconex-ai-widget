@@ -1,8 +1,4 @@
 from flask import Flask, request, jsonify
-@app.before_request
-def log_request_info():
-    print(f"➡️ Incoming request: {request.method} {request.path}")
-
 import os
 import json
 import openai
@@ -14,6 +10,11 @@ print("OpenAI SDK version:", openai.__version__)
 openai.api_key = os.environ["OPENAI_API_KEY"]
 
 app = Flask(__name__)
+
+# ✅ Log every incoming request for debugging
+@app.before_request
+def log_request_info():
+    print(f"➡️ Incoming request: {request.method} {request.path}")
 
 @app.route('/ai', methods=['POST'])
 def ai_solution():
@@ -75,10 +76,10 @@ User input: "{message}"
             "details": str(e),
             "trace": tb
         })
-        
+
 @app.route("/", methods=["GET"])
 def health_check():
-    return "✅ Flask app is running!"        
+    return "✅ Flask app is running!"
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
