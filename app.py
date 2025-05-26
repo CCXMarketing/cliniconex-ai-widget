@@ -2,8 +2,9 @@ from flask import Flask, request, jsonify
 import os
 import json
 import openai
-print("OpenAI SDK version:", openai.__version__)
+import traceback
 
+print("OpenAI SDK version:", openai.__version__)
 
 # Set your OpenAI API key (openai>=1.0.0)
 openai.api_key = os.environ["OPENAI_API_KEY"]
@@ -62,9 +63,13 @@ User input: "{message}"
             })
 
     except Exception as e:
+        tb = traceback.format_exc()
+        print("❌ Full Exception Traceback:\n", tb)
+
         return jsonify({
             "error": "Could not complete request",
-            "details": str(e)
+            "details": str(e),
+            "trace": tb
         })
 
 if __name__ == '__main__':
