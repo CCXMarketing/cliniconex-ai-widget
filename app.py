@@ -71,6 +71,10 @@ User input: "{message}"
             "details": str(e),
             "trace": tb
         })
+        
+@app.route("/", methods=["GET"])
+def health_check():
+    return "✅ Flask app is running!"        
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
