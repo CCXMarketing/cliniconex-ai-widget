@@ -5,10 +5,10 @@ import json
 import traceback
 from openai import OpenAI
 
-# ✅ Initialize OpenAI client using v1.14.2 pattern
+# ✅ Initialize OpenAI client using v1.14.2 interface
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
-# ✅ Setup Flask app
+# ✅ Flask app setup
 app = Flask(__name__)
 CORS(app, resources={r"/ai": {"origins": "https://cliniconex.com"}})
 
@@ -24,6 +24,7 @@ def ai_solution():
                 "message": "Please provide a message."
             }), 400
 
+        # ✅ Prompt formatting
         prompt = f"""
 You are a helpful assistant working for Cliniconex, a healthcare communication company.
 
@@ -53,6 +54,7 @@ Respond in **strict JSON** in one of these two formats:
 User input: "{message}"
 """
 
+        # ✅ Chat completion using v1.14.2 SDK
         response = client.chat.completions.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}]
@@ -60,6 +62,7 @@ User input: "{message}"
 
         reply = response.choices[0].message.content
 
+        # ✅ Parse strict JSON response
         try:
             return jsonify(json.loads(reply))
         except json.JSONDecodeError:
