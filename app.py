@@ -3,9 +3,9 @@ from flask_cors import CORS
 import os
 import json
 import traceback
-import openai  # ✅ DO NOT import OpenAI class directly
+import openai
 
-# ✅ Configure OpenAI via global client — do not instantiate manually
+# ✅ Use global client configuration (correct for SDK 1.x)
 openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 # ✅ Flask app setup
@@ -41,7 +41,7 @@ Respond in **strict JSON** in one of these two formats:
   "module": "Name of the most relevant Cliniconex product module",
   "feature": "Name of one key feature in that module",
   "solution": "Plain-English explanation of how it helps solve their problem",
-  "link": "https://cliniconex.com/products/#relevant-feature-anchor"
+ 
 }}
 
 # If input is vague:
@@ -53,7 +53,7 @@ Respond in **strict JSON** in one of these two formats:
 User input: "{message}"
 """
 
-        # ✅ Make GPT-4 call via module, not via OpenAI()
+        # ✅ Correct method for SDK 1.x (no client instance)
         response = openai.chat.completions.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}]
