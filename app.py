@@ -3,12 +3,12 @@ from flask_cors import CORS
 import os
 import json
 import traceback
-from openai import OpenAI  # ✅ Modern import for 1.x SDK
+import openai  # ✅ DO NOT import OpenAI class directly
 
-# ✅ Instantiate OpenAI client properly with no deprecated args
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+# ✅ Configure OpenAI via global client — do not instantiate manually
+openai.api_key = os.environ.get("OPENAI_API_KEY")
 
-# ✅ Flask setup
+# ✅ Flask app setup
 app = Flask(__name__)
 CORS(app, resources={r"/ai": {"origins": "https://cliniconex.com"}})
 
@@ -53,15 +53,14 @@ Respond in **strict JSON** in one of these two formats:
 User input: "{message}"
 """
 
-        # ✅ Generate completion with new SDK
-        response = client.chat.completions.create(
+        # ✅ Make GPT-4 call via module, not via OpenAI()
+        response = openai.chat.completions.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}]
         )
 
         reply = response.choices[0].message.content
 
-        # ✅ Attempt to parse the JSON response from the model
         try:
             return jsonify(json.loads(reply))
         except json.JSONDecodeError:
