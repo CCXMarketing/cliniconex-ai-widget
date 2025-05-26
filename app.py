@@ -4,8 +4,6 @@ import json
 import openai
 
 app = Flask(__name__)
-
-# ✅ Set API key correctly for openai>=1.0.0
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 @app.route('/ai', methods=['POST'])
@@ -43,10 +41,10 @@ User input: "{message}"
 """
 
     try:
-response = openai.ChatCompletion.create(
-    model="gpt-4",
-    messages=[{"role": "user", "content": prompt}]
-)
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[{"role": "user", "content": prompt}]
+        )
 
         reply = response.choices[0].message.content
 
@@ -64,9 +62,6 @@ response = openai.ChatCompletion.create(
             "error": "Could not complete request",
             "details": str(e)
         })
-
-        # 🔒 Google Sheets logging will be added after successful testing
-        # log_to_google_sheets(data, parsed or fallback)
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
