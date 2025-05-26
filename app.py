@@ -3,22 +3,17 @@ from flask_cors import CORS
 import os
 import json
 import traceback
-from openai import OpenAI
-
-# Log SDK version
 import openai
+
+# Log version for diagnostics
 print("OpenAI SDK version:", openai.__version__)
 
-# ✅ Environment variable for API Key
-openai_api_key = os.environ.get("OPENAI_API_KEY")
+# Set API key
+openai.api_key = os.environ.get("OPENAI_API_KEY")
 
-# ✅ Initialize OpenAI client (no `proxies`!)
-client = OpenAI(api_key=openai_api_key)
-
-# ✅ Flask app
 app = Flask(__name__)
 
-# ✅ CORS for cliniconex.com only
+# Allow only cliniconex.com to access the POST /ai endpoint
 CORS(app, resources={r"/ai": {"origins": "https://cliniconex.com"}})
 
 @app.route("/ai", methods=["POST"])
@@ -62,17 +57,15 @@ Respond in **strict JSON** in one of these two formats:
 User input: "{message}"
 """
 
-        response = client.chat.completions.create(
+        response = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}]
         )
 
-        reply = response.choices[0].message.content
+        reply = response.choices[0].message["content"]
 
-        # Try to parse as JSON
         try:
-            parsed = json.loads(reply)
-            return jsonify(parsed)
+            return jsonify(json.loads(reply))
         except json.JSONDecodeError:
             return jsonify({
                 "type": "unclear",
