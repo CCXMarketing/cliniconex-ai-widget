@@ -2,17 +2,25 @@ from flask import Flask, request, jsonify
 import os
 import json
 import traceback
+
 from openai import OpenAI
+from httpx import Timeout, Client as HTTPXClient
 
-print("OpenAI SDK version:", OpenAI.__module__)  # Optional debug print
+print("✅ OpenAI SDK version:", OpenAI.__module__)
 
-# Set your OpenAI API key
-openai_api_key = os.environ["OPENAI_API_KEY"]
-client = OpenAI(api_key=openai_api_key)  # ✅ Client initialized outside try block
+# Environment
+openai_api_key = os.environ.get("OPENAI_API_KEY")
+
+# Manually override transport (bypass proxy error)
+custom_http_client = HTTPXClient(
+    timeout=Timeout(10.0, connect=5.0),
+    follow_redirects=True,
+)
+
+client = OpenAI(api_key=openai_api_key, http_client=custom_http_client)
 
 app = Flask(__name__)
 
-# Log all incoming requests
 @app.before_request
 def log_request_info():
     print(f"➡️ Incoming request: {request.method} {request.path}")
