@@ -1,25 +1,19 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import os
 import json
+import openai
 import traceback
 
+print("OpenAI SDK version:", openai.__version__)
+
+# Set your OpenAI API key
+openai_api_key = os.environ["OPENAI_API_KEY"]
 from openai import OpenAI
-from httpx import Timeout, Client as HTTPXClient
-
-print("✅ OpenAI SDK version:", OpenAI.__module__)
-
-# Environment
-openai_api_key = os.environ.get("OPENAI_API_KEY")
-
-# Manually override transport (bypass proxy error)
-custom_http_client = HTTPXClient(
-    timeout=Timeout(10.0, connect=5.0),
-    follow_redirects=True,
-)
-
-client = OpenAI(api_key=openai_api_key, http_client=custom_http_client)
+client = OpenAI(api_key=openai_api_key)
 
 app = Flask(__name__)
+CORS(app, origins=["https://cliniconex.com"])
 
 @app.before_request
 def log_request_info():
