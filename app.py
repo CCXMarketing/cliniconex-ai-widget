@@ -3,8 +3,10 @@ import os
 import json
 import openai
 
-app = Flask(__name__)
+# ✅ Correct API key configuration for openai>=1.0.0
 openai.api_key = os.getenv("OPENAI_API_KEY")
+
+app = Flask(__name__)
 
 @app.route('/ai', methods=['POST'])
 def ai_solution():
@@ -45,7 +47,6 @@ User input: "{message}"
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}]
         )
-
         reply = response.choices[0].message.content
 
         try:
