@@ -1,10 +1,10 @@
 from flask import Flask, request, jsonify
 import os
 import json
-from openai import OpenAI
+import openai
 
-# ✅ Initialize OpenAI client properly for 1.13.3+
-client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+# ✅ Don't create a client object manually
+openai.api_key = os.environ["OPENAI_API_KEY"]
 
 app = Flask(__name__)
 
@@ -43,11 +43,12 @@ User input: "{message}"
 """
 
     try:
-        response = client.chat.completions.create(
+        response = openai.chat.completions.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}]
         )
         reply = response.choices[0].message.content
+
         try:
             parsed = json.loads(reply)
             return jsonify(parsed)
@@ -56,6 +57,7 @@ User input: "{message}"
                 "type": "unclear",
                 "message": "Sorry, I didn't quite understand. Could you try asking that another way?"
             })
+
     except Exception as e:
         return jsonify({
             "error": "Could not complete request",
