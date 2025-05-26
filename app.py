@@ -1,26 +1,20 @@
 from flask import Flask, request, jsonify
-from flask_cors import CORS
 import os
 import json
 import traceback
-import openai
+from openai import OpenAI
 
-print("OpenAI SDK version:", openai.__version__)
+print("OpenAI SDK version:", OpenAI.__module__)
 
-# Set the API key via environment variable
-openai.api_key = os.environ["OPENAI_API_KEY"]
+openai_api_key = os.environ.get("OPENAI_API_KEY")
 
 app = Flask(__name__)
-CORS(app, origins=["https://cliniconex.com"])
+client = OpenAI(api_key=openai_api_key)  # ✅ Correct usage for 1.x SDK
 
-@app.before_request
-def log_request_info():
-    print(f"➡️ Incoming request: {request.method} {request.path}")
-
-@app.route('/ai', methods=['POST'])
+@app.route("/ai", methods=["POST"])
 def ai_solution():
     data = request.get_json()
-    message = data.get('message', '').strip()
+    message = data.get("message", "").strip()
 
     prompt = f"""
 You are a helpful assistant working for Cliniconex, a healthcare communication company.
@@ -52,7 +46,7 @@ User input: "{message}"
 """
 
     try:
-        response = openai.chat.completions.create(
+        response = client.chat.completions.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}]
         )
@@ -60,8 +54,7 @@ User input: "{message}"
         reply = response.choices[0].message.content
 
         try:
-            parsed = json.loads(reply)
-            return jsonify(parsed)
+            return jsonify(json.loads(reply))
         except Exception:
             return jsonify({
                 "type": "unclear",
@@ -69,19 +62,17 @@ User input: "{message}"
             })
 
     except Exception as e:
-        tb = traceback.format_exc()
-        print("❌ Full Exception Traceback:\n", tb)
-
         return jsonify({
             "error": "Could not complete request",
             "details": str(e),
-            "trace": tb
+            "trace": traceback.format_exc()
         })
+
 
 @app.route("/", methods=["GET"])
 def health_check():
     return "✅ Flask app is running!"
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host="0.0.0.0", port=port)
