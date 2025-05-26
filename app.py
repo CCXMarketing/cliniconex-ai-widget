@@ -1,10 +1,13 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
+from openai import OpenAI
 import os
 import json
-import openai
 
 app = Flask(__name__)
-openai.api_key = os.getenv("OPENAI_API_KEY")
+CORS(app)
+
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 @app.route('/ai', methods=['POST'])
 def ai_solution():
@@ -41,11 +44,10 @@ User input: "{message}"
 """
 
     try:
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}]
         )
-
         reply = response.choices[0].message.content
 
         try:
