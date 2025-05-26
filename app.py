@@ -3,6 +3,7 @@ import os
 import json
 from openai import OpenAI
 
+# Initialize Flask app and OpenAI client
 app = Flask(__name__)
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
@@ -45,11 +46,13 @@ User input: "{message}"
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}]
         )
+
         reply = response.choices[0].message.content
 
         try:
             parsed = json.loads(reply)
             return jsonify(parsed)
+
         except Exception:
             return jsonify({
                 "type": "unclear",
