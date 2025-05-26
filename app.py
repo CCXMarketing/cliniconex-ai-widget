@@ -3,10 +3,10 @@ from flask_cors import CORS
 import os
 import json
 import traceback
-from openai import OpenAI
+import openai  # ✅ Correct import
 
-# ✅ Initialize OpenAI client using v1.14.2 interface
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+# ✅ Set API key for OpenAI
+openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 # ✅ Flask app setup
 app = Flask(__name__)
@@ -54,8 +54,8 @@ Respond in **strict JSON** in one of these two formats:
 User input: "{message}"
 """
 
-        # ✅ Chat completion using v1.14.2 SDK
-        response = client.chat.completions.create(
+        # ✅ Call OpenAI with correct method
+        response = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}]
         )
