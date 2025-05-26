@@ -3,12 +3,12 @@ from flask_cors import CORS
 import os
 import json
 import traceback
-import openai  # ✅ Correct import
+import openai  # ✅ SDK v1.14.2 compatible import
 
-# ✅ Set API key for OpenAI
+# ✅ Set your OpenAI API key
 openai.api_key = os.environ.get("OPENAI_API_KEY")
 
-# ✅ Flask app setup
+# ✅ Set up Flask app
 app = Flask(__name__)
 CORS(app, resources={r"/ai": {"origins": "https://cliniconex.com"}})
 
@@ -16,7 +16,10 @@ CORS(app, resources={r"/ai": {"origins": "https://cliniconex.com"}})
 def ai_solution():
     try:
         data = request.get_json()
+        print("📥 Incoming request body:", data)
+
         message = data.get("message", "").strip()
+        print("✉️ Extracted message:", message)
 
         if not message:
             return jsonify({
@@ -24,7 +27,7 @@ def ai_solution():
                 "message": "Please provide a message."
             }), 400
 
-        # ✅ Prompt formatting
+        # ✅ Format the GPT prompt
         prompt = f"""
 You are a helpful assistant working for Cliniconex, a healthcare communication company.
 
@@ -54,24 +57,28 @@ Respond in **strict JSON** in one of these two formats:
 User input: "{message}"
 """
 
-        # ✅ Call OpenAI with correct method
-        response = openai.ChatCompletion.create(
+        # ✅ Call OpenAI (v1.14.2)
+        response = openai.chat.completions.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}]
         )
 
+        print("✅ OpenAI response received.")
         reply = response.choices[0].message.content
+        print("🧠 Raw reply:\n", reply)
 
-        # ✅ Parse strict JSON response
         try:
             return jsonify(json.loads(reply))
         except json.JSONDecodeError:
+            print("⚠️ JSON decode failed.")
             return jsonify({
                 "type": "unclear",
                 "message": "Sorry, I didn't quite understand. Could you try asking that another way?"
             })
 
     except Exception as e:
+        print("❌ Unhandled Exception:", str(e))
+        print(traceback.format_exc())
         return jsonify({
             "error": "Could not complete request",
             "details": str(e),
