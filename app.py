@@ -5,15 +5,10 @@ import json
 import traceback
 import openai
 
-# Log version for diagnostics
 print("OpenAI SDK version:", openai.__version__)
-
-# Set API key
 openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 app = Flask(__name__)
-
-# Allow only cliniconex.com to access the POST /ai endpoint
 CORS(app, resources={r"/ai": {"origins": "https://cliniconex.com"}})
 
 @app.route("/ai", methods=["POST"])
@@ -57,12 +52,12 @@ Respond in **strict JSON** in one of these two formats:
 User input: "{message}"
 """
 
-        response = openai.ChatCompletion.create(
+        response = openai.chat.completions.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}]
         )
 
-        reply = response.choices[0].message["content"]
+        reply = response.choices[0].message.content
 
         try:
             return jsonify(json.loads(reply))
@@ -73,12 +68,10 @@ User input: "{message}"
             })
 
     except Exception as e:
-        tb = traceback.format_exc()
-        print("❌ Exception Traceback:\n", tb)
         return jsonify({
             "error": "Could not complete request",
             "details": str(e),
-            "trace": tb
+            "trace": traceback.format_exc()
         }), 500
 
 @app.route("/", methods=["GET"])
