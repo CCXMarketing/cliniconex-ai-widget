@@ -3,12 +3,12 @@ from flask_cors import CORS
 import os
 import json
 import traceback
-import openai
+from openai import OpenAI
 
-print("OpenAI SDK version:", openai.__version__)
+# ✅ Initialize OpenAI client using v1.14.2 pattern
+client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
-openai.api_key = os.environ.get("OPENAI_API_KEY")
-
+# ✅ Setup Flask app
 app = Flask(__name__)
 CORS(app, resources={r"/ai": {"origins": "https://cliniconex.com"}})
 
@@ -53,7 +53,7 @@ Respond in **strict JSON** in one of these two formats:
 User input: "{message}"
 """
 
-        response = openai.chat.completions.create(
+        response = client.chat.completions.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}]
         )
