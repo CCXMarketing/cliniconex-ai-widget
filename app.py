@@ -4,15 +4,15 @@ import json
 import traceback
 from openai import OpenAI
 
+print("OpenAI SDK version:", OpenAI.__module__)  # Optional debug print
 
-print("OpenAI SDK version:", openai.__version__)
-
-# Set your OpenAI API key (openai>=1.0.0)
-openai.api_key = os.environ["OPENAI_API_KEY"]
+# Set your OpenAI API key
+openai_api_key = os.environ["OPENAI_API_KEY"]
+client = OpenAI(api_key=openai_api_key)  # ✅ Client initialized outside try block
 
 app = Flask(__name__)
 
-# ✅ Log every incoming request for debugging
+# Log all incoming requests
 @app.before_request
 def log_request_info():
     print(f"➡️ Incoming request: {request.method} {request.path}")
@@ -52,15 +52,10 @@ User input: "{message}"
 """
 
     try:
-        from openai import OpenAI
-
-client = OpenAI()
-
-response = client.chat.completions.create(
-    model="gpt-4",
-    messages=[{"role": "user", "content": prompt}]
-)
-
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[{"role": "user", "content": prompt}]
+        )
 
         reply = response.choices[0].message.content
 
