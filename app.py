@@ -3,15 +3,12 @@ from flask_cors import CORS
 import os
 import json
 import traceback
-import openai
+from openai import OpenAI  # ✅ Correct import
 
-# ✅ Log SDK version
-print("OpenAI SDK version:", openai.__version__)
+print("OpenAI SDK version:", OpenAI.__module__)
 
-# ✅ Set OpenAI API key for v1.x SDK (global client)
-openai_client = openai.OpenAI(
-    api_key=os.environ.get("OPENAI_API_KEY")
-)
+# ✅ Create OpenAI client
+openai_client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 # ✅ Flask setup
 app = Flask(__name__)
