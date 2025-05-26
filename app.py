@@ -1,21 +1,39 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import os
 import json
 import traceback
-import openai
+from openai import OpenAI
 
+# Log SDK version
+import openai
 print("OpenAI SDK version:", openai.__version__)
 
-openai.api_key = os.environ.get("OPENAI_API_KEY")
+# ✅ Environment variable for API Key
+openai_api_key = os.environ.get("OPENAI_API_KEY")
 
+# ✅ Initialize OpenAI client (no `proxies`!)
+client = OpenAI(api_key=openai_api_key)
+
+# ✅ Flask app
 app = Flask(__name__)
+
+# ✅ CORS for cliniconex.com only
+CORS(app, resources={r"/ai": {"origins": "https://cliniconex.com"}})
 
 @app.route("/ai", methods=["POST"])
 def ai_solution():
-    data = request.get_json()
-    message = data.get("message", "").strip()
+    try:
+        data = request.get_json()
+        message = data.get("message", "").strip()
 
-    prompt = f"""
+        if not message:
+            return jsonify({
+                "type": "unclear",
+                "message": "Please provide a message."
+            }), 400
+
+        prompt = f"""
 You are a helpful assistant working for Cliniconex, a healthcare communication company.
 
 A healthcare professional will enter a short question or problem — it might be vague, have typos, or be just a couple words.
@@ -44,32 +62,35 @@ Respond in **strict JSON** in one of these two formats:
 User input: "{message}"
 """
 
-    try:
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}]
         )
 
-        reply = response.choices[0].message["content"]
+        reply = response.choices[0].message.content
 
+        # Try to parse as JSON
         try:
-            return jsonify(json.loads(reply))
-        except Exception:
+            parsed = json.loads(reply)
+            return jsonify(parsed)
+        except json.JSONDecodeError:
             return jsonify({
                 "type": "unclear",
                 "message": "Sorry, I didn't quite understand. Could you try asking that another way?"
             })
 
     except Exception as e:
+        tb = traceback.format_exc()
+        print("❌ Exception Traceback:\n", tb)
         return jsonify({
             "error": "Could not complete request",
             "details": str(e),
-            "trace": traceback.format_exc()
-        })
+            "trace": tb
+        }), 500
 
 @app.route("/", methods=["GET"])
 def health_check():
-    return "✅ Flask app is running!"
+    return "✅ Cliniconex AI Solution Advisor is running!", 200
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
