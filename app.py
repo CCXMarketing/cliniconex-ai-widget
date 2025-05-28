@@ -4,7 +4,6 @@ import os
 import json
 import traceback
 import openai
-import requests
 from rapidfuzz import fuzz
 
 # ✅ Load solution data
@@ -44,30 +43,12 @@ def ai_solution():
         match = find_best_solution(message)
 
         if match:
-            response = {
+            return jsonify({
                 "type": "solution",
                 "module": match["product"],
                 "feature": match["features"][0] if match.get("features") else "N/A",
                 "solution": match["solution"]
-            }
-
-            # ✅ Log to Google Sheets
-            try:
-                requests.post(
-                    "https://script.google.com/macros/s/AKfycby5ukM-KojTCFLeEo1gXzrNE2gBc9wxBdeXvcKdQayU9WXOn7EWVV-x5JeySKydd8CM/exec",  # replace with your actual ID
-                    json={
-                        "input": message,
-                        "email": email or "Not provided",
-                        "module": response["module"],
-                        "feature": response["feature"],
-                        "type": response["type"],
-                        "status": "success"
-                    }
-                )
-            except Exception as log_err:
-                print("⚠️ Logging failed:", log_err)
-
-            return jsonify(response)
+            })
 
         else:
             return jsonify({
