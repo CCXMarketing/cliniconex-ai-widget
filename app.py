@@ -68,7 +68,6 @@ Respond in strict JSON in one of these two formats:
   "feature": "{match['features'][0] if match['features'] else 'N/A'}",
   "solution": "{match['solution']}",
   "benefits": "{match['benefits']}",
-  "link": "https://cliniconex.com/products/#relevant-feature-anchor"
 }}
 
 # If input is vague:
