@@ -53,13 +53,13 @@ def ai_solution():
         prompt = f"""
 You are a helpful assistant working for Cliniconex, a healthcare communication company.
 
-A healthcare professional will enter a short question or problem — it might be vague, have typos, or be just a couple words.
+A healthcare professional will enter a short question or problem - it might be vague, have typos, or be just a couple words.
 
 Your job:
-1. If the meaning is clear, respond with a product **module**, **feature**, **solution explanation**, and **product link**.
+1. If the meaning is clear, respond with a product module, feature, solution explanation, benefits, and product link.
 2. If the input is too unclear to confidently answer, return a polite message asking them to rephrase.
 
-Respond in **strict JSON** in one of these two formats:
+Respond in strict JSON in one of these two formats:
 
 # If input is clear:
 {{
@@ -67,7 +67,8 @@ Respond in **strict JSON** in one of these two formats:
   "module": "{match['product']}",
   "feature": "{match['features'][0] if match['features'] else 'N/A'}",
   "solution": "{match['solution']}",
-  "link": "https://cliniconex.com/products/#relevant-feature-anchor"
+  "benefits": "{match['benefits']}",
+  
 }}
 
 # If input is vague:
@@ -79,7 +80,6 @@ Respond in **strict JSON** in one of these two formats:
 User input: "{message}"
 """
 
-        # ✅ Use GPT-4 with legacy SDK
         response = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}]
