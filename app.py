@@ -54,7 +54,7 @@ def ai_solution():
             # ✅ Log to Google Sheets
             try:
                 requests.post(
-                    "https://script.google.com/macros/s/1jL-iyQiVcttmEMfy7j8DA-cyMM-5bcj1TLHLrb4Iwsg/exec",  # replace with your actual ID
+                    "https://script.google.com/macros/s/AKfycby5ukM-KojTCFLeEo1gXzrNE2gBc9wxBdeXvcKdQayU9WXOn7EWVV-x5JeySKydd8CM/exec",  # replace with your actual ID
                     json={
                         "input": message,
                         "email": email or "Not provided",
