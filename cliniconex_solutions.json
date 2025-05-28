@@ -1,0 +1,987 @@
+[
+  {
+    "issue": "Lack of secure messaging for sensitive info",
+    "product": "Automated Care Messaging",
+    "solution": "Encrypts all outgoing communication and stores it securely in a digital vault, ensuring that patients and care partners receive sensitive information through a safe and private access point. This eliminates the risk of data breaches and supports compliance with healthcare privacy standards.",
+    "features": [
+      "ACM Vault – Encrypts message content and provides a secure online space for viewing and storing sensitive communications."
+    ],
+    "benefits": "Improves compliance and reduces risk of privacy breaches when sharing protected health information."
+  },
+  {
+    "issue": "Limited patient communication channels",
+    "product": "Automated Care Messaging",
+    "solution": "Allows patients to receive messages in their preferred communication format—voice, text, or email—based on data from the EMR. This increases message engagement, improves patient satisfaction, and ensures that critical information is not missed.",
+    "features": [
+      "ACM Messaging – Delivers messages over voice, text, and email.",
+      "Channel Ranking – Uses EMR history to select the most effective method for each recipient."
+    ],
+    "benefits": "Increases engagement and ensures messages are received through the most responsive channel."
+  },
+  {
+    "issue": "Patients missing follow-up appointments",
+    "product": "Automated Care Messaging",
+    "solution": "Identifies follow-up appointments in the EMR and automatically sends reminders tailored to each patient. This reduces the risk of patients forgetting their next steps, improves adherence to care plans, and minimizes manual follow-up by staff.",
+    "features": [
+      "ACM Alerts – Flags upcoming follow-up appointments.",
+      "Scheduling Integration – Uses EMR scheduling data to time reminders accurately."
+    ],
+    "benefits": "Reduces missed follow-ups and helps improve long-term care outcomes for patients."
+  },
+  {
+    "issue": "Difficulty managing emergency notifications",
+    "product": "Automated Care Messaging",
+    "solution": "During emergencies, instantly sends alerts to all relevant parties—patients, families, or staff—through predefined workflows. These alerts provide clear, immediate instructions to maintain safety, reduce confusion, and enhance response times.",
+    "features": [
+      "ACM Alerts – Sends urgent broadcast messages to predefined groups during critical events."
+    ],
+    "benefits": "Improves emergency response time and ensures all stakeholders receive timely instructions."
+  },
+  {
+    "issue": "High no-show rates in clinics",
+    "product": "Automated Care Messaging",
+    "solution": "Pulls data from the EMR to detect upcoming appointments and sends personalized reminders via the patient’s preferred channel. These automated messages help reduce last-minute cancellations and no-shows while freeing up administrative staff from repetitive outreach.",
+    "features": [
+      "ACM Messaging – Sends appointment reminders based on scheduled EMR data. | ACM Alerts – Flags unconfirmed or undelivered messages for follow-up."
+    ],
+    "benefits": "Decreases no-shows by up to 40%, keeps schedules full, and eliminates the need for manual reminder calls."
+  },
+  {
+    "issue": "Manual appointment reminders drain staff time",
+    "product": "Automated Care Messaging",
+    "solution": "Automates the repetitive task of sending appointment reminders by integrating with the EMR and generating personalized messages for each patient. This ensures timely communication and frees up administrative staff to focus on higher-value activities.",
+    "features": [
+      "ACM Messaging – Automates outreach across voice, SMS, or email. | ACM Alerts – Notifies staff only if human follow-up is needed."
+    ],
+    "benefits": "Saves hours of administrative time each week, letting staff focus more on patient-facing care."
+  },
+  {
+    "issue": "Patients unaware of clinic wait times",
+    "product": "Automated Care Messaging",
+    "solution": "Uses real-time data from the clinic’s scheduling system to calculate accurate wait times and deliver updates to patients through their preferred communication method. This transparency reduces patient frustration and improves satisfaction.",
+    "features": [
+      "ACM Concierge – Pulls queue and scheduling data from your EMR to share accurate wait time updates with patients and families."
+    ],
+    "benefits": "Reduces frustration, improves communication transparency, and boosts patient satisfaction."
+  },
+  {
+    "issue": "Inconsistent patient follow-up processes",
+    "product": "Automated Care Messaging",
+    "solution": "Automatically identifies post-appointment follow-up needs from the patient’s care plan and schedules communication to check in or provide next steps, ensuring ongoing care continuity without manual tracking.",
+    "features": [
+      "ACM Messaging – Sends post-visit reminders and check-ins.",
+      "Scheduling Integration – Times follow-up messages based on EMR data."
+    ],
+    "benefits": "Standardizes follow-up and reduces patient drop-off, improving continuity of care."
+  },
+  {
+    "issue": "Low engagement in preventative care programs",
+    "product": "Automated Care Messaging",
+    "solution": "Leverages EMR data to send customized health promotion messages that encourage patients to engage in preventative screenings, vaccinations, or checkups—boosting public health outcomes and clinic efficiency.",
+    "features": [
+      "ACM Messaging – Delivers health education and appointment invitations.",
+      "ACM Alerts – Flags non-responders for staff action."
+    ],
+    "benefits": "Increases uptake of flu shots, screenings, and wellness visits through proactive outreach."
+  },
+  {
+    "issue": "Patients not confirming their appointments",
+    "product": "Automated Care Messaging",
+    "solution": "Sends appointment reminders that include interactive options for confirming, canceling, or rescheduling with a single click or tap—making it easier for patients to respond and reducing administrative workload.",
+    "features": [
+      "ACM Messaging – Sends reminders with action links.",
+      "ACM Alerts – Notifies staff when a response is missing or unclear."
+    ],
+    "benefits": "Improves scheduling accuracy and reduces last-minute cancellations or no-shows."
+  },
+  {
+    "issue": "Missed communications due to incorrect contact details",
+    "product": "Automated Care Messaging",
+    "solution": "Monitors outgoing messages for failed delivery attempts and flags any invalid or outdated contact details so that staff can quickly verify and correct the information—ensuring future outreach reaches its target.",
+    "features": [
+      "ACM Alerts – Flags undeliverable messages in real time.",
+      "ACM Vault – Stores message history for review and resolution."
+    ],
+    "benefits": "Prevents communication gaps and helps clinics maintain accurate contact data."
+  },
+  {
+    "issue": "Families not informed of care status changes",
+    "product": "Automated Care Messaging",
+    "solution": "Securely delivers appointment or care updates to family members or designated caregivers listed in the patient’s EMR, keeping all parties informed without compromising privacy or increasing staff burden.",
+    "features": [
+      "ACM Vault – Delivers secure updates to family members.",
+      "ACM Messaging – Sends customizable status messages with delivery tracking."
+    ],
+    "benefits": "Improves family satisfaction and reduces inbound calls for status updates."
+  },
+  {
+    "issue": "Patients unaware of new service offerings",
+    "product": "Automated Care Messaging",
+    "solution": "Uses demographic filters and visit history from the EMR to send targeted announcements about new services or programs, increasing awareness and uptake without the need for broad, inefficient outreach.",
+    "features": [
+      "ACM Messaging – Sends targeted announcements based on EMR segmentation.",
+      "ACM Alerts – Tracks engagement with each campaign."
+    ],
+    "benefits": "Boosts service adoption and keeps patients informed about expanded care options."
+  },
+  {
+    "issue": "No centralized communication tracking",
+    "product": "Automated Care Messaging",
+    "solution": "Captures all communication touchpoints between the clinic and the patient in one secure, searchable log. This provides staff with full visibility into what was sent, when it was sent, and how the patient responded—supporting better coordination and compliance.",
+    "features": [
+      "ACM Vault – Stores all sent messages, statuses, and responses for future reference."
+    ],
+    "benefits": "Improves compliance, reduces miscommunication, and supports audit-readiness."
+  },
+  {
+    "issue": "Lack of personalization in outreach",
+    "product": "Automated Care Messaging",
+    "solution": "Analyzes each patient’s history, language preference, and past interactions to deliver personalized outreach that resonates more strongly and increases engagement with clinic communications.",
+    "features": [
+      "ACM Messaging – Sends dynamic, personalized content at scale.",
+      "Templates – Adjusts message tone and structure for patient needs."
+    ],
+    "benefits": "Improves response rates and builds stronger relationships through tailored messaging."
+  },
+  {
+    "issue": "Difficulty coordinating multiple care team roles",
+    "product": "Automated Care Messaging",
+    "solution": "Directs each type of communication—such as appointment confirmations, urgent alerts, or test results—to the appropriate department or staff role based on established workflows. This ensures timely response and reduces the risk of missed or misrouted messages.",
+    "features": [
+      "ACM Messaging – Sends internal messages tied to team roles.",
+      "Workflows – Automates routing based on message type and urgency."
+    ],
+    "benefits": "Reduces handoff delays and ensures accountability in team-based care environments."
+  },
+  {
+    "issue": "Staff burnout due to repetitive communication tasks",
+    "product": "Automated Care Messaging",
+    "solution": "Automatically delivers large volumes of routine communications—such as reminders, check-ins, or care instructions—without requiring staff to intervene. This improves operational efficiency and ensures patients consistently receive important information.",
+    "features": [
+      "ACM Messaging – Handles large-scale outreach with minimal staff effort.",
+      "Templates – Enables reusable messages for frequent communications."
+    ],
+    "benefits": "Minimizes staff fatigue and lets care teams focus on complex, high-touch interactions."
+  },
+  {
+    "issue": "Patients confused about next steps after discharge",
+    "product": "Automated Care Messaging",
+    "solution": "Delivers step-by-step discharge instructions directly to patients in their preferred format, helping them understand medication, follow-up care, or warning signs to watch for—improving recovery outcomes and reducing readmission risk.",
+    "features": [
+      "ACM Messaging – Delivers personalized discharge guidance using the patient's preferred channel.",
+      "ACM Vault – Stores discharge messages for later access by patients or caregivers."
+    ],
+    "benefits": "Reduces post-discharge confusion, improves recovery outcomes, and lowers readmission rates."
+  },
+  {
+    "issue": "Inability to rapidly notify families about care changes",
+    "product": "Automated Care Messaging",
+    "solution": "Automatically notifies family members or caregivers when a patient's care status changes, such as hospital transfers or condition updates. These secure, real-time updates reduce the need for staff to make phone calls and help families stay informed and reassured.",
+    "features": [
+      "ACM Vault – Shares secure status updates with authorized family contacts.",
+      "ACM Alerts – Sends real-time notifications to family members or guardians."
+    ],
+    "benefits": "Keeps families informed, reduces inbound call burden, and ensures timely communication during care transitions."
+  },
+  {
+    "issue": "Limited insight into which messages were received or acted on",
+    "product": "Automated Care Messaging",
+    "solution": "Logs every message sent and its status—including delivery, pickup, and patient response—in a centralized dashboard. This enables staff to track communication effectiveness and intervene when engagement is low or confirmation is missing.",
+    "features": [
+      "ACM Messaging – Logs delivery and interaction outcomes for every message.",
+      "ACM Vault – Stores message histories for staff review and audit."
+    ],
+    "benefits": "Supports data-driven communication strategies and ensures no messages fall through the cracks."
+  },
+  {
+    "issue": "Patients forgetting to bring items to appointments",
+    "product": "Automated Care Messaging",
+    "solution": "Personalizes each appointment reminder with procedure-specific preparation instructions—such as fasting, medication pauses, or what to bring—ensuring patients arrive informed and ready, minimizing rescheduling or delays.",
+    "features": [
+      "ACM Messaging – Sends reminders that include prep checklists or required items.",
+      "Templates – Standardizes prep messages by visit type."
+    ],
+    "benefits": "Improves appointment efficiency and reduces the need for rescheduling due to missing information."
+  },
+  {
+    "issue": "Patients unsure when to arrive or where to go",
+    "product": "Automated Care Messaging",
+    "solution": "Automatically sends comprehensive pre-visit instructions customized to the patient’s appointment type. Details like arrival time, clinic location, suite number, and visit expectations help patients feel prepared and reduce check-in confusion.",
+    "features": [
+      "ACM Messaging – Sends visit-specific instructions using data from the EMR or scheduling system.",
+      "Templates – Standardizes messages by clinic and visit type."
+    ],
+    "benefits": "Improves patient preparedness and reduces staff interruptions at check-in."
+  },
+  {
+    "issue": "Inability to scale patient outreach during health campaigns",
+    "product": "Automated Care Messaging",
+    "solution": "Uses predefined templates and EMR-driven filters to efficiently launch outreach campaigns for preventative care events such as flu clinics or cancer screenings, ensuring high reach without increasing administrative workload.",
+    "features": [
+      "ACM Messaging – Sends campaign messages to large patient cohorts.",
+      "ACM Alerts – Flags non-responders for manual follow-up."
+    ],
+    "benefits": "Boosts public health initiative participation with minimal administrative burden."
+  },
+  {
+    "issue": "Caregivers unaware of appointment changes",
+    "product": "Automated Care Messaging",
+    "solution": "Automatically sends appointment updates—like cancellations, reschedules, or new bookings—to designated family members or caregivers, ensuring everyone involved in the patient’s care is kept up to date with minimal staff effort.",
+    "features": [
+      "ACM Messaging – Notifies designated caregiver contacts.",
+      "ACM Vault – Stores communication logs for easy reference."
+    ],
+    "benefits": "Improves transparency, reduces confusion, and keeps caregivers informed in real time."
+  },
+  {
+    "issue": "Patients missing appointments due to bad weather or location issues",
+    "product": "Automated Care Messaging",
+    "solution": "Sends proactive notifications to patients about potential disruptions—like weather closures or location changes—using SMS, voice, or email, ensuring patients receive timely updates and reducing missed appointments or confusion.",
+    "features": [
+      "ACM Alerts – Broadcasts time-sensitive updates to all scheduled patients.",
+      "ACM Messaging – Provides alternate location or rescheduling options."
+    ],
+    "benefits": "Reduces no-shows during disruptions and improves patient trust in clinic reliability."
+  },
+  {
+    "issue": "Inconsistent communication during patient transfers",
+    "product": "Automated Care Messaging",
+    "solution": "Automatically alerts all relevant departments and care teams when a patient is moved between locations or levels of care. This seamless coordination ensures continuity, reduces miscommunication, and keeps the care journey aligned.",
+    "features": [
+      "ACM Alerts – Notifies relevant staff or external providers during transitions.",
+      "ACM Messaging – Delivers transfer details including destination and timing."
+    ],
+    "benefits": "Reduces errors and delays during transfers, ensuring smooth transitions of care."
+  },
+  {
+    "issue": "Patients unaware of test result availability",
+    "product": "Automated Care Messaging",
+    "solution": "Sends a secure message to patients notifying them that their lab or diagnostic results are ready, along with clear instructions for accessing them through the clinic portal or preferred method—enhancing transparency and reducing call volume.",
+    "features": [
+      "ACM Messaging – Notifies patients that results are ready.",
+      "ACM Vault – Stores result access links or summaries securely."
+    ],
+    "benefits": "Improves transparency and speeds up follow-up care by ensuring patients access their results promptly."
+  },
+  {
+    "issue": "Front desk overwhelmed by status check calls",
+    "product": "Automated Care Messaging",
+    "solution": "Proactively updates patients and their families about appointment confirmations, delays, or changes, ensuring they stay informed without needing to contact the clinic—saving staff time and improving patient satisfaction.",
+    "features": [
+      "ACM Messaging – Sends real-time appointment updates.",
+      "ACM Vault – Provides persistent access to current care status."
+    ],
+    "benefits": "Reduces administrative workload and enhances communication efficiency."
+  },
+  {
+    "issue": "Frequent no-shows for initial consults",
+    "product": "Automated Care Messaging",
+    "solution": "Delivers detailed appointment reminders to new patients, including clinic location, arrival instructions, and preparation tips. This builds confidence, reduces no-shows, and ensures a smooth first experience with the clinic.",
+    "features": [
+      "ACM Messaging – Sends customized prep and confirmation messages.",
+      "Templates – Tailors reminders for first-time visits."
+    ],
+    "benefits": "Boosts attendance for consults and improves clinic utilization rates."
+  },
+  {
+    "issue": "No clear tracking of message delivery and outcomes",
+    "product": "Automated Care Messaging",
+    "solution": "Tracks the complete journey of each message—whether it was delivered, opened, or responded to—so staff have a clear picture of patient engagement and can focus follow-up efforts where needed.",
+    "features": [
+      "ACM Messaging – Tracks each message lifecycle event.",
+      "ACM Vault – Stores message history tied to the patient record."
+    ],
+    "benefits": "Enables audit-ready communication history and proactive follow-up based on real message outcomes."
+  },
+  {
+    "issue": "Manual follow-up needed when patients don’t respond",
+    "product": "Automated Care Messaging",
+    "solution": "Uses message status tracking to identify patients who haven’t confirmed or interacted with reminders, enabling staff to prioritize outreach only for those who need manual follow-up—reducing unnecessary calls.",
+    "features": [
+      "ACM Alerts – Identifies unresponsive patients in real-time.",
+      "ACM Messaging – Sends follow-up prompts where applicable."
+    ],
+    "benefits": "Focuses staff time on high-priority patients and improves overall response rates."
+  },
+  {
+    "issue": "Patients showing up unprepared for procedures",
+    "product": "Automated Care Messaging",
+    "solution": "Provides patients with procedure-specific instructions—such as fasting requirements or items to bring—well ahead of the appointment, ensuring they are properly prepared and reducing day-of complications.",
+    "features": [
+      "ACM Messaging – Delivers prep checklists for specific procedures.",
+      "Templates – Tailors content for different visit types."
+    ],
+    "benefits": "Reduces delays, cancellations, and improves clinical outcomes by ensuring proper prep."
+  },
+  {
+    "issue": "Lack of centralized system to manage patient alerts",
+    "product": "Automated Care Messaging",
+    "solution": "Centralizes all alerts and messaging triggers into one unified platform, allowing clinic administrators to manage communications across all departments more efficiently and with fewer errors.",
+    "features": [
+      "ACM Alerts – Central hub for sending, viewing, and managing patient notifications across teams."
+    ],
+    "benefits": "Improves team collaboration and reduces missed alerts across patient journeys."
+  },
+  {
+    "issue": "Patients not showing up for group sessions or classes",
+    "product": "Automated Care Messaging",
+    "solution": "Sends timely reminders to participants of upcoming group sessions or programs, including attached materials and confirmation options, ensuring better attendance and preparedness without extra staff involvement.",
+    "features": [
+      "ACM Messaging – Sends class reminders and educational content.",
+      "ACM Alerts – Flags non-responders for personal outreach."
+    ],
+    "benefits": "Improves attendance, resource planning, and patient engagement with group-based care models."
+  },
+  {
+    "issue": "Patients missing their vaccinations or booster shots",
+    "product": "Automated Care Messaging",
+    "solution": "Analyzes EMR data to identify patients due for vaccinations and sends automated reminders personalized to their age and care history, helping improve immunization rates and preventative care outcomes.",
+    "features": [
+      "ACM Messaging – Notifies patients about vaccine eligibility and schedules.",
+      "ACM Alerts – Flags those who haven’t responded to initial outreach."
+    ],
+    "benefits": "Improves public health compliance and increases clinic revenue from administered vaccines."
+  },
+  {
+    "issue": "No automated way to distribute health education material",
+    "product": "Automated Care Messaging",
+    "solution": "Automatically delivers educational content—such as videos, articles, or guides—based on each patient’s diagnosis, treatment stage, or wellness goals. This improves health literacy and supports patients in making informed decisions.",
+    "features": [
+      "ACM Messaging – Sends links to approved resources and materials.",
+      "Templates – Enables condition-specific education content delivery."
+    ],
+    "benefits": "Empowers patients to manage their health better and supports informed decision-making."
+  },
+  {
+    "issue": "Patients calling frequently to confirm appointment details",
+    "product": "Automated Care Messaging",
+    "solution": "Sends detailed confirmation messages immediately after an appointment is scheduled, including date, time, location, and what to bring—reducing the number of inbound calls and increasing confidence in the visit.",
+    "features": [
+      "ACM Messaging – Includes appointment date, time, location, and prep notes.",
+      "ACM Vault – Allows message review if patients misplace info."
+    ],
+    "benefits": "Reduces inbound call volume and ensures patients are always prepared for their visit."
+  },
+  {
+    "issue": "Patients not responding to recall notifications",
+    "product": "Automated Care Messaging",
+    "solution": "Uses EMR data to detect when patients are due for routine follow-ups or preventative screenings, then sends timely reminders through their preferred channel to help maintain consistent care.",
+    "features": [
+      "ACM Messaging – Sends timely recall messages for routine care.",
+      "ACM Alerts – Flags unresponsive patients for staff follow-up."
+    ],
+    "benefits": "Improves recall adherence and preventive care participation, while reducing staff workload."
+  },
+  {
+    "issue": "Confusion around insurance coverage details",
+    "product": "Automated Care Messaging",
+    "solution": "Communicates important insurance-related information ahead of the visit, such as required documentation, co-pay expectations, or referral needs, so patients arrive fully prepared and billing is streamlined.",
+    "features": [
+      "ACM Messaging – Shares pre-visit insurance info and what to bring.",
+      "Templates – Customizes guidance based on insurance type."
+    ],
+    "benefits": "Reduces last-minute cancellations due to insurance confusion and improves check-in efficiency."
+  },
+  {
+    "issue": "High call volume for test result inquiries",
+    "product": "Automated Care Messaging",
+    "solution": "Notifies patients securely when test results are available, and provides step-by-step instructions on how to access them through the clinic’s portal or secure link—saving time and reducing anxiety.",
+    "features": [
+      "ACM Messaging – Alerts patients about result readiness.",
+      "ACM Vault – Provides secure result access and history."
+    ],
+    "benefits": "Reduces inbound calls and empowers patients with self-serve access to their information."
+  },
+  {
+    "issue": "Limited outreach to non-English speaking patients",
+    "product": "Automated Care Messaging",
+    "solution": "Detects each patient’s language preference and automatically delivers all communications in that language, improving understanding and engagement, especially in multicultural patient populations.",
+    "features": [
+      "ACM Messaging – Supports multilingual messaging templates.",
+      "Templates – Customizes language per patient record."
+    ],
+    "benefits": "Increases equity in care access and enhances communication with diverse populations."
+  },
+  {
+    "issue": "Delays in notifying staff of urgent cancellations",
+    "product": "Automated Care Messaging",
+    "solution": "Immediately alerts front-line or scheduling staff when a cancellation is submitted, allowing the clinic to quickly reassign the slot to another patient and maintain appointment flow.",
+    "features": [
+      "ACM Alerts – Notifies relevant staff of appointment cancellations.",
+      "ACM Messaging – Sends patient cancellation confirmations."
+    ],
+    "benefits": "Improves clinic efficiency and maximizes appointment utilization."
+  },
+  {
+    "issue": "Inconsistent follow-up communication post-discharge",
+    "product": "Automated Care Messaging",
+    "solution": "Sends automated follow-up messages with personalized care instructions, educational materials, and next steps after a patient leaves, supporting recovery and reducing the need for phone calls.",
+    "features": [
+      "ACM Messaging – Sends personalized follow-up guidance.",
+      "ACM Vault – Stores all post-discharge communications securely."
+    ],
+    "benefits": "Improves recovery outcomes and ensures continuity of care after discharge."
+  },
+  {
+    "issue": "Patients forget to fast or follow prep before tests",
+    "product": "Automated Care Messaging",
+    "solution": "Integrates preparation details directly into each reminder message—such as fasting instructions, what to bring, or pre-visit tests—ensuring patients know exactly how to prepare and reducing missed appointments.",
+    "features": [
+      "ACM Messaging – Delivers test-specific preparation steps.",
+      "Templates – Ensures consistent messaging by test type."
+    ],
+    "benefits": "Reduces need for rescheduling and ensures test accuracy."
+  },
+  {
+    "issue": "Patients missing virtual visit links",
+    "product": "Automated Care Messaging",
+    "solution": "Automatically includes virtual visit links and login steps in reminders for telehealth appointments, reducing confusion and ensuring patients are set up for success before the session begins.",
+    "features": [
+      "ACM Messaging – Delivers unique virtual visit links.",
+      "Templates – Ensures consistent access instructions by platform."
+    ],
+    "benefits": "Improves attendance rates for virtual visits and reduces technical confusion for patients."
+  },
+  {
+    "issue": "No mechanism to notify multiple family members",
+    "product": "Automated Care Messaging",
+    "solution": "Automatically notifies designated family members or caregiver contacts whenever an appointment is created, modified, or canceled, ensuring everyone involved in the patient’s care stays informed in real time without staff needing to call.",
+    "features": [
+      "ACM Messaging – Distributes notifications to multiple contacts.",
+      "ACM Vault – Stores a record of each family communication."
+    ],
+    "benefits": "Improves family coordination and ensures everyone stays informed."
+  },
+  {
+    "issue": "Delays in alerting staff to urgent patient needs",
+    "product": "Automated Care Messaging",
+    "solution": "Triggers instant notifications to assigned staff members when a patient flags special needs—such as accessibility challenges, language preferences, or medical alerts—so clinics can proactively prepare accommodations.",
+    "features": [
+      "ACM Alerts – Triggers real-time notifications for flagged needs.",
+      "ACM Messaging – Confirms with patients that help is on the way."
+    ],
+    "benefits": "Improves patient safety and ensures timely staff response to urgent needs."
+  },
+  {
+    "issue": "Patients unaware of preventative screening eligibility",
+    "product": "Automated Care Messaging",
+    "solution": "Monitors EMR data to identify when patients meet criteria for screenings like colonoscopies or mammograms, then sends personalized outreach messages encouraging them to schedule those preventative care services.",
+    "features": [
+      "ACM Messaging – Sends outreach based on age and history.",
+      "Templates – Ensures compliant and personalized messages."
+    ],
+    "benefits": "Increases preventive screening uptake and supports early diagnosis."
+  },
+  {
+    "issue": "Staff overwhelmed by repetitive patient questions",
+    "product": "Automated Care Messaging",
+    "solution": "Provides instant responses to common patient inquiries through automated, templated messages, saving staff time while ensuring patients have access to accurate, consistent information about clinic logistics.",
+    "features": [
+      "ACM Messaging – Delivers FAQ-based responses in advance.",
+      "Templates – Standardizes communication across locations."
+    ],
+    "benefits": "Reduces repetitive inquiries and frees up staff time for more complex tasks."
+  },
+  {
+    "issue": "Uncertainty about clinic protocols or location changes",
+    "product": "Automated Care Messaging",
+    "solution": "Sends real-time updates about operational changes—such as altered hours, parking changes, or construction disruptions—so patients arrive prepared and can plan accordingly, minimizing confusion and delays.",
+    "features": [
+      "ACM Messaging – Sends real-time updates about operational changes.",
+      "Templates – Customizes alerts based on clinic site or service line."
+    ],
+    "benefits": "Reduces missed appointments due to confusion and ensures a smooth patient experience."
+  },
+  {
+    "issue": "Inconsistent communication for specialty referrals",
+    "product": "Automated Care Messaging",
+    "solution": "Immediately alerts patients when a referral has been made, including the specialist’s contact information, next steps, and any required documentation—improving follow-through and reducing no-show risk.",
+    "features": [
+      "ACM Messaging – Confirms referral has been initiated.",
+      "ACM Vault – Stores details for future reference."
+    ],
+    "benefits": "Improves follow-through on referrals and reduces patient drop-off."
+  },
+  {
+    "issue": "Manual errors in entering contact preferences",
+    "product": "Automated Care Messaging",
+    "solution": "Delivers all communication—such as reminders, updates, or instructions—according to each patient’s preferred contact method as specified in the EMR, enhancing engagement and respect for patient communication preferences.",
+    "features": [
+      "ACM Messaging – Delivers messages via voice, text, or email based on preference.",
+      "Templates – Adjusts formatting and timing accordingly."
+    ],
+    "benefits": "Enhances communication personalization and reduces delivery errors."
+  },
+  {
+    "issue": "Staff unaware of patient cancellations until last minute",
+    "product": "Automated Care Messaging",
+    "solution": "Automatically notifies the care team as soon as a cancellation occurs, enabling staff to quickly backfill the slot with another patient and reduce lost revenue from no-shows.",
+    "features": [
+      "ACM Alerts – Notifies staff in real-time of cancellations.",
+      "ACM Messaging – Confirms receipt of cancellation with patient."
+    ],
+    "benefits": "Optimizes appointment slots and minimizes idle time."
+  },
+  {
+    "issue": "Patients not bringing required documents to visits",
+    "product": "Automated Care Messaging",
+    "solution": "Sends a pre-visit checklist tailored to each appointment, including ID requirements, insurance details, and any lab work or documentation the patient needs to bring, ensuring smoother visits.",
+    "features": [
+      "ACM Messaging – Sends customized pre-visit reminders.",
+      "Templates – Tailors checklist items to visit type."
+    ],
+    "benefits": "Reduces administrative delays and ensures visits proceed smoothly."
+  },
+  {
+    "issue": "Patients confused about specialist instructions",
+    "product": "Automated Care Messaging",
+    "solution": "Relays specific instructions or expectations from referring specialists directly to patients ahead of the appointment, improving clarity, preparation, and inter-provider coordination.",
+    "features": [
+      "ACM Messaging – Relays external provider directions.",
+      "ACM Vault – Archives instructions for future reference."
+    ],
+    "benefits": "Improves adherence and reduces follow-up clarification calls."
+  },
+  {
+    "issue": "No way to confirm multi-appointment itineraries",
+    "product": "Automated Care Messaging",
+    "solution": "Combines all of a patient’s upcoming appointments into a single, clear message—reducing message fatigue, improving clarity, and ensuring the patient has a comprehensive view of their upcoming care schedule.",
+    "features": [
+      "ACM Messaging – Bundles multiple visits into one communication.",
+      "Templates – Formats info clearly by date and time."
+    ],
+    "benefits": "Reduces confusion and improves patient preparedness for complex care days."
+  },
+  {
+    "issue": "Patients skipping visits due to transportation issues",
+    "product": "Automated Care Messaging",
+    "solution": "Sends a pre-visit question asking patients about their transportation status. If they report an issue, staff are notified so they can assist or reschedule—reducing missed visits due to access challenges.",
+    "features": [
+      "ACM Messaging – Asks about transportation access pre-visit.",
+      "ACM Alerts – Flags staff when patients indicate issues."
+    ],
+    "benefits": "Increases visit adherence and enables proactive support."
+  },
+  {
+    "issue": "Difficulty reaching patients with outdated contact info",
+    "product": "Automated Care Messaging",
+    "solution": "Detects when a message fails to reach its recipient and triggers an alert for staff to review and update the patient’s contact details—ensuring reliable communication moving forward.",
+    "features": [
+      "ACM Messaging – Logs delivery failures.",
+      "ACM Alerts – Flags records needing contact review."
+    ],
+    "benefits": "Maintains accurate communication channels and reduces missed engagements."
+  },
+  {
+    "issue": "No system to acknowledge receipt of patient cancellations",
+    "product": "Automated Care Messaging",
+    "solution": "Sends an automatic confirmation when a patient cancels an appointment, along with next steps or rescheduling options. This reassures the patient that their request was received and handled.",
+    "features": [
+      "ACM Messaging – Sends instant cancellation confirmation.",
+      "Templates – Includes rescheduling options where applicable."
+    ],
+    "benefits": "Reduces patient anxiety and improves communication transparency."
+  },
+  {
+    "issue": "Lack of real-time communication during emergencies",
+    "product": "Automated Care Messaging",
+    "solution": "Delivers urgent messages to all scheduled patients and staff in real time during emergencies like weather disruptions or power outages—ensuring coordinated responses and reducing confusion.",
+    "features": [
+      "ACM Alerts – Delivers urgent mass communication.",
+      "ACM Messaging – Confirms receipt of message for accountability."
+    ],
+    "benefits": "Protects patient safety and reduces confusion during critical events."
+  },
+  {
+    "issue": "No way to prioritize outreach based on risk level",
+    "product": "Automated Care Messaging",
+    "solution": "Identifies high-risk patients in the EMR and uses tagging to prioritize outbound messaging—ensuring these patients receive proactive communication and additional care coordination.",
+    "features": [
+      "ACM Messaging – Sends condition-specific alerts.",
+      "Templates – Customizes by care tier or chronic condition."
+    ],
+    "benefits": "Improves proactive care for high-risk groups and ensures outreach is aligned with clinical priorities."
+  },
+  {
+    "issue": "Poor tracking of message engagement",
+    "product": "Automated Care Messaging",
+    "solution": "Tracks each message’s journey—from delivery to open to engagement—and compiles this data in real-time dashboards, giving staff visibility into which patients may need follow-up.",
+    "features": [
+      "ACM Messaging – Tracks message status (delivered, confirmed, etc.).",
+      "ACM Vault – Logs historical outreach for audit and review."
+    ],
+    "benefits": "Provides data to optimize future communication strategies and prove outreach effectiveness."
+  },
+  {
+    "issue": "Lack of visibility into recurring missed appointments",
+    "product": "Automated Care Messaging",
+    "solution": "Detects patterns of repeat no-shows and automatically sends specific messaging or outreach prompts aimed at re-engaging the patient and reducing future missed appointments.",
+    "features": [
+      "ACM Alerts – Identifies repeat offenders in real-time.",
+      "ACM Messaging – Sends reminders tailored to past attendance history."
+    ],
+    "benefits": "Helps reduce repeat no-shows and improve patient accountability."
+  },
+  {
+    "issue": "Caregivers not receiving important updates about patients",
+    "product": "Automated Care Messaging",
+    "solution": "Automatically shares key appointment information, test updates, and care summaries with authorized caregivers, ensuring those involved in the patient’s care are informed and prepared.",
+    "features": [
+      "ACM Messaging – Delivers updates to caregiver contacts.",
+      "ACM Vault – Archives communications for record-keeping."
+    ],
+    "benefits": "Improves family engagement and supports coordinated care."
+  },
+  {
+    "issue": "Patients forgetting to bring required samples or items",
+    "product": "Automated Care Messaging",
+    "solution": "Incorporates specific, patient-tailored instructions—like bringing a urine sample or logging blood pressure readings—into pre-visit reminders to support comprehensive care delivery.",
+    "features": [
+      "ACM Messaging – Customizes reminders based on visit type.",
+      "Templates – Ensures consistency across locations."
+    ],
+    "benefits": "Reduces rescheduling due to missing materials and keeps appointments efficient."
+  },
+  {
+    "issue": "Inconsistent reminders for follow-up visits",
+    "product": "Automated Care Messaging",
+    "solution": "Links provider-generated follow-up instructions in the EMR to automated reminder workflows, ensuring patients are notified when it’s time for their next visit—improving continuity of care and reducing missed follow-ups.",
+    "features": [
+      "ACM Messaging – Sends reminders based on future appointments.",
+      "Templates – Ensures consistency in follow-up outreach."
+    ],
+    "benefits": "Improves care continuity and reduces missed follow-ups."
+  },
+  {
+    "issue": "Patients missing medication refill appointments",
+    "product": "Automated Care Messaging",
+    "solution": "Monitors prescription schedules and triggers reminders when associated appointments—like renewal assessments—are due, helping ensure patients maintain access to necessary medications.",
+    "features": [
+      "ACM Messaging – Sends refill-related appointment prompts.",
+      "Templates – Customizes based on medication type."
+    ],
+    "benefits": "Supports medication adherence and prevents treatment gaps."
+  },
+  {
+    "issue": "No confirmation that pre-op instructions were received",
+    "product": "Automated Care Messaging",
+    "solution": "Includes a confirmation step in pre-op communications requiring patients to acknowledge that they’ve reviewed key preparation instructions, giving staff peace of mind that patients are informed and reducing day-of issues.",
+    "features": [
+      "ACM Messaging – Sends pre-op instructions.",
+      "ACM Vault – Logs patient acknowledgment."
+    ],
+    "benefits": "Improves surgical preparedness and reduces day-of cancellations."
+  },
+  {
+    "issue": "High call volumes for simple appointment confirmations",
+    "product": "Automated Care Messaging",
+    "solution": "Sends appointment confirmation messages that allow patients to confirm attendance with a single tap or click, simplifying the process and improving response rates without staff intervention.",
+    "features": [
+      "ACM Messaging – Sends confirmation prompts.",
+      "Templates – Customizes based on clinic preference."
+    ],
+    "benefits": "Reduces inbound call volume and administrative time."
+  },
+  {
+    "issue": "No reliable audit trail for patient communications",
+    "product": "Automated Care Messaging",
+    "solution": "Logs every communication touchpoint—when messages were sent, received, opened, and confirmed—into an audit-ready record that supports regulatory compliance and quality assurance efforts.",
+    "features": [
+      "ACM Vault – Archives all patient communications.",
+      "ACM Messaging – Ties messages to patient records."
+    ],
+    "benefits": "Supports legal and regulatory compliance with ease."
+  },
+  {
+    "issue": "Patients unsure of insurance coverage details",
+    "product": "Automated Care Messaging",
+    "solution": "Delivers timely reminders prompting patients to verify their insurance details before the visit and includes direct links to FAQs, support contacts, or online forms, helping reduce check-in delays and billing errors.",
+    "features": [
+      "ACM Messaging – Sends pre-visit insurance reminders.",
+      "Templates – Includes coverage check instructions."
+    ],
+    "benefits": "Reduces on-site delays and improves patient preparedness."
+  },
+  {
+    "issue": "Patients not completing necessary labs prior to visits",
+    "product": "Automated Care Messaging",
+    "solution": "Notifies patients in advance if they need to bring lab requisitions or meet specific test deadlines tied to their upcoming appointment, ensuring proper preparation and reducing rescheduling.",
+    "features": [
+      "ACM Messaging – Delivers lab preparation instructions.",
+      "Templates – Customizes per lab type or provider."
+    ],
+    "benefits": "Ensures timely lab results and keeps care plans on track."
+  },
+  {
+    "issue": "Missed visits due to uncommunicated weather closures",
+    "product": "Automated Care Messaging",
+    "solution": "Broadcasts real-time alerts to all patients scheduled for affected time slots in the event of severe weather, natural disasters, or other disruptions—minimizing confusion and improving safety.",
+    "features": [
+      "ACM Alerts – Broadcasts urgent operational messages.",
+      "ACM Messaging – Confirms receipt of message."
+    ],
+    "benefits": "Minimizes no-shows and improves patient safety during adverse events."
+  },
+  {
+    "issue": "High volume of unconfirmed appointments",
+    "product": "Automated Care Messaging",
+    "solution": "Sends automated reminders with built-in confirmation options, and if no response is received, flags the appointment for staff to review and possibly follow up, improving scheduling accuracy.",
+    "features": [
+      "ACM Messaging – Sends two-way confirmation messages.",
+      "ACM Alerts – Flags unconfirmed appointments for staff."
+    ],
+    "benefits": "Improves scheduling certainty and reduces last-minute gaps."
+  },
+  {
+    "issue": "Patients not informed of COVID-19 protocols before appointments",
+    "product": "Automated Care Messaging",
+    "solution": "Delivers up-to-date safety protocol instructions—including masking requirements, health screenings, and entry procedures—well in advance of the visit so patients know what to expect and how to comply.",
+    "features": [
+      "ACM Messaging – Delivers protocol info pre-visit.",
+      "Templates – Customizes messaging based on evolving guidelines."
+    ],
+    "benefits": "Improves compliance and safety while reducing front-desk burden."
+  },
+  {
+    "issue": "Delayed follow-up after diagnostic imaging results",
+    "product": "Automated Care Messaging",
+    "solution": "Automatically notifies patients when imaging procedures—such as X-rays or MRIs—are complete, and includes follow-up instructions or next steps as provided by the care team to ensure proper understanding and progression of care.",
+    "features": [
+      "ACM Messaging – Sends follow-up instructions post-imaging.",
+      "ACM Alerts – Notifies staff when patient follow-up is required."
+    ],
+    "benefits": "Closes care loops and reduces time-to-treatment."
+  },
+  {
+    "issue": "No-shows tied to lack of appointment recall prompts",
+    "product": "Automated Care Messaging",
+    "solution": "Monitors the EMR to detect when patients are due for recurring visits—such as annual checkups or follow-up assessments—and sends automated reminders to help keep them on track with their care plans.",
+    "features": [
+      "ACM Messaging – Delivers time-based recall outreach.",
+      "Templates – Aligns recall messages with clinic policies."
+    ],
+    "benefits": "Keeps patient care on schedule and boosts visit volume."
+  },
+  {
+    "issue": "Caregivers confused about patient discharge instructions",
+    "product": "Automated Care Messaging",
+    "solution": "Securely shares discharge documentation with approved caregivers as soon as the patient is released, ensuring they have access to important care details and instructions without requiring staff to send manual updates.",
+    "features": [
+      "ACM Messaging – Sends discharge summaries to caregiver contacts.",
+      "ACM Vault – Archives for future reference."
+    ],
+    "benefits": "Improves caregiver understanding and post-care success."
+  },
+  {
+    "issue": "Patients unaware of pre-surgery medication restrictions",
+    "product": "Automated Care Messaging",
+    "solution": "Delivers medication-specific instructions ahead of surgery, including which prescriptions to pause, when to stop them, and why, helping reduce surgical complications and ensure compliance.",
+    "features": [
+      "ACM Messaging – Delivers pre-op medication guidance.",
+      "Templates – Customizes instructions per surgical protocol."
+    ],
+    "benefits": "Improves patient safety and reduces day-of-surgery cancellations."
+  },
+  {
+    "issue": "No confirmation of vaccine appointments",
+    "product": "Automated Care Messaging",
+    "solution": "Sends vaccine appointment confirmations and timely reminders in the days leading up to the visit, including preparation steps and a one-click option to confirm attendance.",
+    "features": [
+      "ACM Messaging – Confirms vaccine appointments.",
+      "Templates – Includes location, time, and preparation steps."
+    ],
+    "benefits": "Improves attendance rates and streamlines clinic operations."
+  },
+  {
+    "issue": "Lack of reminders for annual wellness exams",
+    "product": "Automated Care Messaging",
+    "solution": "Uses EMR scheduling logic to automatically trigger reminders based on specific wellness check timelines—such as annual physicals or age-based screenings—ensuring patients stay proactive about their health.",
+    "features": [
+      "ACM Messaging – Sends annual visit prompts.",
+      "Templates – Aligns messages with patient age and risk category."
+    ],
+    "benefits": "Boosts preventative care engagement and clinic throughput."
+  },
+  {
+    "issue": "Limited communication with non-English speaking patients",
+    "product": "Automated Care Messaging",
+    "solution": "Automatically translates reminder and follow-up messages into the patient’s preferred language (when available), improving understanding, reducing confusion, and boosting engagement for non-English speakers.",
+    "features": [
+      "ACM Messaging – Supports multilingual templates.",
+      "Templates – Allows clinic-specific translations."
+    ],
+    "benefits": "Improves communication equity and reduces missed appointments."
+  },
+  {
+    "issue": "Patients arriving late due to unclear location instructions",
+    "product": "Automated Care Messaging",
+    "solution": "Enhances appointment prep by including helpful directions such as suite numbers, building entrances, and parking details in every reminder message, ensuring patients can find their way with ease.",
+    "features": [
+      "ACM Messaging – Sends detailed arrival guidance.",
+      "Templates – Customizes by site and appointment type."
+    ],
+    "benefits": "Improves on-time arrivals and patient experience."
+  },
+  {
+    "issue": "Patients unaware of clinic wait times",
+    "product": "Automated Care Messaging",
+    "solution": "Calculates wait times using real-time scheduling and queue data, then sends updates to patients via their preferred contact method—helping reduce anxiety, increase transparency, and improve their experience while waiting.",
+    "features": [
+      "ACM Concierge – Pulls queue and scheduling data to provide real-time updates"
+    ],
+    "benefits": "Reduces frustration, improves communication transparency, and enhances the patient experience"
+  },
+  {
+    "issue": "Patients crowding waiting areas without updates",
+    "product": "Automated Care Messaging",
+    "solution": "Delivers live queue position updates to patients waiting outside or off-site, enabling them to wait in comfort and return just in time for their appointment—reducing crowding in the waiting room and enhancing safety.",
+    "features": [
+      "ACM Concierge – Delivers remote queue updates via SMS or email"
+    ],
+    "benefits": "Minimizes in-clinic congestion, enhances safety, and improves perceived wait time"
+  },
+  {
+    "issue": "Uncertainty about appointment status during delays",
+    "product": "Automated Care Messaging",
+    "solution": "Tracks provider schedule delays in real-time and proactively notifies patients with updated estimated appointment times. This improves transparency, reduces frustration, and helps patients better manage their time while waiting.",
+    "features": [
+      "ACM Concierge – Monitors real-time provider availability and queue adjustments"
+    ],
+    "benefits": "Enhances transparency, reduces patient anxiety, and prevents negative experiences"
+  },
+  {
+    "issue": "Staff overwhelmed by status inquiries from waiting patients",
+    "product": "Automated Care Messaging",
+    "solution": "Integrates with clinic scheduling software to monitor current queues and respond automatically to patient inquiries about wait times. This reduces call volume and frees staff from answering repetitive questions.",
+    "features": [
+      "ACM Concierge – Syncs with scheduling system to provide automatic queue updates"
+    ],
+    "benefits": "Reduces staff interruptions, improves operational efficiency, and keeps patients informed without manual effort"
+  },
+  {
+    "issue": "Poor patient satisfaction due to lack of communication during high-traffic hours",
+    "product": "Automated Care Messaging",
+    "solution": "During periods of high traffic, sends periodic notifications to patients with wait time updates or provider status, demonstrating attentiveness and helping manage expectations in a proactive, patient-centered way.",
+    "features": [
+      "ACM Concierge – Schedules periodic outreach with real-time status"
+    ],
+    "benefits": "Increases satisfaction scores, builds trust, and differentiates your clinic through proactive communication"
+  },
+  {
+    "issue": "Outdated paper forms slow intake",
+    "product": "Automated Care Scheduling",
+    "solution": "Replaces traditional paper intake forms with mobile-friendly digital forms patients can complete ahead of time. This reduces time spent in the waiting room and improves data accuracy while streamlining check-in.",
+    "features": [
+      "ACS Forms – Sends mobile-friendly intake forms before visits and captures responses electronically, eliminating manual entry."
+    ],
+    "benefits": "Speeds up front-desk operations, reduces paperwork errors, and creates a smoother patient check-in experience."
+  },
+  {
+    "issue": "Poor feedback collection methods",
+    "product": "Automated Care Scheduling",
+    "solution": "Automatically sends follow-up surveys to patients after their appointments to gather feedback on their experience, enabling the clinic to identify areas for improvement and increase patient satisfaction.",
+    "features": [
+      "ACS Surveys – Sends post-visit surveys and tracks responses, helping organizations monitor satisfaction without manual follow-up."
+    ],
+    "benefits": "Boosts feedback participation and provides real-time data to improve patient experience."
+  },
+  {
+    "issue": "Inefficient staff scheduling",
+    "product": "Automated Care Scheduling",
+    "solution": "Uses AI-powered scheduling tools to analyze provider availability and patient demand, then adjusts appointments to reduce idle time, optimize workloads, and align the right staff with the right patients.",
+    "features": [
+      "ACS Booking – Applies AI logic to create optimal shift coverage based on patient demand and availability."
+    ],
+    "benefits": "Improves resource utilization and ensures consistent care delivery across all shifts."
+  },
+  {
+    "issue": "Difficulty getting patients to complete pre-visit forms",
+    "product": "Automated Care Scheduling",
+    "solution": "Delivers pre-visit forms to patients through email or text and sends automated reminders until completed, helping clinics collect all required documentation in advance and avoid appointment delays.",
+    "features": [
+      "ACS Forms – Distributes and collects pre-visit forms electronically.",
+      "ACM Alerts – Sends reminder nudges if forms remain incomplete."
+    ],
+    "benefits": "Improves form completion rates, reduces waiting room delays, and streamlines appointment prep."
+  },
+  {
+    "issue": "Difficulty coordinating virtual and in-person appointments",
+    "product": "Automated Care Scheduling",
+    "solution": "Identifies whether an appointment is in-person or virtual and sends tailored instructions—such as arrival locations for in-person visits or login links for virtual ones—ensuring clarity and a smooth experience.",
+    "features": [
+      "ACS Booking – Tracks appointment modality and provides proper guidance.",
+      "ACM Messaging – Sends confirmations with visit type details."
+    ],
+    "benefits": "Reduces confusion and missed appointments by clearly communicating visit type and access instructions."
+  },
+  {
+    "issue": "No easy way to collect consent forms digitally",
+    "product": "Automated Care Scheduling",
+    "solution": "Enables patients to receive, review, and sign required consent forms online prior to their appointment. This not only saves time at check-in but also ensures patients have time to review materials thoroughly.",
+    "features": [
+      "ACS Forms – Sends and collects digital consent forms.",
+      "ACM Alerts – Reminds patients of incomplete consent documents."
+    ],
+    "benefits": "Improves compliance, eliminates paper storage needs, and reduces day-of delays."
+  },
+  {
+    "issue": "Inadequate system to reschedule missed appointments",
+    "product": "Automated Care Scheduling",
+    "solution": "Detects when a patient cancels or misses an appointment and immediately sends a follow-up prompt with available rescheduling options, making it easy for the patient to rebook and stay on track with care.",
+    "features": [
+      "ACS Booking – Offers reschedule options via email, text, or call.",
+      "ACS Forms – Captures new time preferences or reasons for cancellation."
+    ],
+    "benefits": "Recaptures missed revenue and keeps patient care on track without manual coordination."
+  },
+  {
+    "issue": "No method to gather feedback on new initiatives",
+    "product": "Automated Care Scheduling",
+    "solution": "Delivers short post-interaction surveys to patients who participated in new programs or experienced recent changes at the clinic, enabling the care team to gather feedback and evaluate the success of those initiatives.",
+    "features": [
+      "ACS Surveys – Gathers structured patient feedback on new programs.",
+      "ACM Messaging – Delivers and follows up on survey links."
+    ],
+    "benefits": "Informs data-driven improvements to services based on real-time patient input."
+  },
+  {
+    "issue": "Patients failing to complete required health questionnaires",
+    "product": "Automated Care Scheduling",
+    "solution": "Distributes digital health intake forms to patients before their appointment and sends follow-up reminders to ensure completion, helping clinics gather accurate and timely health information in advance.",
+    "features": [
+      "ACS Forms – Delivers questionnaires linked to patient records.",
+      "ACM Alerts – Sends automatic nudges for non-completion."
+    ],
+    "benefits": "Increases form completion rates and enables better clinical decision-making at point of care."
+  },
+  {
+    "issue": "Frequent errors in manually updating appointment times",
+    "product": "Automated Care Scheduling",
+    "solution": "Tracks appointment changes made in the EMR and sends real-time digital confirmations to patients, eliminating the need for manual updates and reducing the risk of miscommunication or no-shows.",
+    "features": [
+      "ACS Booking – Reflects updated appointment times in real-time.",
+      "ACM Messaging – Confirms changes with patients via preferred channel."
+    ],
+    "benefits": "Eliminates manual errors and ensures patients always have accurate scheduling information."
+  },
+  {
+    "issue": "Patients unsure how to reschedule appointments online",
+    "product": "Automated Care Scheduling",
+    "solution": "Includes clear, step-by-step rescheduling instructions in appointment communications—either within the message or through a direct link—making it easy for patients to modify their visit without contacting the clinic.",
+    "features": [
+      "ACS Booking – Allows one-click rescheduling.",
+      "ACM Messaging – Guides patients through the rescheduling process."
+    ],
+    "benefits": "Improves patient satisfaction and reduces administrative back-and-forth."
+  },
+  {
+    "issue": "Patients not completing surveys after visits",
+    "product": "Automated Care Scheduling",
+    "solution": "Automatically sends short feedback surveys after a patient visit and, if unanswered, follows up with additional prompts to encourage responses and ensure valuable feedback is collected.",
+    "features": [
+      "ACS Surveys – Delivers structured survey forms.",
+      "ACM Alerts – Sends reminders to non-responders."
+    ],
+    "benefits": "Increases feedback collection for quality improvement with minimal staff effort."
+  }
+]
