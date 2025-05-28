@@ -4,6 +4,11 @@ import os
 import json
 import traceback
 import openai
+from rapidfuzz import fuzz
+
+# ✅ Load solutions from JSON
+with open("cliniconex_solutions.json", "r", encoding="utf-8") as f:
+    solutions_data = json.load(f)
 
 # ✅ Set your OpenAI API key
 openai.api_key = os.environ.get("OPENAI_API_KEY")
@@ -11,6 +16,18 @@ openai.api_key = os.environ.get("OPENAI_API_KEY")
 # ✅ Flask app setup
 app = Flask(__name__)
 CORS(app, resources={r"/ai": {"origins": "https://cliniconex.com"}})
+
+# ✅ Match logic: Find best match using fuzzy search
+def find_best_match(user_input):
+    best_score = 0
+    best_match = None
+    for row in solutions_data:
+        combined_text = f"{row['issue']} {row['solution']} {row['benefits']}"
+        score = fuzz.partial_ratio(user_input.lower(), combined_text.lower())
+        if score > best_score:
+            best_score = score
+            best_match = row
+    return best_match
 
 @app.route("/ai", methods=["POST"])
 def ai_solution():
@@ -24,6 +41,15 @@ def ai_solution():
                 "message": "Please provide a message."
             }), 400
 
+        match = find_best_match(message)
+
+        if not match:
+            return jsonify({
+                "type": "unclear",
+                "message": "Sorry, I couldn't find a solution that matches. Could you rephrase your issue?"
+            })
+
+        # ✅ GPT prompt using matched solution
         prompt = f"""
 You are a helpful assistant working for Cliniconex, a healthcare communication company.
 
@@ -38,9 +64,9 @@ Respond in **strict JSON** in one of these two formats:
 # If input is clear:
 {{
   "type": "solution",
-  "module": "Name of the most relevant Cliniconex product module",
-  "feature": "Name of one key feature in that module",
-  "solution": "Plain-English explanation of how it helps solve their problem",
+  "module": "{match['product']}",
+  "feature": "{match['features'][0] if match['features'] else 'N/A'}",
+  "solution": "{match['solution']}",
   "link": "https://cliniconex.com/products/#relevant-feature-anchor"
 }}
 
