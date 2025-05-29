@@ -114,15 +114,19 @@ def ai_route():
                 "type": "solution",
                 "module": match.get("product", ""),
                 "feature": feature_display if feature_display else "Not specified",
-                "solution": match.get("solution", ""),
-                "benefits": match.get("benefits", "")
+                "solution": match.get("solution", "No solution provided."),
+                "benefits": match.get("benefits", "No benefits listed.")
             })
 
         else:
             gpt_result = get_gpt_solution(message)
             if gpt_result.get("type") == "solution":
-                features_raw = gpt_result.get("feature", "")
-                features = [f.strip() for f in features_raw.split(",") if f.strip()]
+                features_raw = gpt_result.get("feature", [])
+                if isinstance(features_raw, list):
+                    features = [f.strip() for f in features_raw]
+                else:
+                    features = [f.strip() for f in features_raw.split(",") if f.strip()]
+
                 feature_display = " | ".join(features)
                 feature_display = feature_display.replace("|", "<strong> | </strong>")
 
@@ -142,8 +146,8 @@ def ai_route():
                     "type": "solution",
                     "module": gpt_result.get("module", ""),
                     "feature": feature_display if feature_display else "Not specified",
-                    "solution": gpt_result.get("solution", ""),
-                    "benefits": gpt_result.get("benefits", "")
+                    "solution": gpt_result.get("solution", "No solution provided."),
+                    "benefits": gpt_result.get("benefits", "No benefits listed.")
                 })
             return jsonify(gpt_result)
 
