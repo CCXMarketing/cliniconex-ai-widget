@@ -1,4 +1,3 @@
-
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from datetime import datetime
@@ -24,7 +23,7 @@ with open("cliniconex_solutions.json", "r", encoding="utf-8") as f:
 def log_to_google_sheet(row_data):
     try:
         SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-        SERVICE_ACCOUNT_FILE = 'service_account.json'
+        SERVICE_ACCOUNT_FILE = os.path.join(os.path.dirname(__file__), 'service_account.json')
         credentials = service_account.Credentials.from_service_account_file(
             SERVICE_ACCOUNT_FILE, scopes=SCOPES)
         service = build('sheets', 'v4', credentials=credentials)
@@ -68,11 +67,15 @@ Respond only in this JSON format.
 Input: "{user_input}"
 """
     try:
+        print("🧠 Sending this prompt to GPT:")
+        print(prompt)
         response = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}]
         )
         reply = response.choices[0].message.content.strip()
+        print("🧠 GPT responded with:")
+        print(reply)
         return json.loads(reply)
     except Exception as e:
         print(f"❌ GPT error: {e}")
@@ -108,7 +111,9 @@ def ai_route():
                 "benefits": match.get("benefits", "")
             })
         else:
+            print("⚠️ No fuzzy match found — triggering GPT fallback.")
             gpt_result = get_gpt_solution(message)
+            print(f"🧠 GPT fallback returned: {gpt_result}")
             if gpt_result.get("type") == "solution":
                 row = [
                     str(datetime.now()),
