@@ -4,26 +4,26 @@ from datetime import datetime
 import openai
 import os
 import json
-from rapidfuzz import process, fuzz
+import re
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 
-# ✅ Load environment variables
+# 🔐 Load environment variable
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-# ✅ Flask setup
+# 🚀 Flask app
 app = Flask(__name__)
 CORS(app)
 
-# ✅ Load solutions
-with open("cliniconex_solutions.json", "r", encoding="utf-8") as f:
+# 📥 Load verified solution matrix
+with open("cliniconex_solutions (3).json", "r", encoding="utf-8") as f:
     solution_matrix = json.load(f)
 
-# ✅ Google Sheets logging
+# 📝 Google Sheets logging
 def log_to_google_sheet(row_data):
     try:
         SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-        SERVICE_ACCOUNT_FILE = os.path.join(os.path.dirname(__file__), 'service_account.json')
+        SERVICE_ACCOUNT_FILE = 'service_account.json'
         credentials = service_account.Credentials.from_service_account_file(
             SERVICE_ACCOUNT_FILE, scopes=SCOPES)
         service = build('sheets', 'v4', credentials=credentials)
@@ -42,16 +42,16 @@ def log_to_google_sheet(row_data):
         print(f"❌ Google Sheets logging failed: {e}")
         return None
 
-# ✅ Fuzzy matcher
-def find_best_match(user_input):
-    issues = [entry["issue"] for entry in solution_matrix]
-    match, score, index = process.extractOne(user_input, issues, scorer=fuzz.token_sort_ratio)
-    print(f"🔍 Fuzzy match: '{user_input}' → '{match}' (Score: {score})")
-    if score > 70:
-        return solution_matrix[index], score
-    return None, score
+# 🔍 Keyword-based matcher
+def find_keyword_match(user_input):
+    user_words = set(re.findall(r'\b\w+\b', user_input.lower()))
+    for entry in solution_matrix:
+        entry_keywords = set(kw.lower() for kw in entry.get("keywords", []))
+        if user_words & entry_keywords:
+            return entry
+    return None
 
-# ✅ GPT fallback
+# 🤖 GPT fallback
 def get_gpt_solution(user_input):
     prompt = f"""
 You are a helpful assistant working for Cliniconex, a healthcare communication company.
@@ -67,21 +67,16 @@ Respond only in this JSON format.
 Input: "{user_input}"
 """
     try:
-        print("🧠 Sending this prompt to GPT:")
-        print(prompt)
         response = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}]
         )
-        reply = response.choices[0].message.content.strip()
-        print("🧠 GPT responded with:")
-        print(reply)
-        return json.loads(reply)
+        return json.loads(response.choices[0].message.content.strip())
     except Exception as e:
         print(f"❌ GPT error: {e}")
         return {"type": "unclear", "message": "We couldn’t generate a response at this time."}
 
-# ✅ Main endpoint
+# 🎯 Main endpoint
 @app.route("/ai", methods=["POST"])
 def ai_route():
     try:
@@ -90,7 +85,7 @@ def ai_route():
         if not message:
             return jsonify({"type": "unclear", "message": "Please provide a message."}), 400
 
-        match, score = find_best_match(message)
+        match = find_keyword_match(message)
         if match:
             row = [
                 str(datetime.now()),
@@ -98,7 +93,7 @@ def ai_route():
                 match.get("product", ""),
                 match["features"][0] if match.get("features") else "",
                 "solution",
-                "success",
+                "matrix",
                 match.get("issue", ""),
                 match.get("solution", "")
             ]
@@ -111,9 +106,7 @@ def ai_route():
                 "benefits": match.get("benefits", "")
             })
         else:
-            print("⚠️ No fuzzy match found — triggering GPT fallback.")
             gpt_result = get_gpt_solution(message)
-            print(f"🧠 GPT fallback returned: {gpt_result}")
             if gpt_result.get("type") == "solution":
                 row = [
                     str(datetime.now()),
@@ -132,7 +125,6 @@ def ai_route():
         print(f"❌ Internal error: {e}")
         return jsonify({"error": "Internal server error"}), 500
 
-# ✅ Health check
 @app.route("/", methods=["GET"])
 def index():
     return "✅ Cliniconex AI Solution Advisor is running."
