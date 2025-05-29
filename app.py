@@ -55,14 +55,15 @@ def find_keyword_match(user_input):
 def get_gpt_solution(user_input):
     prompt = f"""
 You are a helpful assistant working for Cliniconex, a healthcare communication company.
-Your task is to interpret vague or brief input from healthcare professionals and return a JSON with:
-- type: "solution" or "unclear"
-- module: Cliniconex product module (e.g., Automated Care Messaging)
-- feature: Feature used (e.g., ACM Messaging, ACM Alerts)
-- solution: How it solves the problem
-- benefits: Tangible outcomes
+Your task is to interpret vague or brief input from healthcare professionals and return a JSON with the following fields:
 
-Respond only in this JSON format.
+- type: "solution" or "unclear"
+- module: Cliniconex product module (e.g., "Automated Care Messaging")
+- features: A list of feature entries, each in the format "Feature Name – Description"
+- solution: A clear description of how Cliniconex solves the issue
+- benefits: Tangible outcomes that demonstrate the value
+
+Please return the response only in valid JSON format.
 
 Input: "{user_input}"
 """
@@ -88,13 +89,11 @@ def ai_route():
 
         match = find_keyword_match(message)
         if match:
-            formatted_features = " ".join([f"• {feat.strip()}" for feat in match.get("features", [])])
-
             row = [
                 str(datetime.now()),
                 message,
                 match.get("product", ""),
-                formatted_features,
+                " | ".join(match.get("features", [])) if match.get("features") else "",
                 "solution",
                 "matrix",
                 match.get("issue", ""),
@@ -104,7 +103,7 @@ def ai_route():
             return jsonify({
                 "type": "solution",
                 "module": match.get("product", ""),
-                "feature": formatted_features,
+                "feature": " | ".join(match.get("features", [])) if match.get("features") else "",
                 "solution": match.get("solution", ""),
                 "benefits": match.get("benefits", "")
             })
@@ -115,7 +114,7 @@ def ai_route():
                     str(datetime.now()),
                     message,
                     gpt_result.get("module", ""),
-                    gpt_result.get("feature", ""),
+                    " | ".join(gpt_result.get("features", [])) if gpt_result.get("features") else "",
                     "solution",
                     "gpt-fallback",
                     "",
