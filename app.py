@@ -55,11 +55,13 @@ def find_keyword_match(user_input):
 def get_gpt_solution(user_input):
     prompt = f"""
 You are a helpful assistant working for Cliniconex, a healthcare communication company.
+Only describe solutions using the following Cliniconex modules and features. If no appropriate solution exists, respond with: type: 'unclear'.
+
 Your task is to interpret vague or brief input from healthcare professionals and return a JSON with:
 - type: "solution" or "unclear"
 - module: Cliniconex product module (e.g., Automated Care Messaging)
-- features: A list of features used. Use ONLY from the following list: ACM Messaging, ACM Alerts, ACM Vault, ACM Concierge, ACS Booking, ACS Forms, ACS Surveys.
-- solution: A single, clear solution. Provide multiple only when essential and relevant.
+- feature: One or more features used (e.g., ACM Messaging, ACM Alerts)
+- solution: How it solves the problem
 - benefits: Tangible outcomes
 
 Respond only in this JSON format.
@@ -77,10 +79,6 @@ Input: "{user_input}"
         print(f"❌ GPT error: {e}")
         return {"type": "unclear", "message": "We couldn’t generate a response at this time."}
 
-# ✅ Format features as bullet points
-def format_features(features):
-    return '<br>'.join([f"• {f.lstrip('• ').strip()}" for f in features])
-
 # ✅ Main endpoint
 @app.route("/ai", methods=["POST"])
 def ai_route():
@@ -92,12 +90,12 @@ def ai_route():
 
         match = find_keyword_match(message)
         if match:
-            formatted_features = format_features(match.get("features", []))
+            features_str = " <strong>|</strong> ".join(match.get("features", []))
             row = [
                 str(datetime.now()),
                 message,
                 match.get("product", ""),
-                formatted_features,
+                features_str,
                 "solution",
                 "matrix",
                 match.get("issue", ""),
@@ -107,19 +105,23 @@ def ai_route():
             return jsonify({
                 "type": "solution",
                 "module": match.get("product", ""),
-                "feature": formatted_features,
+                "feature": features_str,
                 "solution": match.get("solution", ""),
                 "benefits": match.get("benefits", "")
             })
         else:
             gpt_result = get_gpt_solution(message)
             if gpt_result.get("type") == "solution":
-                formatted_features = format_features(gpt_result.get("features", []))
+                features_raw = gpt_result.get("feature", "")
+                if isinstance(features_raw, list):
+                    features_str = " <strong>|</strong> ".join(features_raw)
+                else:
+                    features_str = features_raw
                 row = [
                     str(datetime.now()),
                     message,
                     gpt_result.get("module", ""),
-                    formatted_features,
+                    features_str,
                     "solution",
                     "gpt-fallback",
                     "",
@@ -129,7 +131,7 @@ def ai_route():
                 return jsonify({
                     "type": "solution",
                     "module": gpt_result.get("module", ""),
-                    "feature": formatted_features,
+                    "feature": features_str,
                     "solution": gpt_result.get("solution", ""),
                     "benefits": gpt_result.get("benefits", "")
                 })
