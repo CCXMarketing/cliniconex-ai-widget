@@ -140,7 +140,7 @@ def ai_route():
                 return jsonify({
                     "type": "solution",
                     "module": gpt_result.get("module", ""),
-                    "feature": f"Feature: {feature_display}" if feature_display else "Feature: Not specified",
+                    "feature": feature_display if feature_display else "Not specified",
                     "solution": gpt_result.get("solution", ""),
                     "benefits": gpt_result.get("benefits", "")
                 })
