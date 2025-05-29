@@ -24,7 +24,7 @@ def find_best_match(user_input):
     issues = [entry["issue"] for entry in solution_matrix]
     match, score, index = process.extractOne(user_input, issues, scorer=fuzz.token_sort_ratio)
     print(f"🔍 Matching: '{user_input}' → Best: '{match}' (Score: {score})")
-    if score > 70:
+    if score > 60:
         return solution_matrix[index]
     else:
         return None
