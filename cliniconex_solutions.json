@@ -56,6 +56,24 @@
     "benefits": "Reduces missed follow-ups and helps improve long-term care outcomes for patients."
   },
   {
+  "issue": "People are sitting in the waiting room for long periods of time.",
+  "keywords": [
+    "waiting room delays",
+    "long patient wait times",
+    "real-time updates",
+    "schedule transparency",
+    "queue management",
+    "patient communication",
+    "live wait time alerts"
+  ],
+  "product": "Automated Care Messaging",
+  "solution": "ACM Concierge pulls real-time queue and scheduling data directly from your EMR to send live updates to patients. Whether via SMS, email, or voice, it informs them of their expected wait times and any changes, reducing uncertainty and frustration.",
+  "features": [
+    "ACM Concierge – Sends real-time alerts and updates to patients about wait times and schedule changes based on EMR data."
+  ],
+  "benefits": "Reduces patient frustration, improves communication transparency, and enhances the overall patient experience."
+}
+  {
     "issue": "Difficulty managing emergency notifications",
     "keywords": [
       "emergency alerts",
