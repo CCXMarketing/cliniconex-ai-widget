@@ -64,25 +64,14 @@ def ai_route():
     try:
         data = request.json
         message = data.get("message", "").strip()
-
+        
         if not message:
             return jsonify({"type": "unclear", "message": "Message input was empty."}), 400
 
         match = find_best_match(message)
+        print(f"🔍 Matching: '{message}' → Match: {match}")
 
         if match:
-            row_data = [
-                str(datetime.now()),
-                message,
-                match.get('product', ''),
-                match['features'][0] if match.get('features') else '',
-                "solution",
-                "success",
-                match.get('issue', ''),
-                match.get('solution', '')
-            ]
-            log_to_google_sheet(row_data)
-
             return jsonify({
                 "type": "solution",
                 "module": match.get("product", ""),
@@ -98,6 +87,7 @@ def ai_route():
     except Exception as e:
         print(f"❌ Internal server error: {e}")
         return jsonify({"error": "Internal server error"}), 500
+
 
 # Health check
 @app.route("/", methods=["GET"])
