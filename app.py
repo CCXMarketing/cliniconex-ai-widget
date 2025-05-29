@@ -66,7 +66,7 @@ Only describe solutions using the following Cliniconex modules and features:
 ACM Messaging, ACM Alerts, ACM Vault, ACM Concierge, ACS Booking, ACS Forms, ACS Surveys.
 
 If no appropriate solution exists, respond with:
-{"type": "unclear"}
+{{"type": "unclear"}}
 
 Respond only in this JSON format.
 
@@ -95,7 +95,7 @@ def ai_route():
         match = find_keyword_match(message)
         if match:
             features_list = match.get("features", [])
-            feature_display = " | ".join([f"{feat.strip()}" for feat in features_list])
+            feature_display = " | ".join([f.strip() for f in features_list])
 
             row = [
                 str(datetime.now()),
@@ -112,20 +112,19 @@ def ai_route():
             return jsonify({
                 "type": "solution",
                 "module": match.get("product", ""),
-                "feature": feature_display if feature_display else "Not specified",
-                "solution": match.get("solution", "No solution provided."),
-                "benefits": match.get("benefits", "No benefits listed.")
+                "feature": feature_display,
+                "solution": match.get("solution", ""),
+                "benefits": match.get("benefits", "")
             })
 
         else:
             gpt_result = get_gpt_solution(message)
             if gpt_result.get("type") == "solution":
-                features_raw = gpt_result.get("feature", [])
+                features_raw = gpt_result.get("feature", "")
                 if isinstance(features_raw, list):
-                    features = [f.strip() for f in features_raw]
+                    features = [f.strip() for f in features_raw if f.strip()]
                 else:
                     features = [f.strip() for f in features_raw.split(",") if f.strip()]
-
                 feature_display = " | ".join(features)
 
                 row = [
@@ -143,9 +142,9 @@ def ai_route():
                 return jsonify({
                     "type": "solution",
                     "module": gpt_result.get("module", ""),
-                    "feature": feature_display if feature_display else "Not specified",
-                    "solution": gpt_result.get("solution", "No solution provided."),
-                    "benefits": gpt_result.get("benefits", "No benefits listed.")
+                    "feature": feature_display,
+                    "solution": gpt_result.get("solution", ""),
+                    "benefits": gpt_result.get("benefits", "")
                 })
             return jsonify(gpt_result)
 
