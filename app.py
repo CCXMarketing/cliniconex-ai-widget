@@ -96,7 +96,6 @@ def ai_route():
         if match:
             features_list = match.get("features", [])
             feature_display = " | ".join([f"{feat.strip()}" for feat in features_list])
-            feature_display = feature_display.replace("|", "<strong> | </strong>")
 
             row = [
                 str(datetime.now()),
@@ -128,7 +127,6 @@ def ai_route():
                     features = [f.strip() for f in features_raw.split(",") if f.strip()]
 
                 feature_display = " | ".join(features)
-                feature_display = feature_display.replace("|", "<strong> | </strong>")
 
                 row = [
                     str(datetime.now()),
