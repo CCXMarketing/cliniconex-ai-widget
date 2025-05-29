@@ -112,7 +112,7 @@ def ai_route():
                return jsonify({
         "type": "solution",
         "module": match.get("product", ""),
-        "feature": ' <strong> | </strong> '.join(match.get("features", [])),
+        "feature": ' <strong> | </strong> '.join(match.get("features", [])) if match.get("features") else "",
         "solution": match.get("solution", ""),
         "benefits": match.get("benefits", "")
     })
