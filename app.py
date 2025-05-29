@@ -55,15 +55,14 @@ def find_keyword_match(user_input):
 def get_gpt_solution(user_input):
     prompt = f"""
 You are a helpful assistant working for Cliniconex, a healthcare communication company.
-Your task is to interpret vague or brief input from healthcare professionals and return a JSON with the following fields:
-
+Your task is to interpret vague or brief input from healthcare professionals and return a JSON with:
 - type: "solution" or "unclear"
-- module: Cliniconex product module (e.g., "Automated Care Messaging")
-- features: A list of feature entries, each in the format "Feature Name – Description"
-- solution: A clear description of how Cliniconex solves the issue
-- benefits: Tangible outcomes that demonstrate the value
+- module: Cliniconex product module (e.g., Automated Care Messaging)
+- features: A list of features used. Use ONLY from the following list: ACM Messaging, ACM Alerts, ACM Vault, ACM Concierge, ACS Booking, ACS Forms, ACS Surveys.
+- solution: A single, clear solution. Provide multiple only when essential and relevant.
+- benefits: Tangible outcomes
 
-Please return the response only in valid JSON format.
+Respond only in this JSON format.
 
 Input: "{user_input}"
 """
@@ -78,6 +77,10 @@ Input: "{user_input}"
         print(f"❌ GPT error: {e}")
         return {"type": "unclear", "message": "We couldn’t generate a response at this time."}
 
+# ✅ Format features as bullet points
+def format_features(features):
+    return '<br>'.join([f"• {f.lstrip('• ').strip()}" for f in features])
+
 # ✅ Main endpoint
 @app.route("/ai", methods=["POST"])
 def ai_route():
@@ -89,8 +92,7 @@ def ai_route():
 
         match = find_keyword_match(message)
         if match:
-            formatted_features = "<br>".join([f"• {feat.strip()}" for feat in match.get("features", [])])
-
+            formatted_features = format_features(match.get("features", []))
             row = [
                 str(datetime.now()),
                 message,
@@ -111,28 +113,28 @@ def ai_route():
             })
         else:
             gpt_result = get_gpt_solution(message)
-            gpt_features = gpt_result.get("features", [])
-            if isinstance(gpt_features, str):
-                gpt_features = [gpt_features]
-            elif not isinstance(gpt_features, list):
-                gpt_features = []
-
-            formatted_gpt_features = "<br>".join([f"• {feat.strip()}" for feat in gpt_features])
-
             if gpt_result.get("type") == "solution":
+                formatted_features = format_features(gpt_result.get("features", []))
                 row = [
                     str(datetime.now()),
                     message,
                     gpt_result.get("module", ""),
-                    formatted_gpt_features,
+                    formatted_features,
                     "solution",
                     "gpt-fallback",
                     "",
                     gpt_result.get("solution", "")
                 ]
                 log_to_google_sheet(row)
-            gpt_result["feature"] = formatted_gpt_features
-            return jsonify(gpt_result)
+                return jsonify({
+                    "type": "solution",
+                    "module": gpt_result.get("module", ""),
+                    "feature": formatted_features,
+                    "solution": gpt_result.get("solution", ""),
+                    "benefits": gpt_result.get("benefits", "")
+                })
+            else:
+                return jsonify(gpt_result)
 
     except Exception as e:
         print(f"❌ Internal error: {e}")
