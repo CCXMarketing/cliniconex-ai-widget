@@ -55,14 +55,18 @@ def find_keyword_match(user_input):
 def get_gpt_solution(user_input):
     prompt = f"""
 You are a helpful assistant working for Cliniconex, a healthcare communication company.
-Only describe solutions using the following Cliniconex modules and features. If no appropriate solution exists, respond with: type: 'unclear'.
-
 Your task is to interpret vague or brief input from healthcare professionals and return a JSON with:
 - type: "solution" or "unclear"
 - module: Cliniconex product module (e.g., Automated Care Messaging)
-- feature: One or more features used (e.g., ACM Messaging, ACM Alerts)
+- feature: Feature(s) used (e.g., ACM Messaging, ACM Alerts)
 - solution: How it solves the problem
 - benefits: Tangible outcomes
+
+Only describe solutions using the following Cliniconex modules and features:
+ACM Messaging, ACM Alerts, ACM Vault, ACM Concierge, ACS Booking, ACS Forms, ACS Surveys.
+
+If no appropriate solution exists, respond with:
+{{"type": "unclear"}}
 
 Respond only in this JSON format.
 
@@ -90,12 +94,15 @@ def ai_route():
 
         match = find_keyword_match(message)
         if match:
-            features_str = " <strong>|</strong> ".join(match.get("features", []))
+            features_list = match.get("features", [])
+            feature_display = " | ".join([f"{feat.strip()}" for feat in features_list])
+            feature_display = feature_display.replace("|", "<strong> | </strong>")
+
             row = [
                 str(datetime.now()),
                 message,
                 match.get("product", ""),
-                features_str,
+                feature_display,
                 "solution",
                 "matrix",
                 match.get("issue", ""),
@@ -105,7 +112,7 @@ def ai_route():
             return jsonify({
                 "type": "solution",
                 "module": match.get("product", ""),
-                "feature": features_str,
+                "feature": f"Feature: {feature_display}" if feature_display else "Feature: Not specified",
                 "solution": match.get("solution", ""),
                 "benefits": match.get("benefits", "")
             })
@@ -113,30 +120,30 @@ def ai_route():
             gpt_result = get_gpt_solution(message)
             if gpt_result.get("type") == "solution":
                 features_raw = gpt_result.get("feature", "")
-                if isinstance(features_raw, list):
-                    features_str = " <strong>|</strong> ".join(features_raw)
-                else:
-                    features_str = features_raw
+                features = [f.strip() for f in features_raw.split(",") if f.strip()]
+                feature_display = " | ".join(features)
+                feature_display = feature_display.replace("|", "<strong> | </strong>")
+
                 row = [
                     str(datetime.now()),
                     message,
                     gpt_result.get("module", ""),
-                    features_str,
+                    feature_display,
                     "solution",
                     "gpt-fallback",
                     "",
                     gpt_result.get("solution", "")
                 ]
                 log_to_google_sheet(row)
+
                 return jsonify({
                     "type": "solution",
                     "module": gpt_result.get("module", ""),
-                    "feature": features_str,
+                    "feature": f"Feature: {feature_display}" if feature_display else "Feature: Not specified",
                     "solution": gpt_result.get("solution", ""),
                     "benefits": gpt_result.get("benefits", "")
                 })
-            else:
-                return jsonify(gpt_result)
+            return jsonify(gpt_result)
 
     except Exception as e:
         print(f"❌ Internal error: {e}")
