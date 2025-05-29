@@ -4,22 +4,21 @@ from datetime import datetime
 import openai
 import os
 import json
-import re
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 
-# 🔐 Load environment variable
+# ✅ Load environment variables
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-# 🚀 Flask app
+# ✅ Flask setup
 app = Flask(__name__)
 CORS(app)
 
-# 📥 Load verified solution matrix
-with open("cliniconex_solutions.json", "r", encoding="utf-8") as f:
+# ✅ Load verified solutions with keywords
+with open("cliniconex_solutions (3).json", "r", encoding="utf-8") as f:
     solution_matrix = json.load(f)
 
-# 📝 Google Sheets logging
+# ✅ Google Sheets logging
 def log_to_google_sheet(row_data):
     try:
         SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
@@ -42,21 +41,22 @@ def log_to_google_sheet(row_data):
         print(f"❌ Google Sheets logging failed: {e}")
         return None
 
-# 🔍 Keyword-based matcher
-def find_keyword_match(user_input):
-    user_words = set(re.findall(r'\b\w+\b', user_input.lower()))
+# ✅ Keyword matcher
+def find_by_keywords(user_input):
+    user_input_lower = user_input.lower()
     for entry in solution_matrix:
-        entry_keywords = set(kw.lower() for kw in entry.get("keywords", []))
-        if user_words & entry_keywords:
+        keywords = entry.get("keywords", [])
+        if any(keyword.lower() in user_input_lower for keyword in keywords):
+            print(f"🔑 Matched by keyword: {entry['issue']}")
             return entry
     return None
 
-# 🤖 GPT fallback
+# ✅ GPT fallback
 def get_gpt_solution(user_input):
     prompt = f"""
 You are a helpful assistant working for Cliniconex, a healthcare communication company.
 Your task is to interpret vague or brief input from healthcare professionals and return a JSON with:
-- type: "solution" or "unclear"
+- type: \"solution\" or \"unclear\"
 - module: Cliniconex product module (e.g., Automated Care Messaging)
 - feature: Feature used (e.g., ACM Messaging, ACM Alerts)
 - solution: How it solves the problem
@@ -64,19 +64,20 @@ Your task is to interpret vague or brief input from healthcare professionals and
 
 Respond only in this JSON format.
 
-Input: "{user_input}"
+Input: \"{user_input}\"
 """
     try:
         response = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}]
         )
-        return json.loads(response.choices[0].message.content.strip())
+        reply = response.choices[0].message.content.strip()
+        return json.loads(reply)
     except Exception as e:
         print(f"❌ GPT error: {e}")
         return {"type": "unclear", "message": "We couldn’t generate a response at this time."}
 
-# 🎯 Main endpoint
+# ✅ Main endpoint
 @app.route("/ai", methods=["POST"])
 def ai_route():
     try:
@@ -85,7 +86,7 @@ def ai_route():
         if not message:
             return jsonify({"type": "unclear", "message": "Please provide a message."}), 400
 
-        match = find_keyword_match(message)
+        match = find_by_keywords(message)
         if match:
             row = [
                 str(datetime.now()),
@@ -125,6 +126,7 @@ def ai_route():
         print(f"❌ Internal error: {e}")
         return jsonify({"error": "Internal server error"}), 500
 
+# ✅ Health check
 @app.route("/", methods=["GET"])
 def index():
     return "✅ Cliniconex AI Solution Advisor is running."
