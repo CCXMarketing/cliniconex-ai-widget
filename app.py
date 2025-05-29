@@ -109,7 +109,8 @@ def ai_route():
                 match.get("solution", "")
             ]
             log_to_google_sheet(row)
-               return jsonify({
+            
+    return jsonify({
         "type": "solution",
         "module": match.get("product", ""),
         "feature": ' <strong> | </strong> '.join(match.get("features", [])) if match.get("features") else "",
