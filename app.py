@@ -66,7 +66,7 @@ Only describe solutions using the following Cliniconex modules and features:
 ACM Messaging, ACM Alerts, ACM Vault, ACM Concierge, ACS Booking, ACS Forms, ACS Surveys.
 
 If no appropriate solution exists, respond with:
-{{"type": "unclear"}}
+{"type": "unclear"}
 
 Respond only in this JSON format.
 
@@ -109,14 +109,14 @@ def ai_route():
                 match.get("solution", "")
             ]
             log_to_google_sheet(row)
-            
-    return jsonify({
-        "type": "solution",
-        "module": match.get("product", ""),
-        "feature": ' <strong> | </strong> '.join(match.get("features", [])) if match.get("features") else "",
-        "solution": match.get("solution", ""),
-        "benefits": match.get("benefits", "")
-    })
+
+            return jsonify({
+                "type": "solution",
+                "module": match.get("product", ""),
+                "feature": feature_display if feature_display else "Not specified",
+                "solution": match.get("solution", ""),
+                "benefits": match.get("benefits", "")
+            })
 
         else:
             gpt_result = get_gpt_solution(message)
