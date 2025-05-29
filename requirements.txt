@@ -2,3 +2,6 @@ Flask==2.2.5
 Flask-Cors==3.0.10
 openai==0.28
 rapidfuzz==3.5.2
+google-api-python-client==2.120.0
+google-auth==2.29.0
+google-auth-oauthlib==1.2.0
