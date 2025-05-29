@@ -16,7 +16,7 @@ app = Flask(__name__)
 CORS(app)
 
 # Load the solution matrix
-with open("solutions.json", "r") as f:
+with open("cliniconex_solutions.json", "r", encoding="utf-8") as f:
     solution_matrix = json.load(f)
 
 # Helper function to find best match from matrix
