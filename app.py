@@ -15,7 +15,7 @@ app = Flask(__name__)
 CORS(app)
 
 # ✅ Load solutions with keywords
-with open("cliniconex_solutions (3).json", "r", encoding="utf-8") as f:
+with open("cliniconex_solutions.json", "r", encoding="utf-8") as f:
     solution_matrix = json.load(f)
 
 # ✅ Google Sheets logging
@@ -88,14 +88,13 @@ def ai_route():
 
         match = find_keyword_match(message)
         if match:
-            feature_list = match.get("features", [])
-            feature_string = " ".join([f"\u2022 {f}" for f in feature_list])
+            formatted_features = " ".join([f"• {feat.strip()}" for feat in match.get("features", [])])
 
             row = [
                 str(datetime.now()),
                 message,
                 match.get("product", ""),
-                feature_list[0] if feature_list else "",
+                formatted_features,
                 "solution",
                 "matrix",
                 match.get("issue", ""),
@@ -105,7 +104,7 @@ def ai_route():
             return jsonify({
                 "type": "solution",
                 "module": match.get("product", ""),
-                "feature": feature_string,
+                "feature": formatted_features,
                 "solution": match.get("solution", ""),
                 "benefits": match.get("benefits", "")
             })
