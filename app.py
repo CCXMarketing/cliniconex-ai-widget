@@ -16,7 +16,7 @@ app = Flask(__name__)
 CORS(app)
 
 # 📥 Load verified solution matrix
-with open("cliniconex_solutions (3).json", "r", encoding="utf-8") as f:
+with open("cliniconex_solutions.json", "r", encoding="utf-8") as f:
     solution_matrix = json.load(f)
 
 # 📝 Google Sheets logging
