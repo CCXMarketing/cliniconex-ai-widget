@@ -89,11 +89,13 @@ def ai_route():
 
         match = find_keyword_match(message)
         if match:
+            formatted_features = "<br>".join([f"• {feat.strip()}" for feat in match.get("features", [])])
+
             row = [
                 str(datetime.now()),
                 message,
                 match.get("product", ""),
-                " | ".join(match.get("features", [])) if match.get("features") else "",
+                formatted_features,
                 "solution",
                 "matrix",
                 match.get("issue", ""),
@@ -103,24 +105,33 @@ def ai_route():
             return jsonify({
                 "type": "solution",
                 "module": match.get("product", ""),
-                "feature": " | ".join(match.get("features", [])) if match.get("features") else "",
+                "feature": formatted_features,
                 "solution": match.get("solution", ""),
                 "benefits": match.get("benefits", "")
             })
         else:
             gpt_result = get_gpt_solution(message)
+            gpt_features = gpt_result.get("features", [])
+            if isinstance(gpt_features, str):
+                gpt_features = [gpt_features]
+            elif not isinstance(gpt_features, list):
+                gpt_features = []
+
+            formatted_gpt_features = "<br>".join([f"• {feat.strip()}" for feat in gpt_features])
+
             if gpt_result.get("type") == "solution":
                 row = [
                     str(datetime.now()),
                     message,
                     gpt_result.get("module", ""),
-                    " | ".join(gpt_result.get("features", [])) if gpt_result.get("features") else "",
+                    formatted_gpt_features,
                     "solution",
                     "gpt-fallback",
                     "",
                     gpt_result.get("solution", "")
                 ]
                 log_to_google_sheet(row)
+            gpt_result["feature"] = formatted_gpt_features
             return jsonify(gpt_result)
 
     except Exception as e:
