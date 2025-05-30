@@ -30,16 +30,17 @@ service = build("sheets", "v4", credentials=credentials)
 sheet = service.spreadsheets()
 
 # ✅ Logging function with keyword
-def log_to_google_sheets(message, page_url, module, feature, solution, benefits, keyword):
+def log_to_google_sheets(prompt, page_url, product, feature, status, matched_issue, matched_solution, keyword):
     try:
         values = [[
             datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            page_url,
-            message,
-            module,
+            prompt,
+            product,
             feature,
-            solution,
-            benefits,
+            status,
+            matched_issue,
+            matched_solution,
+            page_url,
             keyword
         ]]
         sheet.values().append(
