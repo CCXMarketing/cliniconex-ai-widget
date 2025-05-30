@@ -29,7 +29,7 @@ credentials = service_account.Credentials.from_service_account_file(
 service = build("sheets", "v4", credentials=credentials)
 sheet = service.spreadsheets()
 
-# ✅ Logging function with keyword
+# ✅ Logging function
 def log_to_google_sheets(prompt, page_url, product, feature, status, matched_issue, matched_solution, keyword):
     try:
         values = [[
@@ -82,6 +82,7 @@ def get_solution():
             feature = ", ".join(feature_list) if feature_list else "N/A"
             how_it_works = matched_solution.get("solution", "N/A")
             benefits = matched_solution.get("benefits", "N/A")
+            matched_issue = matched_solution.get("issue", "N/A")
             keyword = matched_keyword or "N/A"
 
             result = {
@@ -95,16 +96,17 @@ def get_solution():
 
             print("✅ Returning result to frontend:", json.dumps(result, indent=2), flush=True)
 
-log_to_google_sheets(
-    message,                      # Prompt
-    page_url,                     # Page URL
-    module,                       # Product
-    feature,                      # Feature
-    "matrix",                     # Status (assuming this is matrix-matched, not GPT fallback)
-    matched_solution.get("issue", "N/A"),  # Matched Issue
-    how_it_works,                 # Matched Solution (i.e., "How it works")
-    keyword                       # Keyword
-)
+            log_to_google_sheets(
+                message,
+                page_url,
+                module,
+                feature,
+                "matrix",
+                matched_issue,
+                how_it_works,
+                keyword
+            )
+
             return jsonify(result)
 
         print("❌ No matching solution found.", flush=True)
