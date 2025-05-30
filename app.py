@@ -1,4 +1,3 @@
-# ✅ Updated app.py with GPT validation for matrix match
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from datetime import datetime
@@ -56,57 +55,46 @@ def log_to_google_sheets(prompt, page_url, product, feature, status, matched_iss
         print("❌ Error logging to Google Sheets:", str(e))
         traceback.print_exc()
 
-# ✅ GPT fallback generation
-def get_gpt_fallback(message):
-    fallback_prompt = f"""
-You are a Cliniconex expert who has extensive and deep knowledge of the products and solutions and can provide a solution for any issue you come across. Whether it's one product or multiple products that form a solution, you know what to recommend. You are also an expert in the features each product offers and can easily provide recommendations.
+# ✅ GPT fallback prompt
+def generate_gpt_solution(issue):
+    gpt_prompt = f"""
+You are a Cliniconex expert who has deep knowledge of our products and features and can confidently recommend solutions to healthcare industry problems. Your task is to:
 
-Based on the following issue from a healthcare provider:
-"{message}"
+1. Identify whether the issue is best addressed by Automated Care Messaging (ACM), Automated Care Scheduling (ACS), or both.
+2. Select one or more relevant features from: ACM Messaging, ACM Vault, ACM Alerts, ACM Concierge, ACS Booking, ACS Forms, ACS Surveys.
+3. Clearly explain how the recommended solution addresses the issue.
+4. Provide 2–3 concrete benefits in a friendly, clinical tone.
 
-Your task is to:
-1. Identify the most relevant Cliniconex product (Automated Care Messaging or Automated Care Scheduling).
-2. Choose one or more matching features from this list: ACM Messaging, ACM Vault, ACM Alerts, ACM Concierge, ACS Booking, ACS Forms, ACS Surveys.
-3. Explain how the product addresses the issue.
-4. Provide 2–3 concrete benefits in Cliniconex’s tone of voice.
-5. Include how ACM or ACS fits into the broader Automated Care Platform.
+Note: These products are part of the larger Cliniconex Automated Care Platform that streamlines communication and scheduling for providers and patients.
 
-Return JSON like:
+Based on the issue:
+\"\"\"{issue}\"\"\"
+
+Return valid JSON exactly like:
 {{
-  "product": "Automated Care Scheduling",
-  "feature": "ACS Booking – Enables self-service scheduling for patients via online portals.",
-  "how_it_works": "Explain in one paragraph...",
-  "benefits": "Bullet-style phrasing."
+  "product": "Automated Care Messaging",
+  "feature": "ACM Messaging – Delivers appointment updates via voice, text, or email.",
+  "how_it_works": "Explain in a short paragraph...",
+  "benefits": "- Improves patient communication\n- Reduces manual staff work\n- Decreases no-show rates"
 }}
 """
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[{"role": "user", "content": fallback_prompt}]
-    )
-    return json.loads(response.choices[0].message.content)
 
-# ✅ Matrix result validator
-def validate_matrix_with_gpt(message, matrix_result):
-    validation_prompt = f"""
-You are an expert at reviewing healthcare solutions from Cliniconex.
-
-A user has entered the issue:
-"{message}"
-
-A solution was found in the matrix:
-Product: {matrix_result['product']}
-Features: {matrix_result['feature']}
-Solution: {matrix_result['solution']}
-Benefits: {matrix_result['benefits']}
-
-Does this matrix solution logically and effectively address the user's issue?
-Respond only with "yes" or "no".
-"""
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[{"role": "user", "content": validation_prompt}]
-    )
-    return response.choices[0].message.content.strip().lower() == "yes"
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[{
+                "role": "user",
+                "content": gpt_prompt
+            }],
+            temperature=0.4
+        )
+        content = response.choices[0].message.content.strip()
+        parsed = json.loads(content)
+        return parsed
+    except Exception as e:
+        print("❌ GPT fallback failed:", str(e))
+        traceback.print_exc()
+        return None
 
 # ✅ AI endpoint
 @app.route("/ai", methods=["POST"])
@@ -115,6 +103,9 @@ def get_solution():
         data = request.get_json()
         message = data.get("message", "").lower()
         page_url = data.get("page_url", "")
+
+        print("📩 /ai endpoint hit")
+        print("🔍 Message received:", message)
 
         matched_keyword = None
         matched_solution = None
@@ -129,7 +120,8 @@ def get_solution():
                 break
 
         if matched_solution:
-            module = matched_solution.get("product", "N/A")
+            # Matrix match result
+            product = matched_solution.get("product", "N/A")
             feature_list = matched_solution.get("features", [])
             feature = ", ".join(feature_list) if feature_list else "N/A"
             how_it_works = matched_solution.get("solution", "N/A")
@@ -137,51 +129,59 @@ def get_solution():
             matched_issue = matched_solution.get("issue", "N/A")
             keyword = matched_keyword or "N/A"
 
-            matrix_result = {
+            result = {
                 "type": "solution",
-                "module": module,
+                "module": product,
                 "feature": feature,
                 "solution": how_it_works,
                 "benefits": benefits,
-                "keyword": keyword,
-                "status": "matrix",
-                "matched_issue": matched_issue,
-                "matched_solution": how_it_works
+                "keyword": keyword
             }
 
-            if validate_matrix_with_gpt(message, matrix_result):
-                log_to_google_sheets(
-                    message,
-                    page_url,
-                    module,
-                    feature,
-                    "matrix",
-                    matched_issue,
-                    how_it_works,
-                    keyword
-                )
-                return jsonify(matrix_result)
+            log_to_google_sheets(
+                message,
+                page_url,
+                product,
+                feature,
+                "matrix",
+                matched_issue,
+                how_it_works,
+                keyword
+            )
 
-        # 🔁 Fall back to GPT
-        gpt_response = get_gpt_fallback(message)
-        log_to_google_sheets(
-            message,
-            page_url,
-            gpt_response.get("product", "GPT generated"),
-            gpt_response.get("feature", "GPT generated"),
-            "gpt-fallback",
-            "GPT generated",
-            gpt_response.get("how_it_works", "N/A"),
-            "GPT"
-        )
+            print("✅ Matrix match returned.")
+            return jsonify(result)
 
+        # ✅ GPT fallback
+        gpt_result = generate_gpt_solution(message)
+        if gpt_result:
+            result = {
+                "type": "solution",
+                "module": gpt_result.get("product", "GPT fallback"),
+                "feature": gpt_result.get("feature", "GPT fallback"),
+                "solution": gpt_result.get("how_it_works", "Generated by GPT"),
+                "benefits": gpt_result.get("benefits", "Generated by GPT"),
+                "keyword": message
+            }
+
+            log_to_google_sheets(
+                message,
+                page_url,
+                result["module"],
+                result["feature"],
+                "gpt-fallback",
+                "GPT generated",
+                result["solution"],
+                result["keyword"]
+            )
+
+            print("✅ GPT fallback returned.")
+            return jsonify(result)
+
+        print("❌ No solution found. GPT fallback failed.")
         return jsonify({
-            "type": "solution",
-            "module": gpt_response.get("product", "N/A"),
-            "feature": gpt_response.get("feature", "N/A"),
-            "solution": gpt_response.get("how_it_works", "N/A"),
-            "benefits": gpt_response.get("benefits", "N/A"),
-            "keyword": "GPT"
+            "type": "no_match",
+            "message": "No matching solution found."
         })
 
     except Exception as e:
@@ -192,7 +192,7 @@ def get_solution():
             "message": "Internal Server Error"
         }), 500
 
-# ✅ Render-compatible port binding
+# ✅ Port binding for Render
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     print(f"✅ Starting Cliniconex AI widget on port {port}")
