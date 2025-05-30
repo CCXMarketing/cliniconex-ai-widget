@@ -102,48 +102,53 @@ def get_solution():
         print("📩 /ai endpoint hit", flush=True)
         print("🔍 Message received:", message, flush=True)
 
-        # Matrix keyword match
-        matched_keyword = None
-        matched_solution = None
+        # Step 1: Score all matrix entries
+        best_matrix_score = 0
+        best_matrix_match = None
+        best_matrix_keyword = None
+
+        def score_match(msg, item):
+            score = 0
+            for k in item.get("keywords", []):
+                if k.lower() in msg:
+                    score += 1
+            return score
+
         for item in solution_matrix:
-            for keyword in item.get("keywords", []):
-                if keyword.lower() in message:
-                    matched_keyword = keyword
-                    matched_solution = item
-                    break
-            if matched_solution:
-                break
+            score = score_match(message, item)
+            if score > best_matrix_score:
+                best_matrix_score = score
+                best_matrix_match = item
+                best_matrix_keyword = next((k for k in item.get("keywords", []) if k.lower() in message), None)
 
-        # Decision logic
-        if matched_solution:
-            issue_text = matched_solution.get("issue", "").lower()
-            if len(message.split()) >= 5 and matched_keyword not in issue_text:
-                print("🤖 GPT fallback activated due to low keyword relevance", flush=True)
-                matched_solution = None  # GPT will override
+        # Step 2: Run GPT fallback in parallel
+        gpt_response = generate_gpt_solution(message)
 
-        # Return matrix match
-        if matched_solution:
-            module = matched_solution.get("product", "N/A")
-            features = ", ".join(matched_solution.get("features", [])) or "N/A"
-            how_it_works = matched_solution.get("solution", "N/A")
-            benefits = matched_solution.get("benefits", "N/A")
-            issue = matched_solution.get("issue", "N/A")
-            keyword = matched_keyword or "N/A"
+        # Step 3: Evaluate both and return the most relevant
+        if best_matrix_score >= 2 and best_matrix_match:
+            item = best_matrix_match
+            module = item.get("product", "N/A")
+            features = ", ".join(item.get("features", [])) or "N/A"
+            how_it_works = item.get("solution", "N/A")
+            benefits = item.get("benefits", "N/A")
+            issue = item.get("issue", "N/A")
+            keyword = best_matrix_keyword or "N/A"
 
             log_to_google_sheets(message, page_url, module, features, "matrix", issue, how_it_works, keyword)
 
+            response_text = f"""
+To help with this issue, we recommend using **{module}**, specifically the feature(s): **{features}**.
+This works by {how_it_works.strip()}
+You’ll benefit from: {benefits.strip()}
+"""
+
             return jsonify({
                 "type": "solution",
-                "module": module,
-                "feature": features,
-                "solution": how_it_works,
-                "benefits": benefits,
+                "message": response_text.strip(),
                 "keyword": keyword
             })
 
-        # Fallback to GPT
-        gpt_response = generate_gpt_solution(message)
-        if gpt_response:
+        elif gpt_response:
             product = gpt_response.get("product", "N/A")
             feature = gpt_response.get("feature", "N/A")
             how_it_works = gpt_response.get("how_it_works", "N/A")
@@ -151,20 +156,24 @@ def get_solution():
 
             log_to_google_sheets(message, page_url, product, feature, "gpt-fallback", "GPT generated", how_it_works, message)
 
+            response_text = f"""
+To address your concern, we suggest **{product}**, using the feature: **{feature}**.
+Here's how it helps: {how_it_works.strip()}
+Key benefits include: {benefits.strip()}
+"""
+
             return jsonify({
                 "type": "solution",
-                "module": product,
-                "feature": feature,
-                "solution": how_it_works,
-                "benefits": benefits,
+                "message": response_text.strip(),
                 "keyword": message
             })
 
-        print("❌ GPT fallback failed to generate a response.", flush=True)
-        return jsonify({
-            "type": "no_match",
-            "message": "We couldn't generate a relevant solution."
-        })
+        else:
+            print("❌ No suitable solution found.", flush=True)
+            return jsonify({
+                "type": "no_match",
+                "message": "We couldn't generate a relevant solution."
+            })
 
     except Exception as e:
         print("❌ Internal Server Error:", str(e))
@@ -173,6 +182,7 @@ def get_solution():
             "type": "error",
             "message": "Internal Server Error"
         }), 500
+
 
 # ✅ Render-compatible port binding
 if __name__ == "__main__":
