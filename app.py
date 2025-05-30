@@ -56,28 +56,56 @@ def log_to_google_sheets(prompt, page_url, product, feature, status, matched_iss
         traceback.print_exc()
 
 # ✅ GPT fallback prompt
+import re
+
 def generate_gpt_solution(message):
     gpt_prompt = f"""
-You are a Cliniconex expert with deep knowledge of all Cliniconex products and features. Given the issue:
+You are a Cliniconex solutions expert with deep expertise in the company’s full suite of products and features. You can confidently assess any healthcare-related issue and determine the most effective solution—whether it involves a single product or a combination of offerings. You understand how each feature functions within the broader Automated Care Platform (ACP) and are skilled at tailoring precise recommendations to address real-world clinical, operational, and administrative challenges.
 
-\"{message}\"
+Cliniconex offers the **Automated Care Platform (ACP)** — a complete system for communication, coordination, and care automation. ACP is composed of two core solutions:
 
-Do the following:
-1. Recommend the most relevant Cliniconex product(s): Automated Care Messaging (ACM), Automated Care Scheduling (ACS), or both.
-2. Recommend one or more features from: ACM Messaging, ACM Vault, ACM Alerts, ACM Concierge, ACS Booking, ACS Forms, ACS Surveys.
-3. Explain how the product(s) solve the issue.
-4. List 2–3 benefits.
+- **Automated Care Messaging (ACM)** – used to streamline outreach to patients, families, and staff through voice, SMS, and email.
+- **Automated Care Scheduling (ACS)** – used to automate appointment scheduling and related workflows.
 
-Tie all solutions back to the broader Automated Care Platform (ACP).
+These solutions include the following features:
 
-Return valid JSON exactly like:
+**Automated Care Messaging (ACM):**
+- **ACM Messaging** – Sends personalized messages via voice, SMS, or email.
+- **ACM Vault** – Logs all communications for compliance and auditing.
+- **ACM Alerts** – Notifies staff only when human follow-up is needed.
+- **ACM Concierge** – Shares real-time wait time data with patients and families.
+
+**Automated Care Scheduling (ACS):**
+- **ACS Booking** – Enables self-service appointment scheduling for patients.
+- **ACS Forms** – Collects intake or follow-up information automatically.
+- **ACS Surveys** – Gathers feedback from patients or families post-care.
+
+Here is a real-world issue described by a healthcare provider:
+"{message}"
+
+Your task is to:
+1. Determine whether the issue aligns best with **Automated Care Messaging**, **Automated Care Scheduling**, or both.
+2. Select **one or more features** from the list above that are most relevant.
+3. Write **one concise paragraph** explaining how the selected product(s) and feature(s) solve the issue — include how this fits within the overall Automated Care Platform (ACP).
+4. Provide a list of **2–3 specific operational benefits** written in Cliniconex’s confident, helpful tone.
+
+Respond ONLY in this exact JSON format:
+
 {{
   "product": "Automated Care Messaging",
-  "feature": "ACM Messaging – Delivers appointment updates via voice, text, or email.",
-  "how_it_works": "Explain in a short paragraph...",
-  "benefits": "- Improves patient communication\n- Reduces manual staff work\n- Decreases no-show rates"
+  "feature": "ACM Concierge – Shares real-time wait time data with patients and families.",
+  "how_it_works": "One paragraph that connects the solution to the problem and explains how the feature fits into the broader ACP.",
+  "benefits": [
+    "Reduces staff workload by eliminating manual communications.",
+    "Improves patient satisfaction with timely and transparent updates.",
+    "Integrates directly with your EMR for seamless automation."
+  ]
 }}
+
+Do not include anything outside the JSON block.
+Focus on solving the issue. Be specific. Use real-world healthcare workflow language.
 """
+
     try:
         response = openai.ChatCompletion.create(
             model="gpt-4",
@@ -85,9 +113,30 @@ Return valid JSON exactly like:
             temperature=0.7
         )
         result_text = response['choices'][0]['message']['content']
-        return json.loads(result_text)
+        print("🧠 GPT raw output:\n", result_text, flush=True)
+
+        # Try parsing as JSON
+        try:
+            parsed = json.loads(result_text)
+        except json.JSONDecodeError:
+            print("⚠️ Standard JSON parsing failed. Attempting regex fallback.", flush=True)
+            match = re.search(r'\{.*\}', result_text, re.DOTALL)
+            if match:
+                parsed = json.loads(match.group(0))
+            else:
+                print("❌ Regex fallback failed to extract JSON.", flush=True)
+                return None
+
+        # Validate required fields
+        required_keys = {"product", "feature", "how_it_works", "benefits"}
+        if all(k in parsed and parsed[k] for k in required_keys):
+            return parsed
+        else:
+            print("❌ Parsed GPT response missing required fields.", flush=True)
+            return None
+
     except Exception as e:
-        print("❌ GPT fallback failed:", str(e))
+        print("❌ GPT fallback error:", str(e))
         traceback.print_exc()
         return None
 
