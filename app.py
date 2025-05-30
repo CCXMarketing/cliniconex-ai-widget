@@ -1,3 +1,4 @@
+# ✅ Updated app.py with GPT validation for matrix match
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from datetime import datetime
@@ -30,6 +31,7 @@ credentials = service_account.Credentials.from_service_account_file(
 service = build("sheets", "v4", credentials=credentials)
 sheet = service.spreadsheets()
 
+# ✅ Logging function
 def log_to_google_sheets(prompt, page_url, product, feature, status, matched_issue, matched_solution, keyword):
     try:
         timestamp = datetime.now(ZoneInfo("America/Toronto")).strftime("%Y-%m-%d %H:%M:%S")
@@ -54,6 +56,58 @@ def log_to_google_sheets(prompt, page_url, product, feature, status, matched_iss
         print("❌ Error logging to Google Sheets:", str(e))
         traceback.print_exc()
 
+# ✅ GPT fallback generation
+def get_gpt_fallback(message):
+    fallback_prompt = f"""
+You are a Cliniconex expert who has extensive and deep knowledge of the products and solutions and can provide a solution for any issue you come across. Whether it's one product or multiple products that form a solution, you know what to recommend. You are also an expert in the features each product offers and can easily provide recommendations.
+
+Based on the following issue from a healthcare provider:
+"{message}"
+
+Your task is to:
+1. Identify the most relevant Cliniconex product (Automated Care Messaging or Automated Care Scheduling).
+2. Choose one or more matching features from this list: ACM Messaging, ACM Vault, ACM Alerts, ACM Concierge, ACS Booking, ACS Forms, ACS Surveys.
+3. Explain how the product addresses the issue.
+4. Provide 2–3 concrete benefits in Cliniconex’s tone of voice.
+5. Include how ACM or ACS fits into the broader Automated Care Platform.
+
+Return JSON like:
+{{
+  "product": "Automated Care Scheduling",
+  "feature": "ACS Booking – Enables self-service scheduling for patients via online portals.",
+  "how_it_works": "Explain in one paragraph...",
+  "benefits": "Bullet-style phrasing."
+}}
+"""
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[{"role": "user", "content": fallback_prompt}]
+    )
+    return json.loads(response.choices[0].message.content)
+
+# ✅ Matrix result validator
+def validate_matrix_with_gpt(message, matrix_result):
+    validation_prompt = f"""
+You are an expert at reviewing healthcare solutions from Cliniconex.
+
+A user has entered the issue:
+"{message}"
+
+A solution was found in the matrix:
+Product: {matrix_result['product']}
+Features: {matrix_result['feature']}
+Solution: {matrix_result['solution']}
+Benefits: {matrix_result['benefits']}
+
+Does this matrix solution logically and effectively address the user's issue?
+Respond only with "yes" or "no".
+"""
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[{"role": "user", "content": validation_prompt}]
+    )
+    return response.choices[0].message.content.strip().lower() == "yes"
+
 # ✅ AI endpoint
 @app.route("/ai", methods=["POST"])
 def get_solution():
@@ -61,9 +115,6 @@ def get_solution():
         data = request.get_json()
         message = data.get("message", "").lower()
         page_url = data.get("page_url", "")
-
-        print("📩 /ai endpoint hit", flush=True)
-        print("🔍 Message received:", message, flush=True)
 
         matched_keyword = None
         matched_solution = None
@@ -86,86 +137,55 @@ def get_solution():
             matched_issue = matched_solution.get("issue", "N/A")
             keyword = matched_keyword or "N/A"
 
-            result = {
+            matrix_result = {
                 "type": "solution",
                 "module": module,
                 "feature": feature,
                 "solution": how_it_works,
                 "benefits": benefits,
-                "keyword": keyword
+                "keyword": keyword,
+                "status": "matrix",
+                "matched_issue": matched_issue,
+                "matched_solution": how_it_works
             }
 
-            log_to_google_sheets(
-                message,
-                page_url,
-                module,
-                feature,
-                "matrix",
-                matched_issue,
-                how_it_works,
-                keyword
-            )
+            if validate_matrix_with_gpt(message, matrix_result):
+                log_to_google_sheets(
+                    message,
+                    page_url,
+                    module,
+                    feature,
+                    "matrix",
+                    matched_issue,
+                    how_it_works,
+                    keyword
+                )
+                return jsonify(matrix_result)
 
-            return jsonify(result)
-
-        # ✅ GPT fallback
-        gpt_prompt = f"""
-You are a Cliniconex solutions expert with deep expertise in the company’s full suite of products and features. You can confidently assess any healthcare-related issue and determine the most effective solution—whether it involves a single product or a combination of offerings. You understand how each feature functions within the broader Automated Care Platform (ACP) and are skilled at tailoring precise recommendations to address real-world clinical, operational, and administrative challenges.
-
-Based on the following issue from a healthcare provider:
-"{message}"
-
-Your task is to:
-1. Identify the most relevant Cliniconex product or combination of products (Automated Care Messaging and/or Automated Care Scheduling) as part of the overarching Automated Care Platform.
-2. Select the most appropriate feature(s) from this list: ACM Messaging, ACM Vault, ACM Alerts, ACM Concierge, ACS Booking, ACS Forms, ACS Surveys.
-3. Clearly explain how the chosen product(s) and features address the issue, written in a clear and professional tone suitable for healthcare decision-makers.
-4. Provide 2–3 specific, tangible benefits written in Cliniconex’s tone: outcome-focused, value-driven, and patient/staff-centric.
-
-Return only a valid JSON object in this format:
-{{
-  "product": "Automated Care Messaging",
-  "feature": "ACM Messaging – Delivers messages over voice, text, and email. Channel Ranking – Uses EMR history to select the most effective method for each recipient.",
-  "how_it_works": "Explain in 2–3 sentences how the solution resolves the issue, written in the tone of a solution overview.",
-  "benefits": "• Reduces staff workload by automating message delivery\\n• Increases patient engagement using preferred communication channels\\n• Improves care coordination and reduces missed appointments"
-}}
-"""
-
-        gpt_response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=[{"role": "user", "content": gpt_prompt}],
-            temperature=0.4
-        )
-
-        parsed = json.loads(gpt_response.choices[0].message["content"])
-        module = parsed.get("product", "N/A")
-        feature = parsed.get("feature", "N/A")
-        how_it_works = parsed.get("how_it_works", "N/A")
-        benefits = parsed.get("benefits", "N/A")
-
-        result = {
-            "type": "solution",
-            "module": module,
-            "feature": feature,
-            "solution": how_it_works,
-            "benefits": benefits,
-            "keyword": message
-        }
-
+        # 🔁 Fall back to GPT
+        gpt_response = get_gpt_fallback(message)
         log_to_google_sheets(
             message,
             page_url,
-            module,
-            feature,
+            gpt_response.get("product", "GPT generated"),
+            gpt_response.get("feature", "GPT generated"),
             "gpt-fallback",
-            "GPT-generated",
-            how_it_works,
-            message
+            "GPT generated",
+            gpt_response.get("how_it_works", "N/A"),
+            "GPT"
         )
 
-        return jsonify(result)
+        return jsonify({
+            "type": "solution",
+            "module": gpt_response.get("product", "N/A"),
+            "feature": gpt_response.get("feature", "N/A"),
+            "solution": gpt_response.get("how_it_works", "N/A"),
+            "benefits": gpt_response.get("benefits", "N/A"),
+            "keyword": "GPT"
+        })
 
     except Exception as e:
-        print("❌ Internal Server Error:", str(e), flush=True)
+        print("❌ Internal Server Error:", str(e))
         traceback.print_exc()
         return jsonify({
             "type": "error",
