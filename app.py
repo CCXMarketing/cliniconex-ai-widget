@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from datetime import datetime
+from zoneinfo import ZoneInfo
 import openai
 import os
 import json
@@ -32,6 +33,7 @@ sheet = service.spreadsheets()
 # ✅ Logging function
 def log_to_google_sheets(prompt, page_url, product, feature, status, matched_issue, matched_solution, keyword):
     try:
+        timestamp = datetime.now(ZoneInfo("America/Toronto")).strftime("%Y-%m-%d %H:%M:%S")
         values = [[
             datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             prompt,
