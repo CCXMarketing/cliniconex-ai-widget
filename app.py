@@ -1,24 +1,25 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from datetime import datetime
+from zoneinfo import ZoneInfo
 import openai
 import os
 import json
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 
-# ✅ Load environment variables
+# ✅ Load OpenAI API key from environment
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # ✅ Flask setup
 app = Flask(__name__)
 CORS(app)
 
-# ✅ Load solutions with keywords
+# ✅ Load the Cliniconex solutions matrix
 with open("cliniconex_solutions.json", "r", encoding="utf-8") as f:
     solution_matrix = json.load(f)
 
-# ✅ Google Sheets logging
+# ✅ Log data to Google Sheet
 def log_to_google_sheet(row_data):
     try:
         SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
@@ -41,7 +42,7 @@ def log_to_google_sheet(row_data):
         print(f"❌ Google Sheets logging failed: {e}")
         return None
 
-# ✅ Keyword matcher
+# ✅ Keyword-based matcher
 def find_keyword_match(user_input):
     input_lower = user_input.lower()
     for entry in solution_matrix:
@@ -51,7 +52,7 @@ def find_keyword_match(user_input):
                 return entry
     return None
 
-# ✅ GPT fallback
+# ✅ GPT fallback logic
 def get_gpt_solution(user_input):
     prompt = f"""
 You are a helpful assistant working for Cliniconex, a healthcare communication company.
@@ -89,7 +90,7 @@ def ai_route():
     try:
         data = request.json
         message = data.get("message", "").strip()
-        page_url = data.get("page_url", "")  # ✅ Capture page URL
+        page_url = data.get("page_url", "")  # ✅ Match key from frontend JS
 
         if not message:
             return jsonify({"type": "unclear", "message": "Please provide a message."}), 400
@@ -101,7 +102,7 @@ def ai_route():
             feature_display = feature_display.replace("|", "<strong> | </strong>")
 
             row = [
-                str(datetime.now()),
+                str(datetime.now(ZoneInfo("America/Toronto"))),  # ✅ Eastern Time
                 message,
                 match.get("product", ""),
                 feature_display,
@@ -130,7 +131,7 @@ def ai_route():
                 feature_display = feature_display.replace("|", "<strong> | </strong>")
 
                 row = [
-                    str(datetime.now()),
+                    str(datetime.now(ZoneInfo("America/Toronto"))),
                     message,
                     gpt_result.get("module", ""),
                     feature_display,
@@ -156,7 +157,7 @@ def ai_route():
         print(f"❌ Internal error: {e}")
         return jsonify({"error": "Internal server error"}), 500
 
-# ✅ Health check
+# ✅ Health check endpoint
 @app.route("/", methods=["GET"])
 def index():
     return "✅ Cliniconex AI Solution Advisor is running."
