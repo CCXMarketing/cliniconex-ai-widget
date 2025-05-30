@@ -30,7 +30,7 @@ service = build("sheets", "v4", credentials=credentials)
 sheet = service.spreadsheets()
 
 # ✅ Logging function with keyword
-def log_to_google_sheets(message, page_url, module, feature, solution, benefits, keyword):
+def log_to_google_sheets(message, page_url, module, feature, how_it_works, benefits, keyword):
     try:
         values = [[
             datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -38,7 +38,7 @@ def log_to_google_sheets(message, page_url, module, feature, solution, benefits,
             message,
             module,
             feature,
-            solution,
+            how_it_works,
             benefits,
             keyword
         ]]
@@ -49,7 +49,7 @@ def log_to_google_sheets(message, page_url, module, feature, solution, benefits,
             body={"values": values}
         ).execute()
     except Exception as e:
-        print("❌ Error logging to Google Sheets:", str(e))
+        print("❌ Error logging to Google Sheets:", str(e), flush=True)
         traceback.print_exc()
 
 # ✅ AI endpoint
@@ -78,7 +78,7 @@ def get_solution():
         if matched_solution:
             module = matched_solution.get("solution", "N/A")
             feature = matched_solution.get("features_used", "N/A")
-            solution_text = matched_solution.get("description", "N/A")
+            how_it_works = matched_solution.get("how_it_works", matched_solution.get("description", "N/A"))
             benefits = matched_solution.get("benefits", "N/A")
             keyword = matched_keyword or "N/A"
 
@@ -86,7 +86,7 @@ def get_solution():
                 "type": "solution",
                 "module": module,
                 "feature": feature,
-                "solution": solution_text,
+                "solution": how_it_works,
                 "benefits": benefits,
                 "keyword": keyword
             }
@@ -96,7 +96,7 @@ def get_solution():
             try:
                 log_to_google_sheets(
                     message, page_url,
-                    module, feature, solution_text, benefits, keyword
+                    module, feature, how_it_works, benefits, keyword
                 )
             except Exception as log_err:
                 print("❌ Logging to Google Sheets failed:", log_err, flush=True)
@@ -117,8 +117,9 @@ def get_solution():
             "type": "error",
             "message": "Internal Server Error"
         }), 500
+
 # ✅ Render-compatible port binding
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
-    print(f"✅ Starting Cliniconex AI widget on port {port}")
+    print(f"✅ Starting Cliniconex AI widget on port {port}", flush=True)
     app.run(host="0.0.0.0", port=port)
