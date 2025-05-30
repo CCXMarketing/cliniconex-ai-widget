@@ -30,7 +30,6 @@ credentials = service_account.Credentials.from_service_account_file(
 service = build("sheets", "v4", credentials=credentials)
 sheet = service.spreadsheets()
 
-# ✅ Logging function
 def log_to_google_sheets(prompt, page_url, product, feature, status, matched_issue, matched_solution, keyword):
     try:
         timestamp = datetime.now(ZoneInfo("America/Toronto")).strftime("%Y-%m-%d %H:%M:%S")
@@ -96,8 +95,6 @@ def get_solution():
                 "keyword": keyword
             }
 
-            print("✅ Returning result to frontend:", json.dumps(result, indent=2), flush=True)
-
             log_to_google_sheets(
                 message,
                 page_url,
@@ -111,53 +108,61 @@ def get_solution():
 
             return jsonify(result)
 
-        # ❌ No keyword match – use GPT fallback
-        print("⚠️ No keyword match found. Using GPT fallback...", flush=True)
+        # ✅ GPT fallback
+        gpt_prompt = f"""
+You are a Cliniconex solutions expert with deep expertise in the company’s full suite of products and features. You can confidently assess any healthcare-related issue and determine the most effective solution—whether it involves a single product or a combination of offerings. You understand how each feature functions within the broader Automated Care Platform (ACP) and are skilled at tailoring precise recommendations to address real-world clinical, operational, and administrative challenges.
 
-        try:
-            gpt_prompt = f"A healthcare provider says: '{message}'. Based on Cliniconex solutions, suggest the most appropriate product, features, and how it helps. Be concise."
-            gpt_response = openai.ChatCompletion.create(
-                model="gpt-4",
-                messages=[
-                    {"role": "system", "content": "You are a healthcare product expert helping users find Cliniconex solutions."},
-                    {"role": "user", "content": gpt_prompt}
-                ],
-                temperature=0.7
-            )
+Based on the following issue from a healthcare provider:
+"{message}"
 
-            gpt_text = gpt_response.choices[0].message["content"].strip()
+Your task is to:
+1. Identify the most relevant Cliniconex product or combination of products (Automated Care Messaging and/or Automated Care Scheduling) as part of the overarching Automated Care Platform.
+2. Select the most appropriate feature(s) from this list: ACM Messaging, ACM Vault, ACM Alerts, ACM Concierge, ACS Booking, ACS Forms, ACS Surveys.
+3. Clearly explain how the chosen product(s) and features address the issue, written in a clear and professional tone suitable for healthcare decision-makers.
+4. Provide 2–3 specific, tangible benefits written in Cliniconex’s tone: outcome-focused, value-driven, and patient/staff-centric.
 
-            result = {
-                "type": "solution",
-                "module": "GPT-generated",
-                "feature": "GPT-generated",
-                "solution": gpt_text,
-                "benefits": "GPT-generated based on context.",
-                "keyword": "N/A"
-            }
+Return only a valid JSON object in this format:
+{{
+  "product": "Automated Care Messaging",
+  "feature": "ACM Messaging – Delivers messages over voice, text, and email. Channel Ranking – Uses EMR history to select the most effective method for each recipient.",
+  "how_it_works": "Explain in 2–3 sentences how the solution resolves the issue, written in the tone of a solution overview.",
+  "benefits": "• Reduces staff workload by automating message delivery\\n• Increases patient engagement using preferred communication channels\\n• Improves care coordination and reduces missed appointments"
+}}
+"""
 
-            print("🤖 GPT Fallback Result:", json.dumps(result, indent=2), flush=True)
+        gpt_response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[{"role": "user", "content": gpt_prompt}],
+            temperature=0.4
+        )
 
-            log_to_google_sheets(
-                message,
-                page_url,
-                "GPT-generated",
-                "GPT-generated",
-                "gpt-fallback",
-                message,        # ✅ Log original prompt as matched issue
-                gpt_text,
-                "N/A"
-            )
+        parsed = json.loads(gpt_response.choices[0].message["content"])
+        module = parsed.get("product", "N/A")
+        feature = parsed.get("feature", "N/A")
+        how_it_works = parsed.get("how_it_works", "N/A")
+        benefits = parsed.get("benefits", "N/A")
 
-            return jsonify(result)
+        result = {
+            "type": "solution",
+            "module": module,
+            "feature": feature,
+            "solution": how_it_works,
+            "benefits": benefits,
+            "keyword": message
+        }
 
-        except Exception as e:
-            print("❌ GPT fallback failed:", str(e), flush=True)
-            traceback.print_exc()
-            return jsonify({
-                "type": "error",
-                "message": "GPT fallback failed"
-            }), 500
+        log_to_google_sheets(
+            message,
+            page_url,
+            module,
+            feature,
+            "gpt-fallback",
+            "GPT-generated",
+            how_it_works,
+            message
+        )
+
+        return jsonify(result)
 
     except Exception as e:
         print("❌ Internal Server Error:", str(e), flush=True)
