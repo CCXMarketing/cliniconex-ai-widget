@@ -55,39 +55,6 @@ def log_to_google_sheets(prompt, page_url, product, feature, status, matched_iss
         print("❌ Error logging to Google Sheets:", str(e))
         traceback.print_exc()
 
-# ✅ GPT fallback generation
-def generate_gpt_solution(message):
-    try:
-        system_prompt = (
-            "You are a product assistant for Cliniconex, a company that offers healthcare automation tools like "
-            "Automated Care Messaging (ACM) and Automated Care Scheduling (ACS). Respond to the user's problem by "
-            "recommending the most suitable Cliniconex product. Your response must be in JSON format with the following fields:\n"
-            "- module (Cliniconex product name)\n"
-            "- feature (specific feature names like ACM Messaging, ACM Alerts, ACM Vault, etc.)\n"
-            "- solution (how it solves the problem)\n"
-            "- benefits (what value the user gets)\n"
-            "- keyword (reused user input keyword)"
-        )
-
-        user_prompt = f"The user has this problem: \"{message}\". Please recommend a suitable Cliniconex product in the required JSON format."
-
-        completion = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
-            ],
-            temperature=0.4
-        )
-
-        response_text = completion.choices[0].message['content']
-        return json.loads(response_text)
-
-    except Exception as e:
-        print("❌ GPT fallback error:", str(e))
-        traceback.print_exc()
-        return None
-
 # ✅ AI endpoint
 @app.route("/ai", methods=["POST"])
 def get_solution():
@@ -119,42 +86,78 @@ def get_solution():
             benefits = matched_solution.get("benefits", "N/A")
             matched_issue = matched_solution.get("issue", "N/A")
             keyword = matched_keyword or "N/A"
-            status = "matrix"
 
-        else:
-            gpt_fallback = generate_gpt_solution(message)
-            if not gpt_fallback:
-                return jsonify({
-                    "type": "error",
-                    "message": "GPT fallback failed."
-                }), 500
+            result = {
+                "type": "solution",
+                "module": module,
+                "feature": feature,
+                "solution": how_it_works,
+                "benefits": benefits,
+                "keyword": keyword
+            }
 
-            module = gpt_fallback.get("module", "N/A")
-            feature = gpt_fallback.get("feature", "N/A")
-            how_it_works = gpt_fallback.get("solution", "N/A")
-            benefits = gpt_fallback.get("benefits", "N/A")
-            keyword = gpt_fallback.get("keyword", "N/A")
-            matched_issue = "message"
-            status = "gpt-fallback"
+            print("✅ Returning result to frontend:", json.dumps(result, indent=2), flush=True)
 
-        result = {
-            "type": "solution",
-            "module": module,
-            "feature": feature,
-            "solution": how_it_works,
-            "benefits": benefits,
-            "keyword": keyword
-        }
+            log_to_google_sheets(
+                message,
+                page_url,
+                module,
+                feature,
+                "matrix",
+                matched_issue,
+                how_it_works,
+                keyword
+            )
 
-        print("✅ Returning result to frontend:", json.dumps(result, indent=2), flush=True)
+            return jsonify(result)
 
-        log_to_google_sheets(
-            message, page_url,
-            module, feature, status,
-            matched_issue, how_it_works, keyword
-        )
+        # ❌ No keyword match – use GPT fallback
+        print("⚠️ No keyword match found. Using GPT fallback...", flush=True)
 
-        return jsonify(result)
+        try:
+            gpt_prompt = f"A healthcare provider says: '{message}'. Based on Cliniconex solutions, suggest the most appropriate product, features, and how it helps. Be concise."
+            gpt_response = openai.ChatCompletion.create(
+                model="gpt-4",
+                messages=[
+                    {"role": "system", "content": "You are a healthcare product expert helping users find Cliniconex solutions."},
+                    {"role": "user", "content": gpt_prompt}
+                ],
+                temperature=0.7
+            )
+
+            gpt_text = gpt_response.choices[0].message["content"].strip()
+
+            result = {
+                "type": "solution",
+                "module": "GPT-generated",
+                "feature": "GPT-generated",
+                "solution": gpt_text,
+                "benefits": "GPT-generated based on context.",
+                "keyword": "N/A"
+            }
+
+            print("🤖 GPT Fallback Result:", json.dumps(result, indent=2), flush=True)
+
+            log_to_google_sheets(
+                message,
+                page_url,
+                "GPT-generated",
+                "GPT-generated",
+                "gpt-fallback",
+                message,        # ✅ Log original prompt as matched issue
+                gpt_text,
+                "N/A"
+            )
+
+            return jsonify(result)
+
+        except Exception as e:
+            print("❌ GPT fallback failed:", str(e), flush=True)
+            traceback.print_exc()
+            return jsonify({
+                "type": "error",
+                "message": "GPT fallback failed"
+            }), 500
 
     except Exception as e:
         print("❌ Internal Server Error:", str(e), flush=True)
