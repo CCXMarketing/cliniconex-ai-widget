@@ -4,6 +4,7 @@ from datetime import datetime
 import openai
 import os
 import json
+import traceback
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 
@@ -30,67 +31,83 @@ sheet = service.spreadsheets()
 
 # ✅ Logging function with keyword
 def log_to_google_sheets(message, page_url, module, feature, solution, benefits, keyword):
-    values = [[
-        datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        page_url,
-        message,
-        module,
-        feature,
-        solution,
-        benefits,
-        keyword
-    ]]
-    sheet.values().append(
-        spreadsheetId=SHEET_ID,
-        range="Inputs!A1",
-        valueInputOption="RAW",
-        body={"values": values}
-    ).execute()
+    try:
+        values = [[
+            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            page_url,
+            message,
+            module,
+            feature,
+            solution,
+            benefits,
+            keyword
+        ]]
+        sheet.values().append(
+            spreadsheetId=SHEET_ID,
+            range="Inputs!A1",
+            valueInputOption="RAW",
+            body={"values": values}
+        ).execute()
+    except Exception as e:
+        print("❌ Error logging to Google Sheets:", str(e))
+        traceback.print_exc()
 
 # ✅ AI endpoint
 @app.route("/ai", methods=["POST"])
 def get_solution():
-    data = request.get_json()
-    message = data.get("message", "").lower()
-    page_url = data.get("page_url", "")
+    try:
+        data = request.get_json()
+        message = data.get("message", "").lower()
+        page_url = data.get("page_url", "")
 
-    matched_keyword = None
-    matched_solution = None
+        matched_keyword = None
+        matched_solution = None
 
-    for item in solution_matrix:
-        for keyword in item.get("keywords", []):
-            if keyword.lower() in message:
-                matched_keyword = keyword
-                matched_solution = item
+        for item in solution_matrix:
+            for keyword in item.get("keywords", []):
+                if keyword.lower() in message:
+                    matched_keyword = keyword
+                    matched_solution = item
+                    break
+            if matched_solution:
                 break
+
         if matched_solution:
-            break
+            result = {
+                "type": "solution",
+                "module": matched_solution.get("solution", "N/A"),
+                "feature": matched_solution.get("features_used", "N/A"),
+                "solution": matched_solution.get("description", "N/A"),
+                "benefits": matched_solution.get("benefits", "N/A"),
+                "keyword": matched_keyword or "N/A"
+            }
 
-    if matched_solution:
-        result = {
-            "type": "solution",
-            "module": matched_solution.get("solution", ""),
-            "feature": matched_solution.get("features_used", ""),
-            "solution": matched_solution.get("description", ""),
-            "benefits": matched_solution.get("benefits", ""),
-            "keyword": matched_keyword or "N/A"
-        }
+            log_to_google_sheets(
+                message, page_url,
+                result["module"],
+                result["feature"],
+                result["solution"],
+                result["benefits"],
+                result["keyword"]
+            )
 
-        log_to_google_sheets(
-            message, page_url,
-            result["module"],
-            result["feature"],
-            result["solution"],
-            result["benefits"],
-            result["keyword"]
-        )
+            return jsonify(result)
 
-        return jsonify(result)
+        return jsonify({
+            "type": "no_match",
+            "message": "No matching solution found."
+        })
 
-    return jsonify({
-        "type": "no_match",
-        "message": "No matching solution found."
-    })
+    except Exception as e:
+        print("❌ Internal Server Error:", str(e))
+        traceback.print_exc()
+        return jsonify({
+            "type": "error",
+            "message": "Internal Server Error"
+        }), 500
+
+# ✅ Render-compatible port binding
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))  # Default to 10000 if PORT isn't set
+    port = int(os.environ.get("PORT", 10000))
+    print(f"✅ Starting Cliniconex AI widget on port {port}")
     app.run(host="0.0.0.0", port=port)
