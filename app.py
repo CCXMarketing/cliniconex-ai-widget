@@ -197,11 +197,11 @@ You’ll benefit from: {benefits.strip()}
                 "keyword": keyword
             })
 
-elif gpt_response:
-    product = gpt_response.get("product", "N/A")
-    feature = gpt_response.get("feature", "N/A")
-    how_it_works = gpt_response.get("how_it_works", "N/A")
-    benefits = gpt_response.get("benefits", [])
+    elif gpt_response:
+        product = gpt_response.get("product", "N/A")
+        feature = gpt_response.get("feature", "N/A")
+        how_it_works = gpt_response.get("how_it_works", "N/A")
+        benefits = gpt_response.get("benefits", [])
 
     if isinstance(benefits, list):
         benefits_str = "\n".join(f"- {b}" for b in benefits)
