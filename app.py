@@ -89,14 +89,18 @@ def ai_route():
     try:
         data = request.json
         message = data.get("message", "").strip()
+        page_url = data.get("pageUrl", "")  # ✅ Capture page URL
+
         if not message:
             return jsonify({"type": "unclear", "message": "Please provide a message."}), 400
 
         match = find_keyword_match(message)
         if match:
             features_list = match.get("features", [])
-            feature_display = " | ".join([f.strip() for f in features_list])
+            feature_display = " | ".join([f"{feat.strip()}" for feat in features_list])
+            feature_display = feature_display.replace("|", "<strong> | </strong>")
 
+            # ✅ Row for Google Sheet
             row = [
                 str(datetime.now()),
                 message,
@@ -105,17 +109,20 @@ def ai_route():
                 "solution",
                 "matrix",
                 match.get("issue", ""),
-                match.get("solution", "")
+                match.get("solution", ""),
+                page_url  # ✅ Include page URL here
             ]
+
             log_to_google_sheet(row)
 
             return jsonify({
                 "type": "solution",
                 "module": match.get("product", ""),
-                "feature": feature_display,
+                "feature": f"Feature: {feature_display}" if feature_display else "Feature: Not specified",
                 "solution": match.get("solution", ""),
                 "benefits": match.get("benefits", "")
             })
+
 
         else:
             gpt_result = get_gpt_solution(message)
