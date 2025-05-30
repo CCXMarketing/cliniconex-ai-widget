@@ -44,7 +44,7 @@ def log_to_google_sheets(message, page_url, module, feature, solution, benefits,
         ]]
         sheet.values().append(
             spreadsheetId=SHEET_ID,
-            range="Inputs!A1",
+            range="Advisor Logs!A1",
             valueInputOption="RAW",
             body={"values": values}
         ).execute()
