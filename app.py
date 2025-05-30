@@ -197,7 +197,7 @@ You’ll benefit from: {benefits.strip()}
                 "keyword": keyword
             })
 
-       elif gpt_response:
+elif gpt_response:
     product = gpt_response.get("product", "N/A")
     feature = gpt_response.get("feature", "N/A")
     how_it_works = gpt_response.get("how_it_works", "N/A")
