@@ -95,11 +95,16 @@ def get_solution():
 
             print("✅ Returning result to frontend:", json.dumps(result, indent=2), flush=True)
 
-            log_to_google_sheets(
-                message, page_url,
-                module, feature, how_it_works, benefits, keyword
-            )
-
+           log_to_google_sheets(
+    message,                      # Prompt
+    page_url,                     # Page URL
+    module,                       # Product
+    feature,                      # Feature
+    "matrix",                     # Status (assuming this is matrix-matched, not GPT fallback)
+    matched_solution.get("issue", "N/A"),  # Matched Issue
+    how_it_works,                 # Matched Solution (i.e., "How it works")
+    keyword                       # Keyword
+)
             return jsonify(result)
 
         print("❌ No matching solution found.", flush=True)
