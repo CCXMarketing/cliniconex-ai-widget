@@ -91,3 +91,6 @@ def get_solution():
         "type": "no_match",
         "message": "No matching solution found."
     })
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 10000))  # Default to 10000 if PORT isn't set
+    app.run(host="0.0.0.0", port=port)
