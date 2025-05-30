@@ -95,7 +95,7 @@ def get_solution():
 
             print("✅ Returning result to frontend:", json.dumps(result, indent=2), flush=True)
 
-           log_to_google_sheets(
+log_to_google_sheets(
     message,                      # Prompt
     page_url,                     # Page URL
     module,                       # Product
