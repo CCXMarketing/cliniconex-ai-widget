@@ -149,7 +149,7 @@ def get_solution():
         print("📩 /ai endpoint hit")
         print("🔍 Message received:", message)
 
-        # Step 1: Score matrix
+        # Score matrix keyword match
         best_matrix_score = 0
         best_matrix_match = None
         best_matrix_keyword = None
@@ -164,27 +164,18 @@ def get_solution():
                 best_matrix_match = item
                 best_matrix_keyword = next((k for k in item.get("keywords", []) if k.lower() in message), None)
 
-        # Step 2: Always run GPT fallback
+        # Always run GPT
         gpt_response = generate_gpt_solution(message)
 
-        # Step 3: Determine if matrix match is valid
-        def is_audience_mismatch(issue_text, msg):
-            # If matrix issue is about families but user input mentions staff/nurses/etc
-            family_words = ["family", "caregiver", "loved ones"]
-            staff_words = ["staff", "nurse", "doctor", "shift", "on-call", "clinical", "team", "employee"]
-
-            issue_mentions_family = any(w in issue_text.lower() for w in family_words)
-            prompt_mentions_staff = any(w in msg.lower() for w in staff_words)
-
-            return issue_mentions_family and prompt_mentions_staff
-
+        # Smart matrix usage logic
         use_matrix = (
             best_matrix_score >= 2 and
             best_matrix_match and
-            not is_audience_mismatch(best_matrix_match.get("issue", ""), message)
+            gpt_response and (
+                gpt_response.get("product", "").lower() in best_matrix_match.get("product", "").lower()
+            )
         )
 
-        # Step 4: Return matrix solution if valid
         if use_matrix:
             item = best_matrix_match
             module = item.get("product", "N/A")
@@ -205,8 +196,7 @@ def get_solution():
                 "keyword": keyword
             })
 
-        # Step 5: Otherwise return GPT fallback
-        if gpt_response:
+        elif gpt_response:
             product = gpt_response.get("product", "N/A")
             feature = gpt_response.get("feature", "N/A")
             how_it_works = gpt_response.get("how_it_works", "No solution provided")
@@ -231,12 +221,12 @@ def get_solution():
                 "keyword": message
             })
 
-        # Step 6: No match at all
-        print("❌ No suitable solution found.")
-        return jsonify({
-            "type": "no_match",
-            "message": "We couldn't generate a relevant solution."
-        })
+        else:
+            print("❌ No suitable solution found.")
+            return jsonify({
+                "type": "no_match",
+                "message": "We couldn't generate a relevant solution."
+            })
 
     except Exception as e:
         print("❌ Internal Server Error:", str(e))
@@ -245,6 +235,7 @@ def get_solution():
             "type": "error",
             "message": "Internal Server Error"
         }), 500
+
 
 
 # ✅ Render-compatible launch
