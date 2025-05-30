@@ -60,6 +60,9 @@ def get_solution():
         message = data.get("message", "").lower()
         page_url = data.get("page_url", "")
 
+        print("📩 /ai endpoint hit", flush=True)
+        print("🔍 Message received:", message, flush=True)
+
         matched_keyword = None
         matched_solution = None
 
@@ -73,39 +76,47 @@ def get_solution():
                 break
 
         if matched_solution:
+            module = matched_solution.get("solution", "N/A")
+            feature = matched_solution.get("features_used", "N/A")
+            solution_text = matched_solution.get("description", "N/A")
+            benefits = matched_solution.get("benefits", "N/A")
+            keyword = matched_keyword or "N/A"
+
             result = {
                 "type": "solution",
-                "module": matched_solution.get("solution", "N/A"),
-                "feature": matched_solution.get("features_used", "N/A"),
-                "solution": matched_solution.get("description", "N/A"),
-                "benefits": matched_solution.get("benefits", "N/A"),
-                "keyword": matched_keyword or "N/A"
+                "module": module,
+                "feature": feature,
+                "solution": solution_text,
+                "benefits": benefits,
+                "keyword": keyword
             }
 
-            log_to_google_sheets(
-                message, page_url,
-                result["module"],
-                result["feature"],
-                result["solution"],
-                result["benefits"],
-                result["keyword"]
-            )
+            print("✅ Returning result to frontend:", json.dumps(result, indent=2), flush=True)
+
+            try:
+                log_to_google_sheets(
+                    message, page_url,
+                    module, feature, solution_text, benefits, keyword
+                )
+            except Exception as log_err:
+                print("❌ Logging to Google Sheets failed:", log_err, flush=True)
+                traceback.print_exc()
 
             return jsonify(result)
 
+        print("❌ No matching solution found.", flush=True)
         return jsonify({
             "type": "no_match",
             "message": "No matching solution found."
         })
 
     except Exception as e:
-        print("❌ Internal Server Error:", str(e))
+        print("❌ Internal Server Error:", str(e), flush=True)
         traceback.print_exc()
         return jsonify({
             "type": "error",
             "message": "Internal Server Error"
         }), 500
-
 # ✅ Render-compatible port binding
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
