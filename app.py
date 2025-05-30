@@ -177,44 +177,39 @@ def get_solution():
 
             log_to_google_sheets(message, page_url, module, features, "matrix", issue, how_it_works, keyword)
 
-            response_text = f"""
-To help with this issue, we recommend using **{module}**, specifically the feature(s): **{features}**.
-This works by {how_it_works.strip()}
-You’ll benefit from:
-{benefits.strip()}
-"""
-
             return jsonify({
                 "type": "solution",
-                "message": response_text.strip(),
+                "module": module,
+                "feature": features,
+                "solution": how_it_works,
+                "benefits": benefits,
                 "keyword": keyword
             })
 
-    elif gpt_response:
-        product = gpt_response.get("product", "N/A")
-        feature = gpt_response.get("feature", "N/A")
-        how_it_works = gpt_response.get("how_it_works", "No solution provided")
-        benefits = gpt_response.get("benefits", [])
+        elif gpt_response:
+            product = gpt_response.get("product", "N/A")
+            feature = gpt_response.get("feature", "N/A")
+            how_it_works = gpt_response.get("how_it_works", "No solution provided")
+            benefits = gpt_response.get("benefits", [])
 
-    if isinstance(benefits, list):
-        benefits_str = "\n".join(f"- {b}" for b in benefits)
-    else:
-        benefits_str = str(benefits)
+            if isinstance(benefits, list):
+                benefits_str = "\n".join(f"- {b}" for b in benefits)
+            else:
+                benefits_str = str(benefits)
 
-    log_to_google_sheets(
-        message, page_url, product, feature,
-        "gpt-fallback", "GPT generated", how_it_works, message
-    )
+            log_to_google_sheets(
+                message, page_url, product, feature,
+                "gpt-fallback", "GPT generated", how_it_works, message
+            )
 
-    return jsonify({
-        "type": "solution",
-        "module": product,
-        "feature": feature,
-        "solution": how_it_works,
-        "benefits": benefits_str,
-        "keyword": message
-    })
-
+            return jsonify({
+                "type": "solution",
+                "module": product,
+                "feature": feature,
+                "solution": how_it_works,
+                "benefits": benefits_str,
+                "keyword": message
+            })
 
         else:
             print("❌ No suitable solution found.")
