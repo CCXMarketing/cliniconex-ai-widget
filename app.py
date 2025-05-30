@@ -89,7 +89,7 @@ def ai_route():
     try:
         data = request.json
         message = data.get("message", "").strip()
-        page_url = data.get("page_Url", "")  # ✅ Capture page URL
+        page_url = data.get("page_url", "")  # ✅ Capture page URL
 
         if not message:
             return jsonify({"type": "unclear", "message": "Please provide a message."}), 400
