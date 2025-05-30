@@ -6,6 +6,7 @@ import openai
 import os
 import json
 import traceback
+import re
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 
@@ -30,7 +31,7 @@ credentials = service_account.Credentials.from_service_account_file(
 service = build("sheets", "v4", credentials=credentials)
 sheet = service.spreadsheets()
 
-# ✅ Google Sheets logging
+# ✅ Logging to Google Sheets
 def log_to_google_sheets(prompt, page_url, product, feature, status, matched_issue, matched_solution, keyword):
     try:
         timestamp = datetime.now(ZoneInfo("America/Toronto")).strftime("%Y-%m-%d %H:%M:%S")
@@ -55,9 +56,7 @@ def log_to_google_sheets(prompt, page_url, product, feature, status, matched_iss
         print("❌ Error logging to Google Sheets:", str(e))
         traceback.print_exc()
 
-# ✅ GPT fallback prompt
-import re
-
+# ✅ GPT fallback generator
 def generate_gpt_solution(message):
     gpt_prompt = f"""
 You are a Cliniconex solutions expert with deep expertise in the company’s full suite of products and features. You can confidently assess any healthcare-related issue and determine the most effective solution—whether it involves a single product or a combination of offerings. You understand how each feature functions within the broader Automated Care Platform (ACP) and are skilled at tailoring precise recommendations to address real-world clinical, operational, and administrative challenges.
@@ -115,24 +114,23 @@ Focus on solving the issue. Be specific. Use real-world healthcare workflow lang
         result_text = response['choices'][0]['message']['content']
         print("🧠 GPT raw output:\n", result_text, flush=True)
 
-        # Try parsing as JSON
+        # Try parsing JSON safely
         try:
             parsed = json.loads(result_text)
         except json.JSONDecodeError:
-            print("⚠️ Standard JSON parsing failed. Attempting regex fallback.", flush=True)
+            print("⚠️ Standard JSON parsing failed. Attempting regex fallback.")
             match = re.search(r'\{.*\}', result_text, re.DOTALL)
             if match:
                 parsed = json.loads(match.group(0))
             else:
-                print("❌ Regex fallback failed to extract JSON.", flush=True)
+                print("❌ Regex fallback failed to extract JSON.")
                 return None
 
-        # Validate required fields
         required_keys = {"product", "feature", "how_it_works", "benefits"}
         if all(k in parsed and parsed[k] for k in required_keys):
             return parsed
         else:
-            print("❌ Parsed GPT response missing required fields.", flush=True)
+            print("❌ Parsed GPT response missing required fields.")
             return None
 
     except Exception as e:
@@ -148,20 +146,16 @@ def get_solution():
         message = data.get("message", "").lower()
         page_url = data.get("page_url", "")
 
-        print("📩 /ai endpoint hit", flush=True)
-        print("🔍 Message received:", message, flush=True)
+        print("📩 /ai endpoint hit")
+        print("🔍 Message received:", message)
 
-        # Step 1: Score all matrix entries
+        # Score the matrix for keyword match strength
         best_matrix_score = 0
         best_matrix_match = None
         best_matrix_keyword = None
 
         def score_match(msg, item):
-            score = 0
-            for k in item.get("keywords", []):
-                if k.lower() in msg:
-                    score += 1
-            return score
+            return sum(1 for k in item.get("keywords", []) if k.lower() in msg)
 
         for item in solution_matrix:
             score = score_match(message, item)
@@ -170,10 +164,8 @@ def get_solution():
                 best_matrix_match = item
                 best_matrix_keyword = next((k for k in item.get("keywords", []) if k.lower() in message), None)
 
-        # Step 2: Run GPT fallback in parallel
         gpt_response = generate_gpt_solution(message)
 
-        # Step 3: Evaluate both and return the most relevant
         if best_matrix_score >= 2 and best_matrix_match:
             item = best_matrix_match
             module = item.get("product", "N/A")
@@ -188,7 +180,8 @@ def get_solution():
             response_text = f"""
 To help with this issue, we recommend using **{module}**, specifically the feature(s): **{features}**.
 This works by {how_it_works.strip()}
-You’ll benefit from: {benefits.strip()}
+You’ll benefit from:
+{benefits.strip()}
 """
 
             return jsonify({
@@ -197,42 +190,24 @@ You’ll benefit from: {benefits.strip()}
                 "keyword": keyword
             })
 
-    elif gpt_response:
-        product = gpt_response.get("product", "N/A")
-        feature = gpt_response.get("feature", "N/A")
-        how_it_works = gpt_response.get("how_it_works", "N/A")
-        benefits = gpt_response.get("benefits", [])
+        elif gpt_response:
+            product = gpt_response.get("product", "N/A")
+            feature = gpt_response.get("feature", "N/A")
+            how_it_works = gpt_response.get("how_it_works", "N/A")
+            benefits = gpt_response.get("benefits", [])
 
-    if isinstance(benefits, list):
-        benefits_str = "\n".join(f"- {b}" for b in benefits)
-    else:
-        benefits_str = str(benefits)
-
-    log_to_google_sheets(
-        message, page_url, product, feature,
-        "gpt-fallback", "GPT generated", how_it_works, message
-    )
-
-    response_text = f"""
-To address your concern, we suggest **{product}**, using the feature(s): **{feature}**.
-Here's how it helps: {how_it_works.strip()}
-Key benefits include:
-{benefits_str}
-"""
-
-    return jsonify({
-        "type": "solution",
-        "message": response_text.strip(),
-        "keyword": message
-    })
-
+            if isinstance(benefits, list):
+                benefits_str = "\n".join(f"- {b}" for b in benefits)
+            else:
+                benefits_str = str(benefits)
 
             log_to_google_sheets(message, page_url, product, feature, "gpt-fallback", "GPT generated", how_it_works, message)
 
             response_text = f"""
-To address your concern, we suggest **{product}**, using the feature: **{feature}**.
+To address your concern, we suggest **{product}**, using the feature(s): **{feature}**.
 Here's how it helps: {how_it_works.strip()}
-Key benefits include: {benefits.strip()}
+Key benefits include:
+{benefits_str}
 """
 
             return jsonify({
@@ -242,7 +217,7 @@ Key benefits include: {benefits.strip()}
             })
 
         else:
-            print("❌ No suitable solution found.", flush=True)
+            print("❌ No suitable solution found.")
             return jsonify({
                 "type": "no_match",
                 "message": "We couldn't generate a relevant solution."
@@ -256,8 +231,7 @@ Key benefits include: {benefits.strip()}
             "message": "Internal Server Error"
         }), 500
 
-
-# ✅ Render-compatible port binding
+# ✅ Render-compatible launch
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     print(f"✅ Starting Cliniconex AI widget on port {port}")
