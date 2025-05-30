@@ -197,11 +197,35 @@ You’ll benefit from: {benefits.strip()}
                 "keyword": keyword
             })
 
-        elif gpt_response:
-            product = gpt_response.get("product", "N/A")
-            feature = gpt_response.get("feature", "N/A")
-            how_it_works = gpt_response.get("how_it_works", "N/A")
-            benefits = gpt_response.get("benefits", "N/A")
+       elif gpt_response:
+    product = gpt_response.get("product", "N/A")
+    feature = gpt_response.get("feature", "N/A")
+    how_it_works = gpt_response.get("how_it_works", "N/A")
+    benefits = gpt_response.get("benefits", [])
+
+    if isinstance(benefits, list):
+        benefits_str = "\n".join(f"- {b}" for b in benefits)
+    else:
+        benefits_str = str(benefits)
+
+    log_to_google_sheets(
+        message, page_url, product, feature,
+        "gpt-fallback", "GPT generated", how_it_works, message
+    )
+
+    response_text = f"""
+To address your concern, we suggest **{product}**, using the feature(s): **{feature}**.
+Here's how it helps: {how_it_works.strip()}
+Key benefits include:
+{benefits_str}
+"""
+
+    return jsonify({
+        "type": "solution",
+        "message": response_text.strip(),
+        "keyword": message
+    })
+
 
             log_to_google_sheets(message, page_url, product, feature, "gpt-fallback", "GPT generated", how_it_works, message)
 
