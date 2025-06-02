@@ -1,4 +1,3 @@
-
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from datetime import datetime
@@ -8,7 +7,6 @@ import os
 import json
 import traceback
 import re
-
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 
@@ -60,12 +58,18 @@ def log_to_google_sheets(prompt, page_url, product, feature, status, matched_iss
 
 # ✅ GPT fallback generator
 def generate_gpt_solution(message):
-    gpt_prompt = f"""You are a Cliniconex solutions expert with deep expertise in the company’s full suite of products and features. You can confidently assess any healthcare-related issue and determine the most effective solution—whether it involves a single product or a combination of offerings.
+    gpt_prompt = f"""
+You are a Cliniconex solutions expert with deep expertise in the company’s full suite of products and features. You can confidently assess any healthcare-related issue and determine the most effective solution—whether it involves a single product or a combination of offerings. You understand how each feature functions within the broader Automated Care Platform (ACP) and are skilled at tailoring precise recommendations to address real-world clinical, operational, and administrative challenges.
 
 Cliniconex offers the **Automated Care Platform (ACP)** — a complete system for communication, coordination, and care automation. ACP is composed of two core solutions:
 
+- **Automated Care Messaging (ACM)** – used to streamline outreach to patients, families, and staff through voice, SMS, and email.
+- **Automated Care Scheduling (ACS)** – used to automate appointment scheduling and related workflows.
+
+These solutions include the following features:
+
 **Automated Care Messaging (ACM):**
-- **ACM Messenger** – Sends personalized messages via voice, SMS, or email.
+- **ACM Messaging** – Sends personalized messages via voice, SMS, or email.
 - **ACM Vault** – Logs all communications for compliance and auditing.
 - **ACM Alerts** – Notifies staff only when human follow-up is needed.
 - **ACM Concierge** – Shares real-time wait time data with patients and families.
@@ -80,24 +84,25 @@ Here is a real-world issue described by a healthcare provider:
 
 Your task is to:
 1. Determine whether the issue aligns best with **Automated Care Messaging**, **Automated Care Scheduling**, or both.
-2. Select **one or more features** from the list above.
-3. Write **one concise paragraph** explaining how the selected product(s) and feature(s) solve the issue.
-4. Provide a list of **2–3 specific operational benefits**.
+2. Select **one or more features** from the list above that are most relevant.
+3. Write **one concise paragraph** explaining how the selected product(s) and feature(s) solve the issue — include how this fits within the overall Automated Care Platform (ACP).
+4. Provide a list of **2–3 specific operational benefits** written in Cliniconex’s confident, helpful tone.
 
 Respond ONLY in this exact JSON format:
 
-{{{{
+{{
   "product": "Automated Care Messaging",
-  "feature": "ACM Messenger – Sends personalized messages via voice, SMS, or email. | ACM Alerts – Notifies staff only when human follow-up is needed.",
+  "feature": "ACM Concierge – Shares real-time wait time data with patients and families.",
   "how_it_works": "One paragraph that connects the solution to the problem and explains how the feature fits into the broader ACP.",
   "benefits": [
     "Reduces staff workload by eliminating manual communications.",
     "Improves patient satisfaction with timely and transparent updates.",
     "Integrates directly with your EMR for seamless automation."
   ]
-}}}}
+}}
 
 Do not include anything outside the JSON block.
+Focus on solving the issue. Be specific. Use real-world healthcare workflow language.
 """
 
     try:
@@ -107,12 +112,13 @@ Do not include anything outside the JSON block.
             temperature=0.7
         )
         result_text = response['choices'][0]['message']['content']
-        print("🧠 GPT raw output:
-", result_text, flush=True)
+        print("🧠 GPT raw output:\n", result_text, flush=True)
 
+        # Try parsing JSON safely
         try:
             parsed = json.loads(result_text)
         except json.JSONDecodeError:
+            print("⚠️ Standard JSON parsing failed. Attempting regex fallback.")
             match = re.search(r'\{.*\}', result_text, re.DOTALL)
             if match:
                 parsed = json.loads(match.group(0))
@@ -140,6 +146,10 @@ def get_solution():
         message = data.get("message", "").lower()
         page_url = data.get("page_url", "")
 
+        print("📩 /ai endpoint hit")
+        print("🔍 Message received:", message)
+
+        # Score matrix keyword match
         best_matrix_score = 0
         best_matrix_match = None
         best_matrix_keyword = None
@@ -154,8 +164,10 @@ def get_solution():
                 best_matrix_match = item
                 best_matrix_keyword = next((k for k in item.get("keywords", []) if k.lower() in message), None)
 
+        # Always run GPT
         gpt_response = generate_gpt_solution(message)
 
+        # Smart matrix usage logic
         use_matrix = (
             best_matrix_score >= 2 and
             best_matrix_match and
@@ -185,24 +197,20 @@ def get_solution():
             })
 
         elif gpt_response:
-            corrections = {
-                "ACM Messaging": "ACM Messenger",
-                "ACM Communication": "ACM Messenger",
-                "ACS Scheduling": "ACS Booking"
-            }
-            for wrong, correct in corrections.items():
-                gpt_response["feature"] = gpt_response.get("feature", "").replace(wrong, correct)
-                gpt_response["product"] = gpt_response.get("product", "").replace(wrong, correct)
-
             product = gpt_response.get("product", "N/A")
             feature = gpt_response.get("feature", "N/A")
             how_it_works = gpt_response.get("how_it_works", "No solution provided")
             benefits = gpt_response.get("benefits", [])
 
-            benefits_str = "
-".join(f"- {b}" for b in benefits) if isinstance(benefits, list) else str(benefits)
+            if isinstance(benefits, list):
+                benefits_str = "\n".join(f"- {b}" for b in benefits)
+            else:
+                benefits_str = str(benefits)
 
-            log_to_google_sheets(message, page_url, product, feature, "gpt-fallback", "GPT generated", how_it_works, message)
+            log_to_google_sheets(
+                message, page_url, product, feature,
+                "gpt-fallback", "GPT generated", how_it_works, message
+            )
 
             return jsonify({
                 "type": "solution",
@@ -214,6 +222,7 @@ def get_solution():
             })
 
         else:
+            print("❌ No suitable solution found.")
             return jsonify({
                 "type": "no_match",
                 "message": "We couldn't generate a relevant solution."
@@ -226,6 +235,8 @@ def get_solution():
             "type": "error",
             "message": "Internal Server Error"
         }), 500
+
+
 
 # ✅ Render-compatible launch
 if __name__ == "__main__":
