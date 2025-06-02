@@ -156,7 +156,7 @@ def get_solution():
         gpt_response = generate_gpt_solution(message)
 
         use_matrix = (
-            best_matrix_score >= 2 and
+            best_matrix_score >= 1 and
             best_matrix_match and
             gpt_response and (
                 gpt_response.get("product", "").lower() in best_matrix_match.get("product", "").lower()
