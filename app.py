@@ -1,3 +1,4 @@
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from datetime import datetime
@@ -15,14 +16,22 @@ from googleapiclient.discovery import build
 app = Flask(__name__)
 CORS(app)
 
-# ✅ Load environment variables
+# ✅ Load OpenAI key
 openai.api_key = os.getenv("OPENAI_API_KEY")
-sheet_id = os.getenv("GOOGLE_SHEET_ID")
-creds_path = os.getenv("GOOGLE_CREDS_JSON", "creds.json")
 
 # ✅ Load solution matrix
 with open("cliniconex_solutions.json", "r", encoding="utf-8") as f:
     solution_matrix = json.load(f)
+
+# ✅ Google Sheets setup
+SHEET_ID = "1jL-iyQiVcttmEMfy7j8DA-cyMM-5bcj1TLHLrb4Iwsg"
+SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
+SERVICE_ACCOUNT_FILE = "service_account.json"
+
+credentials = service_account.Credentials.from_service_account_file(
+    SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+service = build("sheets", "v4", credentials=credentials)
+sheet = service.spreadsheets()
 
 # ✅ Logging to Google Sheets
 def log_to_google_sheets(prompt, page_url, product, feature, status, matched_issue, matched_solution, keyword):
@@ -40,7 +49,7 @@ def log_to_google_sheets(prompt, page_url, product, feature, status, matched_iss
             keyword
         ]]
         sheet.values().append(
-            spreadsheetId=sheet_id,
+            spreadsheetId=SHEET_ID,
             range="Advisor Logs!A1",
             valueInputOption="RAW",
             body={"values": values}
@@ -94,7 +103,7 @@ Do not include anything outside the JSON block.
     try:
         response = openai.ChatCompletion.create(
             model="gpt-4",
-            messages=[{"role": "system", "content": gpt_prompt}],
+            messages=[{"role": "user", "content": gpt_prompt}],
             temperature=0.7
         )
         result_text = response['choices'][0]['message']['content']
@@ -102,27 +111,29 @@ Do not include anything outside the JSON block.
 
         try:
             parsed = json.loads(result_text)
-        except json.JSONDecodeError as json_err:
-            print("❌ JSON decoding failed:", json_err)
-            print("🧠 Full raw GPT response:\n", result_text)
-            traceback.print_exc()
+        except json.JSONDecodeError:
+            match = re.search(r'\{\s*"product"\s*:\s*".+?",[\s\S]*?\}', result_text)
+            if match:
+                try:
+                    parsed = json.loads(match.group(0))
+                except json.JSONDecodeError:
+                    print("❌ Regex match failed to parse JSON.")
+                    parsed = None
+            else:
+                print("❌ No valid JSON object found.")
+                parsed = None
 
-        else:
-            print("❌ No JSON object could be extracted via regex.")
-            print("🧠 GPT fallback full text:\n", result_text)
-
-
-        required_keys = {"product", "feature", "how_it_works", "benefits"}
-        if all(k in parsed and parsed[k] for k in required_keys):
+        if parsed and all(k in parsed and parsed[k] for k in ["product", "feature", "how_it_works", "benefits"]):
             return parsed
         else:
-            print("❌ Parsed GPT response missing required fields.")
+            print("❌ GPT response is missing required fields.")
             return None
 
     except Exception as e:
         print("❌ GPT fallback error:", str(e))
         traceback.print_exc()
         return None
+
 
 # ✅ AI endpoint
 @app.route("/ai", methods=["POST"])
@@ -170,7 +181,7 @@ def get_solution():
             return jsonify({
                 "type": "solution",
                 "module": module,
-                "feature": features,
+                "features": features,
                 "solution": how_it_works,
                 "benefits": benefits,
                 "keyword": keyword
@@ -197,7 +208,7 @@ def get_solution():
             return jsonify({
                 "type": "solution",
                 "module": product,
-                "feature": features,
+                "features": features,
                 "solution": how_it_works,
                 "benefits": benefits_str,
                 "keyword": message
