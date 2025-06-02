@@ -1,5 +1,4 @@
 from flask import Flask, request, jsonify
-from flask import Flask, request, jsonify
 from flask_cors import CORS
 from datetime import datetime
 from zoneinfo import ZoneInfo
@@ -106,8 +105,6 @@ Respond ONLY in this exact JSON format:
 }}}
 
 Do not include anything outside the JSON block.
-Focus on solving the issue. Be specific. Use real-world healthcare workflow language.
-"""
 Focus on solving the issue. Be specific. Use real-world healthcare workflow language.
 """
 Focus on solving the issue. Be specific. Use real-world healthcare workflow language.
