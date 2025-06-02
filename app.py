@@ -94,13 +94,20 @@ Do not include anything outside the JSON block.
         )
         result_text = response["choices"][0]["message"]["content"].strip()
         try:
-            return json.loads(result_text)
+             return json.loads(result_text)
         except json.JSONDecodeError:
+            # Clean up double curly braces if present
             match = re.search(r'\{\s*"product"\s*:\s*".+?",[\s\S]*?\}', result_text)
             if match:
-                return json.loads(match.group(0))
+                try:
+                    cleaned = match.group(0)
+                    return json.loads(cleaned)
+                except json.JSONDecodeError:
+                    print("❌ Regex match failed to parse JSON.")
+                    return None
             print("❌ Regex fallback failed to extract JSON.")
             return None
+
     except Exception as e:
         print("❌ GPT fallback error:", str(e))
         print("🧠 GPT raw output:")
