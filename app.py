@@ -198,8 +198,7 @@ def get_solution():
             how_it_works = gpt_response.get("how_it_works", "No solution provided")
             benefits = gpt_response.get("benefits", [])
 
-            benefits_str = "
-".join(f"- {b}" for b in benefits) if isinstance(benefits, list) else str(benefits)
+            benefits_str = "\n".join(f"- {b}" for b in benefits) if isinstance(benefits, list) else str(benefits)
 
             log_to_google_sheets(message, page_url, product, feature, "gpt-fallback", "GPT generated", how_it_works, message)
 
