@@ -112,7 +112,7 @@ Do not include anything outside the JSON block.
         try:
             parsed = json.loads(result_text)
         except json.JSONDecodeError:
-            match = re.search(r'\{\s*"product"\s*:\s*".+?",[\s\S]*?\}', result_text)
+            match = re.search(r'\{.*\}', result_text, re.DOTALL)
             if match:
                 parsed = json.loads(match.group(0))
             else:
@@ -177,7 +177,7 @@ def get_solution():
             return jsonify({
                 "type": "solution",
                 "module": module,
-                "feature": features,
+                "features": features,
                 "solution": how_it_works,
                 "benefits": benefits,
                 "keyword": keyword
@@ -193,18 +193,18 @@ def get_solution():
                 gpt_response["product"] = gpt_response.get("product", "").replace(wrong, correct)
 
             product = gpt_response.get("product", "N/A")
-            feature = gpt_response.get("feature", "N/A")
+            features = gpt_response.get("feature", "N/A")  # <-- renamed this variable for clarity
             how_it_works = gpt_response.get("how_it_works", "No solution provided")
             benefits = gpt_response.get("benefits", [])
 
             benefits_str = "\n".join(f"- {b}" for b in benefits) if isinstance(benefits, list) else str(benefits)
 
-            log_to_google_sheets(message, page_url, product, feature, "gpt-fallback", "GPT generated", how_it_works, message)
+            log_to_google_sheets(message, page_url, product, features, "gpt-fallback", "GPT generated", how_it_works, message)
 
             return jsonify({
                 "type": "solution",
                 "module": product,
-                "feature": feature,
+                "features": features,
                 "solution": how_it_works,
                 "benefits": benefits_str,
                 "keyword": message
@@ -223,6 +223,7 @@ def get_solution():
             "type": "error",
             "message": "Internal Server Error"
         }), 500
+
 
 # ✅ Render-compatible launch
 if __name__ == "__main__":
