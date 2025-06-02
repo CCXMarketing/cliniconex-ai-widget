@@ -1,4 +1,3 @@
-
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from datetime import datetime
@@ -76,7 +75,7 @@ Cliniconex offers the **Automated Care Platform (ACP)** — a complete system fo
 - **ACS Surveys** – Gathers feedback from patients or families post-care.
 
 Here is a real-world issue described by a healthcare provider:
-"{message}"
+\"{message}\"
 
 Your task is to:
 1. Determine whether the issue aligns best with **Automated Care Messaging**, **Automated Care Scheduling**, or both.
@@ -86,7 +85,7 @@ Your task is to:
 
 Respond ONLY in this exact JSON format:
 
-{{{{
+{{
   "product": "Automated Care Messaging",
   "feature": "ACM Messenger – Sends personalized messages via voice, SMS, or email. | ACM Alerts – Notifies staff only when human follow-up is needed.",
   "how_it_works": "One paragraph that connects the solution to the problem and explains how the feature fits into the broader ACP.",
@@ -95,9 +94,7 @@ Respond ONLY in this exact JSON format:
     "Improves patient satisfaction with timely and transparent updates.",
     "Integrates directly with your EMR for seamless automation."
   ]
-}}}}
-
-Do not include anything outside the JSON block.
+}}
 """
 
     try:
@@ -184,20 +181,10 @@ def get_solution():
             })
 
         elif gpt_response and gpt_response.get('how_it_works'):
-            corrections = {
-                "ACM Messenger": "ACM Messenger",
-                "ACM Messenger": "ACM Messenger",
-                "ACS Booking": "ACS Booking"
-            }
-            for wrong, correct in corrections.items():
-                gpt_response["feature"] = gpt_response.get("feature", "").replace(wrong, correct)
-                gpt_response["product"] = gpt_response.get("product", "").replace(wrong, correct)
-
             product = gpt_response.get("product", "N/A")
             feature = gpt_response.get("feature", "N/A")
             how_it_works = gpt_response.get("how_it_works", "No solution provided")
             benefits = gpt_response.get("benefits", [])
-
             benefits_str = "\n".join(f"- {b}" for b in benefits) if isinstance(benefits, list) else str(benefits)
 
             log_to_google_sheets(message, page_url, product, feature, "gpt-fallback", "GPT generated", how_it_works, message)
