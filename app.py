@@ -106,12 +106,12 @@ Do not include anything outside the JSON block.
 """
 
 
-    try:
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=[{"role": "system", "content": gpt_prompt}],
-            temperature=0.7
-        )
+        try:
+            response = openai.ChatCompletion.create(
+                model="gpt-4",
+                messages=[{"role": "system", "content": gpt_prompt}],
+                temperature=0.7
+            )
         result_text = response['choices'][0]['message']['content']
         print("🧠 GPT raw output:\n", result_text, flush=True)
 
