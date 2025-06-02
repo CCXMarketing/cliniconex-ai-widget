@@ -106,9 +106,6 @@ Respond ONLY in this exact JSON format:
 
 Do not include anything outside the JSON block.
 Focus on solving the issue. Be specific. Use real-world healthcare workflow language.
-"""
-Focus on solving the issue. Be specific. Use real-world healthcare workflow language.
-"""
 
     try:
         response = openai.ChatCompletion.create(
