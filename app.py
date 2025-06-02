@@ -1,4 +1,3 @@
-
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from datetime import datetime
@@ -94,9 +93,8 @@ Do not include anything outside the JSON block.
         )
         result_text = response["choices"][0]["message"]["content"].strip()
         try:
-             return json.loads(result_text)
+            return json.loads(result_text)
         except json.JSONDecodeError:
-            # Clean up double curly braces if present
             match = re.search(r'\{\s*"product"\s*:\s*".+?",[\s\S]*?\}', result_text)
             if match:
                 try:
