@@ -112,7 +112,7 @@ Do not include anything outside the JSON block.
         try:
             parsed = json.loads(result_text)
         except json.JSONDecodeError:
-            match = re.search(r'\{.*\}', result_text, re.DOTALL)
+            match = re.search(r'\{\s*"product"\s*:\s*".+?",[\s\S]*?\}', result_text)
             if match:
                 parsed = json.loads(match.group(0))
             else:
@@ -159,7 +159,7 @@ def get_solution():
             best_matrix_score >= 1 and
             best_matrix_match and
             gpt_response and (
-                gpt_response.get("product", "").lower() in best_matrix_match.get("product", "").lower()
+            best_matrix_match.get("product", "").lower() in gpt_response.get("product", "").lower()
             )
         )
 
@@ -183,7 +183,7 @@ def get_solution():
                 "keyword": keyword
             })
 
-        elif gpt_response and gpt_response.get("how_it_works"):
+        elif gpt_response and all(k in gpt_response for k in ["product", "feature", "how_it_works", "benefits"]):
             corrections = {
                 "ACM Messenger": "ACM Messenger",
                 "ACS Booking": "ACS Booking"
