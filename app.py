@@ -65,15 +65,15 @@ def generate_gpt_solution(message):
 Cliniconex offers the **Automated Care Platform (ACP)** — a complete system for communication, coordination, and care automation. ACP is composed of two core solutions:
 
 **Automated Care Messaging (ACM):**
-- **ACM Messenger** – Delivers personalized messages to patients, families, and staff using voice, SMS, or email. Commonly used for appointment reminders, procedure instructions, care plan updates, and general announcements. Messages can include dynamic content, embedded links, and conditional logic based on EMR data.
-- **ACM Vault** – Automatically stores every message sent or received in a secure, audit-ready repository. Enables full traceability of communication history for regulatory compliance, quality assurance, or care review. Vault entries are accessible by staff for follow-up, and optionally viewable by patients or families.
-- **ACM Alerts** – Triggers staff notifications based on communication outcomes. Alerts can be used to flag unconfirmed appointments, failed message deliveries, or lack of patient response. This ensures human follow-up is only initiated when truly needed, saving staff time and avoiding missed care opportunities.
-- **ACM Concierge** – Pulls real-time queue and scheduling data from your EMR to inform patients and families about estimated wait times, delays, or provider availability. Used to manage expectations and reduce front desk call volume during high-traffic periods. Can also support mobile-first communication workflows (e.g., “wait in car until called”).
+- **ACM Messenger** – Sends personalized messages via voice, SMS, or email.
+- **ACM Vault** – Logs all communications for compliance and auditing.
+- **ACM Alerts** – Notifies staff only when human follow-up is needed.
+- **ACM Concierge** – Shares real-time wait time data with patients and families.
 
 **Automated Care Scheduling (ACS):**
-- **ACS Booking** – Provides patients with an easy-to-use, self-service interface to schedule, confirm, cancel, or reschedule their own appointments online. Integrates with the EMR to reflect real-time availability and automatically sends confirmations and reminders to reduce no-shows.
-- **ACS Forms** – Sends digital intake, consent, or follow-up forms to patients before their visit. Automatically collects and routes responses to the appropriate staff or EMR fields, reducing paperwork and front-desk bottlenecks. Also supports automated reminders for incomplete forms.
-- **ACS Surveys** – Sends brief post-care or post-visit surveys to patients or families to gather feedback on experience, satisfaction, or outcomes. Survey responses can be analyzed for trends and used to inform continuous improvement, patient engagement, or compliance reporting.
+- **ACS Booking** – Enables self-service appointment scheduling for patients.
+- **ACS Forms** – Collects intake or follow-up information automatically.
+- **ACS Surveys** – Gathers feedback from patients or families post-care.
 
 Here is a real-world issue described by a healthcare provider:
 "{message}"
@@ -103,37 +103,34 @@ Do not include anything outside the JSON block.
     try:
         response = openai.ChatCompletion.create(
             model="gpt-4",
-            messages=[{"role": "user", "content": gpt_prompt}],
+            messages=[{"role": "system", "content": gpt_prompt}],
             temperature=0.7
         )
         result_text = response['choices'][0]['message']['content']
-        print("🧠 GPT raw output:\n", result_text, flush=True)
+        print("🧠 GPT raw output:
+", result_text, flush=True)
 
         try:
             parsed = json.loads(result_text)
         except json.JSONDecodeError:
-            match = re.search(r'\{\s*"product"\s*:\s*".+?",[\s\S]*?\}', result_text)
+            match = re.search(r'\{.*\}', result_text, re.DOTALL)
             if match:
-                try:
-                    parsed = json.loads(match.group(0))
-                except json.JSONDecodeError:
-                    print("❌ Regex match failed to parse JSON.")
-                    parsed = None
+                parsed = json.loads(match.group(0))
             else:
-                print("❌ No valid JSON object found.")
-                parsed = None
+                print("❌ Regex fallback failed to extract JSON.")
+                return None
 
-        if parsed and all(k in parsed and parsed[k] for k in ["product", "feature", "how_it_works", "benefits"]):
+        required_keys = {"product", "feature", "how_it_works", "benefits"}
+        if all(k in parsed and parsed[k] for k in required_keys):
             return parsed
         else:
-            print("❌ GPT response is missing required fields.")
+            print("❌ Parsed GPT response missing required fields.")
             return None
 
     except Exception as e:
         print("❌ GPT fallback error:", str(e))
         traceback.print_exc()
         return None
-
 
 # ✅ AI endpoint
 @app.route("/ai", methods=["POST"])
@@ -160,10 +157,10 @@ def get_solution():
         gpt_response = generate_gpt_solution(message)
 
         use_matrix = (
-            best_matrix_score >= 1 and
+            best_matrix_score >= 2 and
             best_matrix_match and
             gpt_response and (
-            best_matrix_match.get("product", "").lower() in gpt_response.get("product", "").lower()
+                gpt_response.get("product", "").lower() in best_matrix_match.get("product", "").lower()
             )
         )
 
@@ -181,34 +178,36 @@ def get_solution():
             return jsonify({
                 "type": "solution",
                 "module": module,
-                "features": features,
+                "feature": features,
                 "solution": how_it_works,
                 "benefits": benefits,
                 "keyword": keyword
             })
 
-        elif gpt_response and all(k in gpt_response for k in ["product", "feature", "how_it_works", "benefits"]):
+        elif gpt_response:
             corrections = {
-                "ACM Messenger": "ACM Messenger",
-                "ACS Booking": "ACS Booking"
+                "ACM Messaging": "ACM Messenger",
+                "ACM Communication": "ACM Messenger",
+                "ACS Scheduling": "ACS Booking"
             }
             for wrong, correct in corrections.items():
                 gpt_response["feature"] = gpt_response.get("feature", "").replace(wrong, correct)
                 gpt_response["product"] = gpt_response.get("product", "").replace(wrong, correct)
 
             product = gpt_response.get("product", "N/A")
-            features = gpt_response.get("feature", "N/A")  # <-- renamed this variable for clarity
+            feature = gpt_response.get("feature", "N/A")
             how_it_works = gpt_response.get("how_it_works", "No solution provided")
             benefits = gpt_response.get("benefits", [])
 
-            benefits_str = "\n".join(f"- {b}" for b in benefits) if isinstance(benefits, list) else str(benefits)
+            benefits_str = "
+".join(f"- {b}" for b in benefits) if isinstance(benefits, list) else str(benefits)
 
-            log_to_google_sheets(message, page_url, product, features, "gpt-fallback", "GPT generated", how_it_works, message)
+            log_to_google_sheets(message, page_url, product, feature, "gpt-fallback", "GPT generated", how_it_works, message)
 
             return jsonify({
                 "type": "solution",
                 "module": product,
-                "features": features,
+                "feature": feature,
                 "solution": how_it_works,
                 "benefits": benefits_str,
                 "keyword": message
@@ -227,7 +226,6 @@ def get_solution():
             "type": "error",
             "message": "Internal Server Error"
         }), 500
-
 
 # ✅ Render-compatible launch
 if __name__ == "__main__":
