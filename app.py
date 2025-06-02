@@ -1,3 +1,4 @@
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from datetime import datetime
@@ -59,14 +60,13 @@ def log_to_google_sheets(prompt, page_url, product, feature, status, matched_iss
 
 # ✅ GPT fallback generator
 def generate_gpt_solution(message):
-    gpt_prompt = f"""\
-You are a Cliniconex solutions expert with deep expertise in the company’s full suite of products and features. You can confidently assess any healthcare-related issue and determine the most effective solution—whether it involves a single product or a combination of offerings. You understand how each feature functions within the broader Automated Care Platform (ACP) and are skilled at tailoring precise recommendations to address real-world clinical, operational, and administrative challenges.
+    gpt_prompt = f"""You are a Cliniconex solutions expert with deep expertise in the company’s full suite of products and features. You can confidently assess any healthcare-related issue and determine the most effective solution—whether it involves a single product or a combination of offerings.
 
 Cliniconex offers the **Automated Care Platform (ACP)** — a complete system for communication, coordination, and care automation. ACP is composed of two core solutions:
 
 **Automated Care Messaging (ACM):**
-- **ACM Messenger** – Delivers personalized messages to patients, families, and staff using voice, SMS, or email.
-- **ACM Vault** – Automatically stores all communications for compliance and auditing.
+- **ACM Messenger** – Sends personalized messages via voice, SMS, or email.
+- **ACM Vault** – Logs all communications for compliance and auditing.
 - **ACM Alerts** – Notifies staff only when human follow-up is needed.
 - **ACM Concierge** – Shares real-time wait time data with patients and families.
 
@@ -75,30 +75,29 @@ Cliniconex offers the **Automated Care Platform (ACP)** — a complete system fo
 - **ACS Forms** – Collects intake or follow-up information automatically.
 - **ACS Surveys** – Gathers feedback from patients or families post-care.
 
-A healthcare provider has described the following issue:
+Here is a real-world issue described by a healthcare provider:
 "{message}"
 
 Your task is to:
 1. Determine whether the issue aligns best with **Automated Care Messaging**, **Automated Care Scheduling**, or both.
-2. Select **one or more features** from the list above that directly address the issue.
-3. Write **one concise paragraph** explaining how the selected product(s) and feature(s) solve the issue—be specific about workflows and EMR integration.
-4. Provide a list of **2–3 specific operational benefits** in a confident, helpful tone.
+2. Select **one or more features** from the list above.
+3. Write **one concise paragraph** explaining how the selected product(s) and feature(s) solve the issue.
+4. Provide a list of **2–3 specific operational benefits**.
 
-Respond **only** in this exact JSON format:
+Respond ONLY in this exact JSON format:
 
-{{
-  "product": "[Automated Care Messaging, Automated Care Scheduling, or both]",
-  "feature": "[List of one or more features with short descriptions]",
+{{{{
+  "product": "Automated Care Messaging",
+  "feature": "ACM Messenger – Sends personalized messages via voice, SMS, or email. | ACM Alerts – Notifies staff only when human follow-up is needed.",
   "how_it_works": "One paragraph that connects the solution to the problem and explains how the feature fits into the broader ACP.",
   "benefits": [
-    "Clear and specific benefit 1.",
-    "Clear and specific benefit 2.",
-    "Optional third benefit."
+    "Reduces staff workload by eliminating manual communications.",
+    "Improves patient satisfaction with timely and transparent updates.",
+    "Integrates directly with your EMR for seamless automation."
   ]
-}}
+}}}}
 
 Do not include anything outside the JSON block.
-Focus on solving the issue. Be specific. Use real-world healthcare workflow language.
 """
 
     try:
@@ -108,12 +107,12 @@ Focus on solving the issue. Be specific. Use real-world healthcare workflow lang
             temperature=0.7
         )
         result_text = response['choices'][0]['message']['content']
-        print("🧠 GPT raw output:\n", result_text, flush=True)
+        print("🧠 GPT raw output:
+", result_text, flush=True)
 
         try:
             parsed = json.loads(result_text)
         except json.JSONDecodeError:
-            print("⚠️ Standard JSON parsing failed. Attempting regex fallback.")
             match = re.search(r'\{.*\}', result_text, re.DOTALL)
             if match:
                 parsed = json.loads(match.group(0))
@@ -132,7 +131,6 @@ Focus on solving the issue. Be specific. Use real-world healthcare workflow lang
         print("❌ GPT fallback error:", str(e))
         traceback.print_exc()
         return None
-
 
 # ✅ AI endpoint
 @app.route("/ai", methods=["POST"])
@@ -186,43 +184,34 @@ def get_solution():
                 "keyword": keyword
             })
 
-  elif gpt_response:
-    # Normalize product/feature names...
-    corrections = {
-        "ACM Messaging": "ACM Messenger",
-        "ACM Communication": "ACM Messenger",
-        "ACS Scheduling": "ACS Booking"
-    }
+        elif gpt_response:
+            corrections = {
+                "ACM Messenger": "ACM Messenger",
+                "ACM Messenger": "ACM Messenger",
+                "ACS Booking": "ACS Booking"
+            }
+            for wrong, correct in corrections.items():
+                gpt_response["feature"] = gpt_response.get("feature", "").replace(wrong, correct)
+                gpt_response["product"] = gpt_response.get("product", "").replace(wrong, correct)
 
-    for wrong, correct in corrections.items():
-        gpt_response["feature"] = gpt_response.get("feature", "").replace(wrong, correct)
-        gpt_response["product"] = gpt_response.get("product", "").replace(wrong, correct)
+            product = gpt_response.get("product", "N/A")
+            feature = gpt_response.get("feature", "N/A")
+            how_it_works = gpt_response.get("how_it_works", "No solution provided")
+            benefits = gpt_response.get("benefits", [])
 
-    # ✅ This should NOT be inside the loop
-    product = gpt_response.get("product", "N/A")
-    feature = gpt_response.get("feature", "N/A")
-    how_it_works = gpt_response.get("how_it_works", "No solution provided")
-    benefits = gpt_response.get("benefits", [])
+            benefits_str = "
+".join(f"- {b}" for b in benefits) if isinstance(benefits, list) else str(benefits)
 
-    if isinstance(benefits, list):
-        benefits_str = "\n".join(f"- {b}" for b in benefits)
-    else:
-        benefits_str = str(benefits)
+            log_to_google_sheets(message, page_url, product, feature, "gpt-fallback", "GPT generated", how_it_works, message)
 
-    log_to_google_sheets(
-        message, page_url, product, feature,
-        "gpt-fallback", "GPT generated", how_it_works, message
-    )
-
-    return jsonify({
-        "type": "solution",
-        "module": product,
-        "feature": feature,
-        "solution": how_it_works,
-        "benefits": benefits_str,
-        "keyword": message
-    })
-
+            return jsonify({
+                "type": "solution",
+                "module": product,
+                "feature": feature,
+                "solution": how_it_works,
+                "benefits": benefits_str,
+                "keyword": message
+            })
 
         else:
             return jsonify({
@@ -231,6 +220,7 @@ def get_solution():
             })
 
     except Exception as e:
+        print("❌ Internal Server Error:", str(e))
         traceback.print_exc()
         return jsonify({
             "type": "error",
