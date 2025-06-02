@@ -11,7 +11,7 @@ import re
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 
-# ✅ Setup
+# ✅ Flask setup
 app = Flask(__name__)
 CORS(app)
 
@@ -21,29 +21,35 @@ sheet_id = os.getenv("GOOGLE_SHEET_ID")
 creds_path = os.getenv("GOOGLE_CREDS_JSON", "creds.json")
 
 # ✅ Load solution matrix
-with open("cliniconex_solutions.json", "r") as f:
+with open("cliniconex_solutions.json", "r", encoding="utf-8") as f:
     solution_matrix = json.load(f)
 
 # ✅ Logging to Google Sheets
-def log_to_google_sheets(message, page_url, module, feature, source, issue, solution, keyword):
+def log_to_google_sheets(prompt, page_url, product, feature, status, matched_issue, matched_solution, keyword):
     try:
-        scopes = ["https://www.googleapis.com/auth/spreadsheets"]
-        creds = service_account.Credentials.from_service_account_file(creds_path, scopes=scopes)
-        service = build("sheets", "v4", credentials=creds)
-        sheet = service.spreadsheets()
-        now = datetime.now(ZoneInfo("America/Toronto")).strftime("%Y-%m-%d %H:%M:%S")
-
-        values = [[now, message, page_url, module, feature, source, issue, solution, keyword]]
+        timestamp = datetime.now(ZoneInfo("America/Toronto")).strftime("%Y-%m-%d %H:%M:%S")
+        values = [[
+            timestamp,
+            prompt,
+            product,
+            feature,
+            status,
+            matched_issue,
+            matched_solution,
+            page_url,
+            keyword
+        ]]
         sheet.values().append(
             spreadsheetId=sheet_id,
-            range="Inputs!A1",
-            valueInputOption="USER_ENTERED",
+            range="Advisor Logs!A1",
+            valueInputOption="RAW",
             body={"values": values}
         ).execute()
     except Exception as e:
-        print("❌ Logging failed:", str(e))
+        print("❌ Error logging to Google Sheets:", str(e))
+        traceback.print_exc()
 
-# ✅ GPT prompt and solution generation
+# ✅ GPT fallback generator
 def generate_gpt_solution(message):
     gpt_prompt = f"""You are a Cliniconex solutions expert with deep expertise in the company’s full suite of products and features. You can confidently assess any healthcare-related issue and determine the most effective solution—whether it involves a single product or a combination of offerings.
 
@@ -88,28 +94,34 @@ Do not include anything outside the JSON block.
     try:
         response = openai.ChatCompletion.create(
             model="gpt-4",
-            temperature=0.7,
-            messages=[{"role": "user", "content": gpt_prompt}]
+            messages=[{"role": "system", "content": gpt_prompt}],
+            temperature=0.7
         )
-        result_text = response["choices"][0]["message"]["content"].strip()
+        result_text = response['choices'][0]['message']['content']
+        print("🧠 GPT raw output:\n", result_text, flush=True)
+
         try:
-            return json.loads(result_text)
-        except json.JSONDecodeError:
-            match = re.search(r'\{\s*"product"\s*:\s*".+?",[\s\S]*?\}', result_text)
-            if match:
-                try:
-                    cleaned = match.group(0)
-                    return json.loads(cleaned)
-                except json.JSONDecodeError:
-                    print("❌ Regex match failed to parse JSON.")
-                    return None
-            print("❌ Regex fallback failed to extract JSON.")
+            parsed = json.loads(result_text)
+        except json.JSONDecodeError as json_err:
+            print("❌ JSON decoding failed:", json_err)
+            print("🧠 Full raw GPT response:\n", result_text)
+            traceback.print_exc()
+
+        else:
+            print("❌ No JSON object could be extracted via regex.")
+            print("🧠 GPT fallback full text:\n", result_text)
+
+
+        required_keys = {"product", "feature", "how_it_works", "benefits"}
+        if all(k in parsed and parsed[k] for k in required_keys):
+            return parsed
+        else:
+            print("❌ Parsed GPT response missing required fields.")
             return None
 
     except Exception as e:
         print("❌ GPT fallback error:", str(e))
-        print("🧠 GPT raw output:")
-        print(result_text if 'result_text' in locals() else '')
+        traceback.print_exc()
         return None
 
 # ✅ AI endpoint
@@ -174,18 +186,18 @@ def get_solution():
                 gpt_response["product"] = gpt_response.get("product", "").replace(wrong, correct)
 
             product = gpt_response.get("product", "N/A")
-            feature = gpt_response.get("feature", "N/A")
+            features = gpt_response.get("feature", "N/A")  # <-- renamed this variable for clarity
             how_it_works = gpt_response.get("how_it_works", "No solution provided")
             benefits = gpt_response.get("benefits", [])
 
             benefits_str = "\n".join(f"- {b}" for b in benefits) if isinstance(benefits, list) else str(benefits)
 
-            log_to_google_sheets(message, page_url, product, feature, "gpt-fallback", "GPT generated", how_it_works, message)
+            log_to_google_sheets(message, page_url, product, features, "gpt-fallback", "GPT generated", how_it_works, message)
 
             return jsonify({
                 "type": "solution",
                 "module": product,
-                "feature": feature,
+                "feature": features,
                 "solution": how_it_works,
                 "benefits": benefits_str,
                 "keyword": message
@@ -205,5 +217,9 @@ def get_solution():
             "message": "Internal Server Error"
         }), 500
 
+
+# ✅ Render-compatible launch
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
+    port = int(os.environ.get("PORT", 10000))
+    print(f"✅ Starting Cliniconex AI widget on port {port}")
+    app.run(host="0.0.0.0", port=port)
