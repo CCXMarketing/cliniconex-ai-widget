@@ -183,7 +183,7 @@ def get_solution():
                 "keyword": keyword
             })
 
-        elif gpt_response:
+        elif gpt_response and gpt_response.get('how_it_works'):
             corrections = {
                 "ACM Messenger": "ACM Messenger",
                 "ACM Messenger": "ACM Messenger",
