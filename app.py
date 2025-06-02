@@ -84,7 +84,7 @@ Cliniconex offers the **Automated Care Platform (ACP)** — a complete system fo
 - **ACS Surveys** – Sends brief post-care or post-visit surveys to patients or families to gather feedback on experience, satisfaction, or outcomes. Survey responses can be analyzed for trends and used to inform continuous improvement, patient engagement, or compliance reporting.
 
 Here is a real-world issue described by a healthcare provider:
-"""{{message}}"""
+"message"
 
 Your task is to:
 1. Determine whether the issue aligns best with **Automated Care Messaging**, **Automated Care Scheduling**, or both.
