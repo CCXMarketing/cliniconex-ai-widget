@@ -1,16 +1,50 @@
 
-import json
-import openai
-import re
-import traceback
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from datetime import datetime
+from zoneinfo import ZoneInfo
+import openai
+import os
+import json
+import traceback
+import re
 
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+
+# ✅ Setup
 app = Flask(__name__)
 CORS(app)
 
-openai.api_key = "YOUR_API_KEY"
+# ✅ Load environment variables
+openai.api_key = os.getenv("OPENAI_API_KEY")
+sheet_id = os.getenv("GOOGLE_SHEET_ID")
+creds_path = os.getenv("GOOGLE_CREDS_JSON", "creds.json")
 
+# ✅ Load solution matrix
+with open("cliniconex_solutions.json", "r") as f:
+    solution_matrix = json.load(f)
+
+# ✅ Logging to Google Sheets
+def log_to_google_sheets(message, page_url, module, feature, source, issue, solution, keyword):
+    try:
+        scopes = ["https://www.googleapis.com/auth/spreadsheets"]
+        creds = service_account.Credentials.from_service_account_file(creds_path, scopes=scopes)
+        service = build("sheets", "v4", credentials=creds)
+        sheet = service.spreadsheets()
+        now = datetime.now(ZoneInfo("America/Toronto")).strftime("%Y-%m-%d %H:%M:%S")
+
+        values = [[now, message, page_url, module, feature, source, issue, solution, keyword]]
+        sheet.values().append(
+            spreadsheetId=sheet_id,
+            range="Inputs!A1",
+            valueInputOption="USER_ENTERED",
+            body={"values": values}
+        ).execute()
+    except Exception as e:
+        print("❌ Logging failed:", str(e))
+
+# ✅ GPT prompt and solution generation
 def generate_gpt_solution(message):
     gpt_prompt = f"""You are a Cliniconex solutions expert with deep expertise in the company’s full suite of products and features. You can confidently assess any healthcare-related issue and determine the most effective solution—whether it involves a single product or a combination of offerings.
 
@@ -55,20 +89,116 @@ Do not include anything outside the JSON block.
     try:
         response = openai.ChatCompletion.create(
             model="gpt-4",
-            messages=[{"role": "user", "content": gpt_prompt}],
-            temperature=0.7
+            temperature=0.7,
+            messages=[{"role": "user", "content": gpt_prompt}]
         )
-        result_text = response['choices'][0]['message']['content']
-
+        result_text = response["choices"][0]["message"]["content"].strip()
         try:
             return json.loads(result_text)
         except json.JSONDecodeError:
-            match = re.search(r'\{\s*\"product\"[\s\S]*?\}', result_text)
+            match = re.search(r'\{\s*"product"\s*:\s*".+?",[\s\S]*?\}', result_text)
             if match:
                 return json.loads(match.group(0))
-            else:
-                print("❌ Regex fallback failed to extract JSON.")
-                return None
+            print("❌ Regex fallback failed to extract JSON.")
+            return None
     except Exception as e:
-        print("❌ GPT fallback error:", e)
+        print("❌ GPT fallback error:", str(e))
+        print("🧠 GPT raw output:")
+        print(result_text if 'result_text' in locals() else '')
         return None
+
+# ✅ AI endpoint
+@app.route("/ai", methods=["POST"])
+def get_solution():
+    try:
+        data = request.get_json()
+        message = data.get("message", "").lower()
+        page_url = data.get("page_url", "")
+
+        best_matrix_score = 0
+        best_matrix_match = None
+        best_matrix_keyword = None
+
+        def score_match(msg, item):
+            return sum(1 for k in item.get("keywords", []) if k.lower() in msg)
+
+        for item in solution_matrix:
+            score = score_match(message, item)
+            if score > best_matrix_score:
+                best_matrix_score = score
+                best_matrix_match = item
+                best_matrix_keyword = next((k for k in item.get("keywords", []) if k.lower() in message), None)
+
+        gpt_response = generate_gpt_solution(message)
+
+        use_matrix = (
+            best_matrix_score >= 1 and
+            best_matrix_match and
+            gpt_response and (
+            best_matrix_match.get("product", "").lower() in gpt_response.get("product", "").lower()
+            )
+        )
+
+        if use_matrix:
+            item = best_matrix_match
+            module = item.get("product", "N/A")
+            features = ", ".join(item.get("features", [])) or "N/A"
+            how_it_works = item.get("solution", "N/A")
+            benefits = item.get("benefits", "N/A")
+            issue = item.get("issue", "N/A")
+            keyword = best_matrix_keyword or "N/A"
+
+            log_to_google_sheets(message, page_url, module, features, "matrix", issue, how_it_works, keyword)
+
+            return jsonify({
+                "type": "solution",
+                "module": module,
+                "feature": features,
+                "solution": how_it_works,
+                "benefits": benefits,
+                "keyword": keyword
+            })
+
+        elif gpt_response and all(k in gpt_response for k in ["product", "feature", "how_it_works", "benefits"]):
+            corrections = {
+                "ACM Messenger": "ACM Messenger",
+                "ACS Booking": "ACS Booking"
+            }
+            for wrong, correct in corrections.items():
+                gpt_response["feature"] = gpt_response.get("feature", "").replace(wrong, correct)
+                gpt_response["product"] = gpt_response.get("product", "").replace(wrong, correct)
+
+            product = gpt_response.get("product", "N/A")
+            feature = gpt_response.get("feature", "N/A")
+            how_it_works = gpt_response.get("how_it_works", "No solution provided")
+            benefits = gpt_response.get("benefits", [])
+
+            benefits_str = "\n".join(f"- {b}" for b in benefits) if isinstance(benefits, list) else str(benefits)
+
+            log_to_google_sheets(message, page_url, product, feature, "gpt-fallback", "GPT generated", how_it_works, message)
+
+            return jsonify({
+                "type": "solution",
+                "module": product,
+                "feature": feature,
+                "solution": how_it_works,
+                "benefits": benefits_str,
+                "keyword": message
+            })
+
+        else:
+            return jsonify({
+                "type": "no_match",
+                "message": "We couldn't generate a relevant solution."
+            })
+
+    except Exception as e:
+        print("❌ Internal Server Error:", str(e))
+        traceback.print_exc()
+        return jsonify({
+            "type": "error",
+            "message": "Internal Server Error"
+        }), 500
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=10000)
