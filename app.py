@@ -1,3 +1,4 @@
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from datetime import datetime
@@ -58,30 +59,24 @@ def log_to_google_sheets(prompt, page_url, product, feature, status, matched_iss
         traceback.print_exc()
 
 # ✅ GPT fallback generator
-gpt_prompt = f"""You are a Cliniconex solutions expert with deep expertise in the company’s full suite of products and features. You can confidently assess any healthcare-related issue and determine the most effective solution—whether it involves a single product or a combination of offerings.
+def generate_gpt_solution(message):
+    gpt_prompt = f"""You are a Cliniconex solutions expert with deep expertise in the company’s full suite of products and features. You can confidently assess any healthcare-related issue and determine the most effective solution—whether it involves a single product or a combination of offerings.
 
-Cliniconex offers the **Automated Care Platform (ACP)** — a complete system for communication, coordination, and care automation. ACP is composed of two core products:
+Cliniconex offers the **Automated Care Platform (ACP)** — a complete system for communication, coordination, and care automation. ACP is composed of two core solutions:
 
 **Automated Care Messaging (ACM):**
-
 - **ACM Messenger** – Delivers personalized messages to patients, families, and staff using voice, SMS, or email. Commonly used for appointment reminders, procedure instructions, care plan updates, and general announcements. Messages can include dynamic content, embedded links, and conditional logic based on EMR data.
-
 - **ACM Vault** – Automatically stores every message sent or received in a secure, audit-ready repository. Enables full traceability of communication history for regulatory compliance, quality assurance, or care review. Vault entries are accessible by staff for follow-up, and optionally viewable by patients or families.
-
 - **ACM Alerts** – Triggers staff notifications based on communication outcomes. Alerts can be used to flag unconfirmed appointments, failed message deliveries, or lack of patient response. This ensures human follow-up is only initiated when truly needed, saving staff time and avoiding missed care opportunities.
-
 - **ACM Concierge** – Pulls real-time queue and scheduling data from your EMR to inform patients and families about estimated wait times, delays, or provider availability. Used to manage expectations and reduce front desk call volume during high-traffic periods. Can also support mobile-first communication workflows (e.g., “wait in car until called”).
 
 **Automated Care Scheduling (ACS):**
-
 - **ACS Booking** – Provides patients with an easy-to-use, self-service interface to schedule, confirm, cancel, or reschedule their own appointments online. Integrates with the EMR to reflect real-time availability and automatically sends confirmations and reminders to reduce no-shows.
-
 - **ACS Forms** – Sends digital intake, consent, or follow-up forms to patients before their visit. Automatically collects and routes responses to the appropriate staff or EMR fields, reducing paperwork and front-desk bottlenecks. Also supports automated reminders for incomplete forms.
-
 - **ACS Surveys** – Sends brief post-care or post-visit surveys to patients or families to gather feedback on experience, satisfaction, or outcomes. Survey responses can be analyzed for trends and used to inform continuous improvement, patient engagement, or compliance reporting.
 
 Here is a real-world issue described by a healthcare provider:
-\"{message}\"
+"{message}"
 
 Your task is to:
 1. Determine whether the issue aligns best with **Automated Care Messaging**, **Automated Care Scheduling**, or both.
@@ -105,13 +100,12 @@ Respond ONLY in this exact JSON format:
 Do not include anything outside the JSON block.
 """
 
-
-        try:
-            response = openai.ChatCompletion.create(
-                model="gpt-4",
-                messages=[{"role": "system", "content": gpt_prompt}],
-                temperature=0.7
-            )
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[{"role": "system", "content": gpt_prompt}],
+            temperature=0.7
+        )
         result_text = response['choices'][0]['message']['content']
         print("🧠 GPT raw output:\n", result_text, flush=True)
 
@@ -189,11 +183,20 @@ def get_solution():
                 "keyword": keyword
             })
 
-        elif gpt_response and gpt_response.get('how_it_works'):
+        elif gpt_response and gpt_response.get("how_it_works"):
+            corrections = {
+                "ACM Messenger": "ACM Messenger",
+                "ACS Booking": "ACS Booking"
+            }
+            for wrong, correct in corrections.items():
+                gpt_response["feature"] = gpt_response.get("feature", "").replace(wrong, correct)
+                gpt_response["product"] = gpt_response.get("product", "").replace(wrong, correct)
+
             product = gpt_response.get("product", "N/A")
             feature = gpt_response.get("feature", "N/A")
             how_it_works = gpt_response.get("how_it_works", "No solution provided")
             benefits = gpt_response.get("benefits", [])
+
             benefits_str = "\n".join(f"- {b}" for b in benefits) if isinstance(benefits, list) else str(benefits)
 
             log_to_google_sheets(message, page_url, product, feature, "gpt-fallback", "GPT generated", how_it_works, message)
