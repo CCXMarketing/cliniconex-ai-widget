@@ -107,8 +107,7 @@ Do not include anything outside the JSON block.
             temperature=0.7
         )
         result_text = response['choices'][0]['message']['content']
-        print("🧠 GPT raw output:
-", result_text, flush=True)
+        print("🧠 GPT raw output:\n", result_text, flush=True)
 
         try:
             parsed = json.loads(result_text)
