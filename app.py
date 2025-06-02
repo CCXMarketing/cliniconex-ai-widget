@@ -1,30 +1,6 @@
 from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify
 from flask_cors import CORS
-def hybrid_match(user_input, solutions):
-    from openai.embeddings_utils import get_embedding, cosine_similarity
-    import openai
-    openai.api_key = os.getenv("OPENAI_API_KEY")
-
-    input_embedding = get_embedding(user_input, engine="text-embedding-ada-002")
-
-    top_score = 0
-    best_match = None
-
-    for solution in solutions:
-        issue_text = solution.get("issue", "")
-        keywords = solution.get("keywords", [])
-        issue_embedding = get_embedding(issue_text, engine="text-embedding-ada-002")
-        similarity = cosine_similarity(input_embedding, issue_embedding)
-
-        # Score boost for any keyword match
-        keyword_match = any(kw.lower() in user_input.lower() for kw in keywords)
-        score = similarity + (0.05 if keyword_match else 0)
-
-        if score > top_score:
-            top_score = score
-            best_match = solution
-
-    return best_match
 from datetime import datetime
 from zoneinfo import ZoneInfo
 import openai
@@ -32,6 +8,7 @@ import os
 import json
 import traceback
 import re
+
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 
