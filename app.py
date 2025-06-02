@@ -186,36 +186,43 @@ def get_solution():
                 "keyword": keyword
             })
 
-        elif gpt_response:
-            corrections = {
-                "ACM Messaging": "ACM Messenger",
-                "ACM Communication": "ACM Messenger",
-                "ACS Scheduling": "ACS Booking"
-            }
-            for wrong, correct in corrections.items():
-                gpt_response["feature"] = gpt_response.get("feature", "").replace(wrong, correct)
-                gpt_response["product"] = gpt_response.get("product", "").replace(wrong, correct)
+  elif gpt_response:
+    # Normalize product/feature names...
+    corrections = {
+        "ACM Messaging": "ACM Messenger",
+        "ACM Communication": "ACM Messenger",
+        "ACS Scheduling": "ACS Booking"
+    }
 
-            product = gpt_response.get("product", "N/A")
-            feature = gpt_response.get("feature", "N/A")
-            how_it_works = gpt_response.get("how_it_works", "No solution provided")
-            benefits = gpt_response.get("benefits", [])
+    for wrong, correct in corrections.items():
+        gpt_response["feature"] = gpt_response.get("feature", "").replace(wrong, correct)
+        gpt_response["product"] = gpt_response.get("product", "").replace(wrong, correct)
 
-            if isinstance(benefits, list):
-                benefits_str = "\n".join(f"- {b}" for b in benefits)
-            else:
-                benefits_str = str(benefits)
+    # ✅ This should NOT be inside the loop
+    product = gpt_response.get("product", "N/A")
+    feature = gpt_response.get("feature", "N/A")
+    how_it_works = gpt_response.get("how_it_works", "No solution provided")
+    benefits = gpt_response.get("benefits", [])
 
-            log_to_google_sheets(message, page_url, product, feature, "gpt-fallback", "GPT generated", how_it_works, message)
+    if isinstance(benefits, list):
+        benefits_str = "\n".join(f"- {b}" for b in benefits)
+    else:
+        benefits_str = str(benefits)
 
-            return jsonify({
-                "type": "solution",
-                "module": product,
-                "feature": feature,
-                "solution": how_it_works,
-                "benefits": benefits_str,
-                "keyword": message
-            })
+    log_to_google_sheets(
+        message, page_url, product, feature,
+        "gpt-fallback", "GPT generated", how_it_works, message
+    )
+
+    return jsonify({
+        "type": "solution",
+        "module": product,
+        "feature": feature,
+        "solution": how_it_works,
+        "benefits": benefits_str,
+        "keyword": message
+    })
+
 
         else:
             return jsonify({
