@@ -241,7 +241,7 @@ def get_solution():
         return jsonify(response)
     except Exception as e:
         print("❌ Error:", str(e))
-        return jsonify({"error": "An error occurred."}), 500
+        return jsonify({"error": str(e)}), 500
 
 
 
