@@ -112,7 +112,7 @@ def generate_gpt_solution(message):
         "Optimizes resource allocation by reducing no-shows and prompt rescheduling."
       ],
       "roi": "Reduces no-show rates by **20%**, increasing clinic revenue by an estimated **$50,000/year** due to more patients attending follow-ups.",
-      "disclaimer": "Note: The ROI estimates provided are based on typical industry benchmarks and assumptions for healthcare settings. Actual ROI may vary depending on clinic size, patient volume, and specific operational factors."
+      "Note": "The ROI estimates provided are based on typical industry benchmarks and assumptions for healthcare settings. Actual ROI may vary depending on clinic size, patient volume, and specific operational factors."
     }}
 
     Do not include anything outside the JSON block.
@@ -140,7 +140,7 @@ def generate_gpt_solution(message):
                     "Automates communications to reduce administrative workload.",
                     "Improves patient engagement by providing reminders."
                 ],
-                "roi": "Reduces no-show rates by **20%**, increasing clinic revenue by an estimated **$50,000/year** due to more patients attending follow-ups.",
+                "roi": "Reduces no-show rates by 20%, increasing clinic revenue by an estimated $50,000/year due to more patients attending follow-ups.",
                 "disclaimer": "Note: The ROI estimates provided are based on typical industry benchmarks and assumptions for healthcare settings. Actual ROI may vary depending on clinic size, patient volume, and specific operational factors."
             }
 
@@ -148,7 +148,7 @@ def generate_gpt_solution(message):
         if "roi" not in parsed:
             parsed["roi"] = "Estimated ROI placeholder: Reduces operational inefficiencies, saving significant staff time."
         if "disclaimer" not in parsed:
-            parsed["disclaimer"] = "Note: The ROI estimates provided are based on typical industry benchmarks and assumptions for healthcare settings. Actual ROI may vary depending on clinic size, patient volume, and specific operational factors."
+            parsed["disclaimer"] = "The ROI estimates provided are based on typical industry benchmarks and assumptions for healthcare settings. Actual ROI may vary depending on clinic size, patient volume, and specific operational factors."
 
         return parsed
     except Exception as e:
