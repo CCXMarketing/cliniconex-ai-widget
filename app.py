@@ -69,31 +69,17 @@ def log_to_google_sheets(prompt, page_url, product, feature, status, matched_iss
         timestamp = datetime.now(ZoneInfo("America/Toronto")).strftime("%Y-%m-%d %H:%M:%S")
         feature_str = ', '.join(feature) if isinstance(feature, list) else feature
 
-        row_data = {
-            "input": prompt,
-            "module": product,
-            "feature": feature_str,
-            "type": "solution",
-            "status": status,
-            "matchedIssue": matched_issue,
-            "matchedSolution": matched_solution,
-            "pageUrl": page_url,
-            "keyword": keyword,
-            "fullSolution": full_solution
-        }
-
         values = [[
-            timestamp,
-            row_data["input"],
-            row_data["module"],
-            row_data["feature"],
-            row_data["type"],
-            row_data["status"],
-            row_data["matchedIssue"],
-            row_data["matchedSolution"],
-            row_data["pageUrl"],
-            row_data["keyword"],
-            row_data["fullSolution"]
+            timestamp,               # Timestamp
+            prompt,                  # Prompt
+            product,                 # Product
+            feature_str,             # Feature
+            status,                  # Status
+            matched_issue,           # Matched Issue
+            matched_solution,        # Matched Solution
+            page_url,                # Page URL
+            keyword,                 # Keyword
+            full_solution            # Full Solution
         ]]
 
         sheet.values().append(
@@ -105,7 +91,6 @@ def log_to_google_sheets(prompt, page_url, product, feature, status, matched_iss
     except Exception as e:
         print("❌ Error logging to Google Sheets:", str(e))
         traceback.print_exc()
-
 
 def generate_gpt_solution(message):
     gpt_prompt = f"""
