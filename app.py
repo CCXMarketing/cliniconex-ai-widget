@@ -60,15 +60,13 @@ def extract_json(text):
         match = re.search(r'{.*}', text, re.DOTALL)
         return json.loads(match.group(0)) if match else None
 
-def log_to_google_sheets(prompt, page_url, product, feature, status, matched_issue, matched_solution, keyword):
+def log_to_google_sheets(prompt, page_url, product, feature, status, matched_issue, matched_solution, keyword, full_solution=""):
     try:
         timestamp = datetime.now(ZoneInfo("America/Toronto")).strftime("%Y-%m-%d %H:%M:%S")
-        
-        # Join the features into a single string
         feature_str = ', '.join(feature) if isinstance(feature, list) else feature
-        
-        values = [[timestamp, prompt, product, feature_str, status, matched_issue, matched_solution, page_url, keyword]]
-        
+
+        values = [[timestamp, prompt, product, feature_str, status, matched_issue, matched_solution, page_url, keyword, full_solution]]
+
         sheet.values().append(
             spreadsheetId=SHEET_ID,
             range="Advisor Logs!A1",
@@ -188,44 +186,48 @@ def get_solution():
         matrix_score, matrix_item, keyword = get_best_matrix_match(message)
         gpt_response = generate_gpt_solution(message)
 
-        # Determine whether we are using a matrix solution or a GPT fallback
         use_matrix = (
             matrix_score >= 2 and matrix_item and
             gpt_response.get("product", "").lower() in matrix_item.get("product", "").lower()
         )
 
         if use_matrix:
-            # Log the matrix solution and related details
             status = "matrix"
-            matched_issue = matrix_item.get("product", "N/A")  # Match to the product/issue
+            matched_issue = matrix_item.get("product", "N/A")
+            full_solution = matrix_item.get("solution", "")
             response = {
                 "type": "solution",
                 "module": matrix_item.get("product", "N/A"),
                 "feature": ", ".join(matrix_item.get("features", [])) or "N/A",
-                "solution": matrix_item.get("solution", "N/A"),
+                "solution": full_solution,
                 "benefits": matrix_item.get("benefits", "N/A"),
                 "keyword": keyword or "N/A"
             }
-            log_to_google_sheets(message, page_url, matrix_item.get("product", "N/A"), matrix_item.get("features", []), status, matched_issue, "N/A", keyword)
+            log_to_google_sheets(message, page_url, matrix_item.get("product", "N/A"),
+                                 matrix_item.get("features", []), status, matched_issue,
+                                 "N/A", keyword, full_solution)
         else:
-            # Log the fallback solution and related details
             status = "fallback"
-            matched_issue = "N/A"  # No matrix match
+            matched_issue = "N/A"
+            full_solution = gpt_response.get("how_it_works", "")
             response = {
                 "type": "solution",
                 "module": gpt_response.get("product", "N/A"),
                 "feature": ", ".join(gpt_response.get("feature", [])) or "N/A",
-                "solution": gpt_response.get("how_it_works", "N/A"),
+                "solution": full_solution,
                 "benefits": "\n".join(gpt_response.get("benefits", [])) or "N/A",
                 "roi": gpt_response.get("roi", "N/A"),
                 "disclaimer": gpt_response.get("disclaimer", "N/A")
             }
-            log_to_google_sheets(message, page_url, gpt_response.get("product", "N/A"), gpt_response.get("feature", []), status, matched_issue, gpt_response.get("product", "N/A"), "N/A")
+            log_to_google_sheets(message, page_url, gpt_response.get("product", "N/A"),
+                                 gpt_response.get("feature", []), status, matched_issue,
+                                 gpt_response.get("product", "N/A"), "N/A", full_solution)
 
         return jsonify(response)
     except Exception as e:
         print("❌ Error:", str(e))
         return jsonify({"error": "An error occurred."}), 500
+
 
 
 # ✅ Start app for Render
