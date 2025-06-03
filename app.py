@@ -102,28 +102,22 @@ def generate_gpt_solution(message):
     2. Select **one or more features** from the list above that are most relevant. If only one feature is needed to solve the issue, provide just that feature. If multiple features are needed, provide a list of all the relevant features.
     3. Write **one concise paragraph** explaining how the selected product(s) and feature(s) solve the issue inputted — include how this fits within the overall Automated Care Platform (ACP).
     4. Provide a list of **2–3 specific operational benefits** written in Cliniconex’s confident, helpful tone.
-    5. **Include ROI**: Provide an estimated **ROI calculation** in the following format:
-       - **ROI**: Reduces [issue] by **X%**, increasing clinic revenue by an estimated **$Y/year** or saving **Z hours/year** in staff time.
+    5. **Include ROI**: If relevant and calculable, provide an estimated **ROI** calculation in the following format:
+       - **ROI**: Reduces [issue] by **X%**, increasing clinic revenue by an estimated **$Y/year** or saving **Z hours/year** in staff time. 
+       - If **ROI is not calculated** or **not available**, omit both the **ROI** and **disclaimer** fields entirely.
     6. **Provide a disclaimer** that the ROI estimates are based on typical industry benchmarks and assumptions for healthcare settings:
        - **Disclaimer**: "Note: The ROI estimates provided are based on typical industry benchmarks and assumptions for healthcare settings. Actual ROI may vary depending on clinic size, patient volume, and specific operational factors."
     
     Respond ONLY in this exact JSON format:
     
-    {{
+    {{" 
       "product": "Automated Care Messaging",
-      "feature": ["ACM Concierge – Shares real-time wait time data with patients and families."],  // This can also be a single feature like "ACM Messenger"
+      "feature": ["ACM Messenger", "ACM Alerts"],
       "how_it_works": "One paragraph that connects the solution to the problem and explains how the feature fits into the broader ACP.",
-      "benefits": [
-        "Reduces staff workload by eliminating manual communications.",
-        "Improves patient satisfaction with timely and transparent updates.",
-        "Integrates directly with your EMR for seamless automation."
-      ],
-      "roi": "Reduces waiting room frustration by **30%**, leading to **15% fewer inquiries** at the front desk, saving **5 hours per week** of staff time, worth **$6,000/year** in staff cost savings.",
+      "benefits": ["Reduces administrative workload by automating appointment reminders", "Improves patient satisfaction by reducing missed appointments", "Optimizes resource allocation by reducing no-shows"],
+      "roi": "Reduces no-shows by **20%**, improving clinic revenue by an estimated **$50,000/year** due to more patients attending follow-ups.",
       "disclaimer": "Note: The ROI estimates provided are based on typical industry benchmarks and assumptions for healthcare settings. Actual ROI may vary depending on clinic size, patient volume, and specific operational factors."
     }}
-    
-    Do not include anything outside the JSON block.
-    Focus on solving the issue. Be specific. Use real-world healthcare workflow language.
     """
   
     try:
@@ -141,12 +135,12 @@ def generate_gpt_solution(message):
             print("⚠️ GPT returned invalid response:", raw_output)
             return None
 
-        # Make sure to include ROI and Disclaimer
-        parsed["roi"] = "Reduces no-show rates by **20%**, increasing clinic revenue by an estimated **$50,000/year** due to more patients attending follow-ups."
-        parsed["disclaimer"] = "Note: The ROI estimates provided are based on typical industry benchmarks and assumptions for healthcare settings. Actual ROI may vary depending on clinic size, patient volume, and specific operational factors."
-
-        # Ensure that the response follows the expected format
         if validate_gpt_response(parsed):
+            # Check if ROI is available, if not, remove it and the disclaimer
+            if "roi" not in parsed or parsed["roi"] == "":
+                parsed.pop("roi", None)
+                parsed.pop("disclaimer", None)
+
             return parsed
         else:
             print("⚠️ GPT response missing required fields.")
@@ -155,6 +149,7 @@ def generate_gpt_solution(message):
         print("❌ GPT fallback error:", str(e))
         traceback.print_exc()
         return None
+
 
 
 # ✅ Main AI Route
