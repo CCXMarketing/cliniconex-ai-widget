@@ -16,7 +16,7 @@ CORS(app)
 
 # ✅ Environment and API setup
 openai.api_key = os.getenv("OPENAI_API_KEY")
-PORT = int(os.getenv("PORT", 10000))
+PORT = int(os.getenv("PORT", 10000))  # Ensure this is set properly from environment or defaults to 10000
 SHEET_ID = "1jL-iyQiVcttmEMfy7j8DA-cyMM-5bcj1TLHLrb4Iwsg"
 SERVICE_ACCOUNT_FILE = "service_account.json"
 
@@ -211,5 +211,7 @@ def get_solution():
         print("❌ Error:", str(e))
         return jsonify({"error": "An error occurred."}), 500
 
+# ✅ Start app for Render
 if __name__ == "__main__":
-    app.run(debug=True, port=PORT)
+    print(f"✅ Starting Cliniconex AI widget on port {PORT}")
+    app.run(host="0.0.0.0", port=PORT)
