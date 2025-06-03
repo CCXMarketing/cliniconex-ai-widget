@@ -99,7 +99,7 @@ def generate_gpt_solution(message):
     3. Write **one concise paragraph** explaining how the selected product(s) and feature(s) solve the issue inputted — include how this fits within the broader Automated Care Platform (ACP).
     4. Provide a list of **2–3 specific operational benefits** written in Cliniconex’s confident, helpful tone.
     5. **Include ROI**: Provide an estimated **ROI calculation** in the following format:
-       - **ROI**: Reduces [issue] by **X%**, increasing clinic revenue by an estimated **$Y/year** or saving **Z hours/year** in staff time.
+       - **ROI**: Reduces [issue] by X%, increasing clinic revenue by an estimated $Y/year or saving Z hours/year in staff time.
     6. **Provide a disclaimer** that the ROI estimates are based on typical industry benchmarks and assumptions for healthcare settings:
        - **Disclaimer**: "Note: The ROI estimates provided are based on typical industry benchmarks and assumptions for healthcare settings. Actual ROI may vary depending on clinic size, patient volume, and specific operational factors."
 
@@ -114,7 +114,7 @@ def generate_gpt_solution(message):
         "Improves patient satisfaction and care by reducing missed appointments.",
         "Optimizes resource allocation by reducing no-shows and prompt rescheduling."
       ],
-      "roi": "Reduces no-show rates by **20%**, increasing clinic revenue by an estimated **$50,000/year** due to more patients attending follow-ups.",
+      "roi": "Reduces no-show rates by 20%, increasing clinic revenue by an estimated $50,000/year due to more patients attending follow-ups.",
       "Note": "The ROI estimates provided are based on typical industry benchmarks and assumptions for healthcare settings. Actual ROI may vary depending on clinic size, patient volume, and specific operational factors."
     }}
 
