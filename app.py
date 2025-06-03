@@ -136,11 +136,10 @@ def generate_gpt_solution(message):
             return None
 
         if validate_gpt_response(parsed):
-            # If ROI is missing, add a placeholder for both ROI and disclaimer
-            if "roi" not in parsed:
-                parsed["roi"] = "No ROI estimate provided"
-            if "disclaimer" not in parsed:
-                parsed["disclaimer"] = "Note: The ROI estimates provided are based on typical industry benchmarks and assumptions for healthcare settings. Actual ROI may vary depending on clinic size, patient volume, and specific operational factors."
+            # If ROI is missing, do not include ROI and disclaimer fields
+            if "roi" not in parsed or parsed["roi"] == "":
+                parsed["roi"] = ""  # Empty string means no ROI
+                parsed["disclaimer"] = ""  # No disclaimer if no ROI
 
             return parsed
         else:
