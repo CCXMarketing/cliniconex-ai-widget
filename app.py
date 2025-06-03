@@ -1,3 +1,4 @@
+# Refactored Cliniconex AI Solution Advisor Backend
 import os
 import json
 import re
@@ -7,18 +8,17 @@ from zoneinfo import ZoneInfo
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import openai
+from rapidfuzz import fuzz
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 
 # ✅ Flask setup
 app = Flask(__name__)
-
-# ✅ CORS configuration to allow only specific origin (replace with actual frontend URL)
-CORS(app, resources={r"/*": {"origins": "https://cliniconex.com"}})
+CORS(app)
 
 # ✅ Environment and API setup
 openai.api_key = os.getenv("OPENAI_API_KEY")
-PORT = int(os.getenv("PORT", 10000))  # Ensure this is set properly from environment or defaults to 10000
+PORT = int(os.getenv("PORT", 10000))
 SHEET_ID = "1jL-iyQiVcttmEMfy7j8DA-cyMM-5bcj1TLHLrb4Iwsg"
 SERVICE_ACCOUNT_FILE = "service_account.json"
 
@@ -28,8 +28,7 @@ with open("cliniconex_solutions.json", "r", encoding="utf-8") as f:
 
 # ✅ Google Sheets setup
 credentials = service_account.Credentials.from_service_account_file(
-    SERVICE_ACCOUNT_FILE, scopes=["https://www.googleapis.com/auth/spreadsheets"]
-)
+    SERVICE_ACCOUNT_FILE, scopes=["https://www.googleapis.com/auth/spreadsheets"])
 sheet = build("sheets", "v4", credentials=credentials).spreadsheets()
 
 # ✅ Utility Functions
@@ -39,12 +38,17 @@ def normalize(text):
 def score_keywords(message, item):
     return sum(1 for k in item.get("keywords", []) if k.lower() in message)
 
+def fuzzy_score(message, item):
+    return max(fuzz.partial_ratio(message, k.lower()) for k in item.get("keywords", []))
+
 def get_best_matrix_match(message):
     best_score, best_item, best_keyword = 0, None, None
     for item in solution_matrix:
         score = score_keywords(message, item)
-        if score > best_score:
-            best_score = score
+        fuzzy = fuzzy_score(message, item)
+        final_score = score + (1 if fuzzy > 85 else 0)  # add 1 if a fuzzy match is strong
+        if final_score > best_score:
+            best_score = final_score
             best_item = item
             best_keyword = next((k for k in item.get("keywords", []) if k.lower() in message), None)
     return best_score, best_item, best_keyword
