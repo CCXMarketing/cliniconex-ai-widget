@@ -73,7 +73,7 @@ def log_to_google_sheets(prompt, page_url, product, feature, status, matched_iss
         traceback.print_exc()
 
 def generate_gpt_solution(message):
-    gpt_prompt = f"""
+gpt_prompt = f"""
 You are a Cliniconex solutions expert with deep expertise in the company’s full suite of products and features. You can confidently assess any healthcare-related issue and determine the most effective solution—whether it involves a single product or a combination of offerings. You understand how each feature functions within the broader Automated Care Platform (ACP) and are skilled at tailoring precise recommendations to address real-world clinical, operational, and administrative challenges.
 
 Cliniconex offers the **Automated Care Platform (ACP)** — a complete system for communication, coordination, and care automation. ACP is composed of two core solutions:
@@ -99,26 +99,33 @@ Here is a real-world issue described by a healthcare provider:
 
 Your task is to:
 1. Determine whether the issue aligns best with **Automated Care Messaging**, **Automated Care Scheduling**, or both.
-2. Select **one or more features** from the list above that are most relevant.
-3. Write **one concise paragraph** explaining how the selected product(s) and feature(s) solve the issue — include how this fits within the overall Automated Care Platform (ACP).
+2. Select **one or more features** from the list above that are most relevant. If only one feature is needed to solve the issue, provide just that feature. If multiple features are needed, provide a list of all the relevant features.
+3. Write **one concise paragraph** explaining how the selected product(s) and feature(s) solve the issue inputted — include how this fits within the overall Automated Care Platform (ACP).
 4. Provide a list of **2–3 specific operational benefits** written in Cliniconex’s confident, helpful tone.
+5. **Include ROI**: Provide an estimated **ROI calculation** in the following format:
+   - **ROI**: Reduces [issue] by **X%**, increasing clinic revenue by an estimated **$Y/year** or saving **Z hours/year** in staff time.
+6. **Provide a disclaimer** that the ROI estimates are based on typical industry benchmarks and assumptions for healthcare settings:
+   - **Disclaimer**: "Note: The ROI estimates provided are based on typical industry benchmarks and assumptions for healthcare settings. Actual ROI may vary depending on clinic size, patient volume, and specific operational factors."
 
 Respond ONLY in this exact JSON format:
 
 {{
   "product": "Automated Care Messaging",
-  "feature": "ACM Concierge – Shares real-time wait time data with patients and families.",
+  "feature": ["ACM Concierge – Shares real-time wait time data with patients and families."],  // This can also be a single feature like "ACM Messenger"
   "how_it_works": "One paragraph that connects the solution to the problem and explains how the feature fits into the broader ACP.",
   "benefits": [
     "Reduces staff workload by eliminating manual communications.",
     "Improves patient satisfaction with timely and transparent updates.",
     "Integrates directly with your EMR for seamless automation."
-  ]
+  ],
+  "roi": "Reduces waiting room frustration by **30%**, leading to **15% fewer inquiries** at the front desk, saving **5 hours per week** of staff time, worth **$6,000/year** in staff cost savings.",
+  "disclaimer": "Note: The ROI estimates provided are based on typical industry benchmarks and assumptions for healthcare settings. Actual ROI may vary depending on clinic size, patient volume, and specific operational factors."
 }}
 
 Do not include anything outside the JSON block.
 Focus on solving the issue. Be specific. Use real-world healthcare workflow language.
-"""    
+"""
+  
     try:
         response = openai.ChatCompletion.create(
             model="gpt-4",
