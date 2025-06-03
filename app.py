@@ -61,7 +61,12 @@ def extract_json(text):
 def log_to_google_sheets(prompt, page_url, product, feature, status, matched_issue, matched_solution, keyword):
     try:
         timestamp = datetime.now(ZoneInfo("America/Toronto")).strftime("%Y-%m-%d %H:%M:%S")
-        values = [[timestamp, prompt, product, feature, status, matched_issue, matched_solution, page_url, keyword]]
+        
+        # Join the features into a single string
+        feature_str = ', '.join(feature) if isinstance(feature, list) else feature
+        
+        values = [[timestamp, prompt, product, feature_str, status, matched_issue, matched_solution, page_url, keyword]]
+        
         sheet.values().append(
             spreadsheetId=SHEET_ID,
             range="Advisor Logs!A1",
