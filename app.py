@@ -136,10 +136,12 @@ def generate_gpt_solution(message):
             return None
 
         if validate_gpt_response(parsed):
-            # If ROI is missing, do not include ROI and disclaimer fields
-            if "roi" not in parsed or parsed["roi"] == "":
-                parsed["roi"] = ""  # Empty string means no ROI
-                parsed["disclaimer"] = ""  # No disclaimer if no ROI
+            # Ensure the ROI and disclaimer are not placeholders
+            if "roi" not in parsed:
+                del parsed["roi"]  # Delete if not present
+
+            if "disclaimer" not in parsed:
+                del parsed["disclaimer"]  # Delete if not present
 
             return parsed
         else:
