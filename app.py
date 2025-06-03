@@ -210,4 +210,19 @@ def get_solution():
                 "module": gpt_response.get("product", "N/A"),
                 "feature": ", ".join(gpt_response.get("feature", [])) or "N/A",
                 "solution": gpt_response.get("how_it_works", "N/A"),
-                "
+                "benefits": "\n".join(gpt_response.get("benefits", [])) or "N/A",
+                "roi": gpt_response.get("roi", "N/A"),
+                "disclaimer": gpt_response.get("disclaimer", "N/A")
+            }
+            log_to_google_sheets(message, page_url, gpt_response.get("product", "N/A"), gpt_response.get("feature", []), status, matched_issue, gpt_response.get("product", "N/A"), "N/A")
+
+        return jsonify(response)
+    except Exception as e:
+        print("❌ Error:", str(e))
+        return jsonify({"error": "An error occurred."}), 500
+
+
+# ✅ Start app for Render
+if __name__ == "__main__":
+    print(f"✅ Starting Cliniconex AI widget on port {PORT}")
+    app.run(host="0.0.0.0", port=PORT)
