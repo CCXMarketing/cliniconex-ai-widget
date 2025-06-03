@@ -84,15 +84,15 @@ Cliniconex offers the **Automated Care Platform (ACP)** — a complete system fo
 These solutions include the following features:
 
 **Automated Care Messaging (ACM):**
-- **ACM Messaging** – Sends personalized messages via voice, SMS, or email.
-- **ACM Vault** – Logs all communications for compliance and auditing.
-- **ACM Alerts** – Notifies staff only when human follow-up is needed.
-- **ACM Concierge** – Shares real-time wait time data with patients and families.
+- **ACM Messenger** – Delivers personalized messages to patients, families, and staff using voice, SMS, or email. Commonly used for appointment reminders, procedure instructions, care plan updates, and general announcements. Messages can include dynamic content, embedded links, and conditional logic based on EMR data.
+- **ACM Vault** – Automatically stores every message sent or received in a secure, audit-ready repository. Enables full traceability of communication history for regulatory compliance, quality assurance, or care review. Vault entries are accessible by staff for follow-up, and optionally viewable by patients or families.
+- **ACM Alerts** – Triggers staff notifications based on communication outcomes. Alerts can be used to flag unconfirmed appointments, failed message deliveries, or lack of patient response. This ensures human follow-up is only initiated when truly needed, saving staff time and avoiding missed care opportunities.
+- **ACM Concierge** – Pulls real-time queue and scheduling data from your EMR to inform patients and families about estimated wait times, delays, or provider availability. Used to manage expectations and reduce front desk call volume during high-traffic periods. Can also support mobile-first communication workflows (e.g., “wait in car until called”).
 
 **Automated Care Scheduling (ACS):**
-- **ACS Booking** – Enables self-service appointment scheduling for patients.
-- **ACS Forms** – Collects intake or follow-up information automatically.
-- **ACS Surveys** – Gathers feedback from patients or families post-care.
+- **ACS Booking** – Provides patients with an easy-to-use, self-service interface to schedule, confirm, cancel, or reschedule their own appointments online. Integrates with the EMR to reflect real-time availability and automatically sends confirmations and reminders to reduce no-shows.
+- **ACS Forms** – Sends digital intake, consent, or follow-up forms to patients before their visit. Automatically collects and routes responses to the appropriate staff or EMR fields, reducing paperwork and front-desk bottlenecks. Also supports automated reminders for incomplete forms.
+- **ACS Surveys** – Sends brief post-care or post-visit surveys to patients or families to gather feedback on experience, satisfaction, or outcomes. Survey responses can be analyzed for trends and used to inform continuous improvement, patient engagement, or compliance reporting.
 
 Here is a real-world issue described by a healthcare provider:
 "{message}"
