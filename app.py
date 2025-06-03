@@ -165,7 +165,7 @@ def generate_gpt_solution(message):
                 "Improves patient engagement by providing reminders."
             ],
             "roi": "Reduces no-show rates by 20%, increasing clinic revenue by an estimated $50,000/year.",
-            "Note": "The ROI estimates provided are based on typical industry benchmarks and assumptions for healthcare settings. Actual ROI may vary depending on clinic size, patient volume, and specific operational factors."
+            "disclaimer": "Note: The ROI estimates provided are based on typical industry benchmarks and assumptions for healthcare settings. Actual ROI may vary depending on clinic size, patient volume, and specific operational factors."
         }
 
 # ✅ Main AI Route
@@ -182,12 +182,16 @@ def get_solution():
         matrix_score, matrix_item, keyword = get_best_matrix_match(message)
         gpt_response = generate_gpt_solution(message)
 
+        # Determine whether we are using a matrix solution or a GPT fallback
         use_matrix = (
-            matrix_score >= 2 and matrix_item and gpt_response and
+            matrix_score >= 2 and matrix_item and
             gpt_response.get("product", "").lower() in matrix_item.get("product", "").lower()
         )
 
         if use_matrix:
+            # Log the matrix solution and related details
+            status = "matrix"
+            matched_issue = matrix_item.get("product", "N/A")  # Match to the product/issue
             response = {
                 "type": "solution",
                 "module": matrix_item.get("product", "N/A"),
@@ -196,25 +200,14 @@ def get_solution():
                 "benefits": matrix_item.get("benefits", "N/A"),
                 "keyword": keyword or "N/A"
             }
-            log_to_google_sheets(message, page_url, matrix_item.get("product", "N/A"), matrix_item.get("features", []), "success", "N/A", "N/A", keyword)
+            log_to_google_sheets(message, page_url, matrix_item.get("product", "N/A"), matrix_item.get("features", []), status, matched_issue, "N/A", keyword)
         else:
+            # Log the fallback solution and related details
+            status = "fallback"
+            matched_issue = "N/A"  # No matrix match
             response = {
                 "type": "solution",
                 "module": gpt_response.get("product", "N/A"),
                 "feature": ", ".join(gpt_response.get("feature", [])) or "N/A",
                 "solution": gpt_response.get("how_it_works", "N/A"),
-                "benefits": "\n".join(gpt_response.get("benefits", [])) or "N/A",
-                "roi": gpt_response.get("roi", "N/A"),
-                "disclaimer": gpt_response.get("disclaimer", "N/A")
-            }
-            log_to_google_sheets(message, page_url, gpt_response.get("product", "N/A"), gpt_response.get("feature", []), "success", "N/A", gpt_response.get("product", "N/A"), "N/A")
-
-        return jsonify(response)
-    except Exception as e:
-        print("❌ Error:", str(e))
-        return jsonify({"error": "An error occurred."}), 500
-
-# ✅ Start app for Render
-if __name__ == "__main__":
-    print(f"✅ Starting Cliniconex AI widget on port {PORT}")
-    app.run(host="0.0.0.0", port=PORT)
+                "
