@@ -12,7 +12,9 @@ from googleapiclient.discovery import build
 
 # ✅ Flask setup
 app = Flask(__name__)
-CORS(app)
+
+# ✅ CORS configuration to allow only specific origin (replace with actual frontend URL)
+CORS(app, resources={r"/*": {"origins": "https://cliniconex.com"}})
 
 # ✅ Environment and API setup
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -26,7 +28,8 @@ with open("cliniconex_solutions.json", "r", encoding="utf-8") as f:
 
 # ✅ Google Sheets setup
 credentials = service_account.Credentials.from_service_account_file(
-    SERVICE_ACCOUNT_FILE, scopes=["https://www.googleapis.com/auth/spreadsheets"])
+    SERVICE_ACCOUNT_FILE, scopes=["https://www.googleapis.com/auth/spreadsheets"]
+)
 sheet = build("sheets", "v4", credentials=credentials).spreadsheets()
 
 # ✅ Utility Functions
@@ -161,8 +164,8 @@ def generate_gpt_solution(message):
                 "Automates communications to reduce administrative workload.",
                 "Improves patient engagement by providing reminders."
             ],
-            "roi": "Reduces no-show rates by **20%**, increasing clinic revenue by an estimated **$50,000/year**.",
-            "disclaimer": "Note: The ROI estimates provided are based on typical industry benchmarks and assumptions for healthcare settings. Actual ROI may vary depending on clinic size, patient volume, and specific operational factors."
+            "roi": "Reduces no-show rates by 20%, increasing clinic revenue by an estimated $50,000/year.",
+            "Note": "The ROI estimates provided are based on typical industry benchmarks and assumptions for healthcare settings. Actual ROI may vary depending on clinic size, patient volume, and specific operational factors."
         }
 
 # ✅ Main AI Route
