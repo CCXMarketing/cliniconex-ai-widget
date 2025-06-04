@@ -313,10 +313,7 @@ def get_solution():
         gpt_response = generate_gpt_solution(message)
 
         # Determine whether we are using a matrix solution or a GPT fallback
-        use_matrix = (
-            matrix_score >= 3 and matrix_item and
-            gpt_response.get("product", "").lower() in matrix_item.get("product", "").lower()
-        )
+        use_matrix = False
 
         if use_matrix:
             # Log the matrix solution and related details
