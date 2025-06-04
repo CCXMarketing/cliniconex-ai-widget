@@ -98,7 +98,7 @@ def generate_gpt_solution(message):
     **ACS Forms** – Digital forms that collect patient information before the appointment. Fully integrated with your EMR, ACS Forms replaces paper intake with customizable forms patients can complete online. Save time, reduce errors, and make check-ins easier for everyone.
     **ACS Surveys – Automatically sends surveys to patients after visits or key events. Collects feedback, tracks trends, and helps you understand where to improve. Easy to set up, fully integrated with your EMR, and built to support better care through real insights.
     
-    🛑 Do not use definite articles like “the” in front of feature names. Always refer to them exactly as written in the feature list: ACM Messenger, ACM Vault, ACM Alerts, ACM Concierge, ACS Booking, ACS Forms, and ACS Surveys. Do not say “the ACM Messenger,” “the ACS Forms,” etc.
+    IMPORTANT!!!🛑 Do not use definite articles like “the” in front of Product or feature names. Always refer to them exactly as written in the feature list: Automated Care Messaging, Automated Care Scheduling, ACM Messenger, ACM Vault, ACM Alerts, ACM Concierge, ACS Booking, ACS Forms, and ACS Surveys. Do not say “the ACM Messenger,” “the ACS Forms,” etc.
 
         Here is a real-world issue described by a healthcare provider:
         "{message}"
