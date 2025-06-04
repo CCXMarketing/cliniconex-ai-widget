@@ -81,7 +81,7 @@ def log_to_google_sheets(prompt, page_url, product, feature, status, matched_iss
 
 def generate_gpt_solution(message):
     gpt_prompt = f"""    
-    cliniconex_prompt = """
+
     You are a Cliniconex solutions expert with deep expertise in the company’s full suite of products and features. Your task is to confidently assess any healthcare-related issue and determine the most effective solution—whether it involves a single product or a combination of offerings. You understand how each feature functions within the broader Automated Care Platform (ACP) and are skilled at tailoring precise recommendations to address real-world clinical, operational, and administrative challenges.
     
     Cliniconex offers the Automated Care Platform (ACP) — a complete system for communication, coordination, and care automation. ACP is composed of two core solutions:
