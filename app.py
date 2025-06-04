@@ -218,7 +218,7 @@ def generate_gpt_solution(message):
        - ROI: Reduces [issue] by X%, increasing clinic revenue by an estimated $Y/year or saving Z hours/year in staff time.
     6. Include this disclaimer at the end:
        - Disclaimer: "Note: The ROI estimates provided are based on typical industry benchmarks and assumptions for healthcare settings. Actual ROI may vary depending on clinic size, patient volume, and specific operational factors."
-    """
+    
     
         Respond ONLY in this exact JSON format:
     
