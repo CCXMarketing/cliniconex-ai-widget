@@ -88,10 +88,17 @@ def generate_gpt_solution(message):
     
     Automated Care Messaging (ACM)
     
-    The following lists represent a range of known and proven module capabilities, drawn from real-world implementations. These are examples, not limitations. Cliniconex modules are highly configurable and can support a wide range of operational, clinical, and compliance needs—even if the scenario isn’t explicitly listed.
-    
-    If an issue doesn’t exactly match a predefined use case but shares intent, category, or operational context with a listed capability, treat it as a valid match. Leverage your understanding of healthcare workflows to infer applicability—even if not explicitly stated.
+   The following feature lists are drawn from real-world implementations and represent known, proven capabilities. These are examples, not limitations — Cliniconex modules are highly configurable and support a wide range of operational, clinical, and compliance needs.
 
+Default Behavior: If an issue doesn’t exactly match a predefined use case but shares intent, category, or operational context with a listed capability, treat it as a valid match. Use your understanding of healthcare workflows to apply the most suitable module — even if the scenario isn’t explicitly listed.
+
+Exceptions – Hard-Match Required:
+
+If the issue involves any of the following: "fire drill", "lockdown", "evacuation", "outbreak", "compliance broadcast", "emergency alert", "shift coverage", "hazard", or "urgent safety notification" → you must choose ACM Alerts as the solution.
+
+If the issue mentions: "PHI", "encrypted message", "secure delivery", "incident report", "HIPAA", "audit log" → you must choose ACM Vault as the solution.
+
+These modules are tied to safety, security, and compliance scenarios that demand precision. Do not generalize these to other features like ACM Messenger or ACM Concierge.
 
     Automated Care Messaging (ACM)
     
