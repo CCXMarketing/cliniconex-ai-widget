@@ -94,18 +94,15 @@ Default Behavior: If an issue doesn’t exactly match a predefined use case but 
 
 🔒 Exceptions – Mandatory Feature Mapping:
 
-    If the scenario involves real-time safety notifications, emergency communication, environmental hazards, or regulatory compliance events that affect multiple people (e.g., fire drills, evacuations, lockdowns, outbreak alerts), you must classify the solution as ACM Alerts.
+If a scenario involves urgent, safety-critical communication — including drills, evacuations, lockdowns, outbreaks, severe weather alerts, compliance broadcasts, or staffing emergencies — you must classify the solution as **ACM Alerts**.
 
-    These include but are not limited to:
-    - Scheduled or unscheduled fire drills
-    - Lockdowns or active shooter alerts
-    - Evacuations due to hazard
-    - Outbreak notifications
-    - Weather emergencies (e.g., severe storms, flooding)
-    - Shift coverage requests due to absenteeism
-    - Compliance broadcasts (e.g., medication or dietary updates, HIPAA billing rights)
+These scenarios require:
+- Real-time distribution
+- Broad audience targeting
+- Compliance traceability
+- Operational continuity
 
-    These are not general communication — they require instant distribution, traceability, and are safety-critical. Do not assign Messenger or Vault to these unless PHI is directly involved.
+📛 Do not recommend ACM Messenger, Vault, or Concierge for these situations unless PHI, encrypted documents, or individual scheduling is directly involved.
 
 These modules are tied to safety, security, and compliance scenarios that demand precision. Do not generalize these to other features like ACM Messenger or ACM Concierge.
 
