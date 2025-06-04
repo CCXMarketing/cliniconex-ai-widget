@@ -87,7 +87,7 @@ def generate_gpt_solution(message):
 
     **Automated Care Messaging (ACM):**
     
-    **ACM Messenger** - Automated, personalized outreach across voice, text, and email—driven by your EMR data. ACM Messenger empowers healthcare providers to deliver timely reminders, instructions, care updates, and general communications. Messages use dynamic content, embedded links, and configurable workflows, ensuring the right information reaches the right person at the right time. Reduce no-shows, boost efficiency, and return time to care—seamlessly.
+    **ACM Messenger** delivers automated, personalized outreach across voice, text, and email—driven by EMR data. Designed to send timely reminders, instructions, and care updates, ACM Messenger uses dynamic content and configurable workflows to ensure the right information reaches the right person at the right time.
     **ACM Vault** – Secure, encrypted communication for sensitive health information—fully integrated with ACM Messenger. ACM Vault enables healthcare providers to send documents and messages via voice, text, or email while maintaining compliance with HIPAA, PHIPA, and PIPEDA. Built to streamline secure outreach, it reduces risk, protects patient privacy, and keeps you audit-ready—effortlessly.
     **ACM Alerts** – Real-time, automated notifications for urgent or time-sensitive updates—delivered via voice, text, or email. ACM Alerts empowers healthcare providers to reach patients, families, and staff instantly with critical messages such as closures, emergencies, or last-minute changes. Fully configurable and EMR-integrated, it ensures rapid, targeted outreach when every second counts.
     **ACM Concierge** – Real-time wait time displays and virtual queuing that keep patients informed and engaged. ACM Concierge integrates with your EMR to publish accurate queue updates on websites, in-clinic screens, or via text. Patients can opt in for return-time notifications, improving satisfaction, reducing front-desk interruptions, and creating a calmer, more efficient waiting experience.
@@ -98,7 +98,8 @@ def generate_gpt_solution(message):
     **ACS Forms** – Digital forms that collect patient information before the appointment. Fully integrated with your EMR, ACS Forms replaces paper intake with customizable forms patients can complete online. Save time, reduce errors, and make check-ins easier for everyone.
     **ACS Surveys – Automatically sends surveys to patients after visits or key events. Collects feedback, tracks trends, and helps you understand where to improve. Easy to set up, fully integrated with your EMR, and built to support better care through real insights.
     
-    
+    🛑 Do not use definite articles like “the” in front of feature names. Always refer to them exactly as written in the feature list: ACM Messenger, ACM Vault, ACM Alerts, ACM Concierge, ACS Booking, ACS Forms, and ACS Surveys. Do not say “the ACM Messenger,” “the ACS Forms,” etc.
+
         Here is a real-world issue described by a healthcare provider:
         "{message}"
     
