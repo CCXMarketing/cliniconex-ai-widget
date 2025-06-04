@@ -85,29 +85,32 @@ def generate_gpt_solution(message):
 
     Cliniconex offers **Automated Care Platform (ACP)** — a complete system for communication, coordination, and care automation. ACP is composed of two core solutions:
 
-**Automated Care Messaging (ACM):**
-- **ACM Messenger** – Delivers personalized messages to patients, families, and staff using voice, SMS, or email. Commonly used for appointment reminders, procedure instructions, care plan updates, and general announcements. Messages can include dynamic content, embedded links, and conditional logic based on EMR data.
-- **ACM Vault** – Automatically stores every message sent or received in a secure, audit-ready repository. Enables full traceability of communication history for regulatory compliance, quality assurance, or care review. Vault entries are accessible by staff for follow-up, and optionally viewable by patients or families.
-- **ACM Alerts** – Triggers staff notifications based on communication outcomes. Alerts can be used to flag unconfirmed appointments, failed message deliveries, or lack of patient response. This ensures human follow-up is only initiated when truly needed, saving staff time and avoiding missed care opportunities.
-- **ACM Concierge** – Pulls real-time queue and scheduling data from your EMR to inform patients and families about estimated wait times, delays, or provider availability. Used to manage expectations and reduce front desk call volume during high-traffic periods. Can also support mobile-first communication workflows (e.g., “wait in car until called”).
-
-**Automated Care Scheduling (ACS):**
-- **ACS Booking** – Provides patients with an easy-to-use, self-service interface to schedule, confirm, cancel, or reschedule their own appointments online. Integrates with the EMR to reflect real-time availability and automatically sends confirmations and reminders to reduce no-shows.
-- **ACS Forms** – Sends digital intake, consent, or follow-up forms to patients before their visit. Automatically collects and routes responses to the appropriate staff or EMR fields, reducing paperwork and front-desk bottlenecks. Also supports automated reminders for incomplete forms.
-- **ACS Surveys** – Sends brief post-care or post-visit surveys to patients or families to gather feedback on experience, satisfaction, or outcomes. Survey responses can be analyzed for trends and used to inform continuous improvement, patient engagement, or compliance reporting.
-
-    Here is a real-world issue described by a healthcare provider:
-    "{message}"
-
-    Your task is to:
-    1. Determine whether the issue aligns best with **Automated Care Messaging**, **Automated Care Scheduling**, or both.
-    2. Select **one or more features** from the list above that are most relevant. If only one feature is needed to solve the issue, provide just that feature. If multiple features are needed, provide a list of all the relevant features.
-    3. Write **one concise paragraph** explaining how the selected product(s) and feature(s) solve the issue inputted — include how this fits within the broader Automated Care Platform (ACP).
-    4. Provide a list of **2–3 specific operational benefits** written in Cliniconex’s confident, helpful tone.
-    5. **Include ROI**: Provide an estimated **ROI calculation** in the following format:
-       - **ROI**: Reduces [issue] by X%, increasing clinic revenue by an estimated $Y/year or saving Z hours/year in staff time.
-    6. **Provide a disclaimer** that the ROI estimates are based on typical industry benchmarks and assumptions for healthcare settings:
-       - **Disclaimer**: "Note: The ROI estimates provided are based on typical industry benchmarks and assumptions for healthcare settings. Actual ROI may vary depending on clinic size, patient volume, and specific operational factors."
+    **Automated Care Messaging (ACM):**
+    
+    **ACM Messenger** - Automated, personalized outreach across voice, text, and email—driven by your EMR data. ACM Messenger empowers healthcare providers to deliver timely reminders, instructions, care updates, and general communications. Messages use dynamic content, embedded links, and configurable workflows, ensuring the right information reaches the right person at the right time. Reduce no-shows, boost efficiency, and return time to care—seamlessly.
+    **ACM Vault** – Secure, encrypted communication for sensitive health information—fully integrated with ACM Messenger. ACM Vault enables healthcare providers to send documents and messages via voice, text, or email while maintaining compliance with HIPAA, PHIPA, and PIPEDA. Built to streamline secure outreach, it reduces risk, protects patient privacy, and keeps you audit-ready—effortlessly.
+    **ACM Alerts** – Real-time, automated notifications for urgent or time-sensitive updates—delivered via voice, text, or email. ACM Alerts empowers healthcare providers to reach patients, families, and staff instantly with critical messages such as closures, emergencies, or last-minute changes. Fully configurable and EMR-integrated, it ensures rapid, targeted outreach when every second counts.
+    **ACM Concierge** – Real-time wait time displays and virtual queuing that keep patients informed and engaged. ACM Concierge integrates with your EMR to publish accurate queue updates on websites, in-clinic screens, or via text. Patients can opt in for return-time notifications, improving satisfaction, reducing front-desk interruptions, and creating a calmer, more efficient waiting experience.
+    
+    **Automated Care Scheduling (ACS):**
+    
+    **ACS Booking** – Lets patients book their own appointments online, anytime. Integrated with your EMR, it keeps schedules up to date, reduces no-shows, and saves staff time by cutting down on phone calls and manual entry. Simple for patients, easier for your team.
+    **ACS Forms** – Digital forms that collect patient information before the appointment. Fully integrated with your EMR, ACS Forms replaces paper intake with customizable forms patients can complete online. Save time, reduce errors, and make check-ins easier for everyone.
+    **ACS Surveys – Automatically sends surveys to patients after visits or key events. Collects feedback, tracks trends, and helps you understand where to improve. Easy to set up, fully integrated with your EMR, and built to support better care through real insights.
+    
+    
+        Here is a real-world issue described by a healthcare provider:
+        "{message}"
+    
+        Your task is to:
+        1. Determine whether the issue aligns best with **Automated Care Messaging**, **Automated Care Scheduling**, or both.
+        2. Select **one or more features** from the list above that are most relevant. If only one feature is needed to solve the issue, provide just that feature. If multiple features are needed, provide a list of all the relevant features.
+        3. Write **one concise paragraph** explaining how the selected product(s) and feature(s) solve the issue inputted — include how this fits within the broader Automated Care Platform (ACP).
+        4. Provide a list of **2–3 specific operational benefits** written in Cliniconex’s confident, helpful tone.
+        5. **Include ROI**: Provide an estimated **ROI calculation** in the following format:
+           - **ROI**: Reduces [issue] by X%, increasing clinic revenue by an estimated $Y/year or saving Z hours/year in staff time.
+        6. **Provide a disclaimer** that the ROI estimates are based on typical industry benchmarks and assumptions for healthcare settings:
+           - **Disclaimer**: "Note: The ROI estimates provided are based on typical industry benchmarks and assumptions for healthcare settings. Actual ROI may vary depending on clinic size, patient volume, and specific operational factors."
 
     Respond ONLY in this exact JSON format:
 
