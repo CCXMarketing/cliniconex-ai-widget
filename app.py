@@ -92,11 +92,20 @@ def generate_gpt_solution(message):
 
 Default Behavior: If an issue doesn’t exactly match a predefined use case but shares intent, category, or operational context with a listed capability, treat it as a valid match. Use your understanding of healthcare workflows to apply the most suitable module — even if the scenario isn’t explicitly listed.
 
-Exceptions – Hard-Match Required:
+🔒 Exceptions – Mandatory Feature Mapping:
 
-If the issue involves any of the following: "fire drill", "lockdown", "evacuation", "outbreak", "compliance broadcast", "emergency alert", "shift coverage", "hazard", or "urgent safety notification" → you must choose ACM Alerts as the solution.
+    If the scenario involves real-time safety notifications, emergency communication, environmental hazards, or regulatory compliance events that affect multiple people (e.g., fire drills, evacuations, lockdowns, outbreak alerts), you must classify the solution as ACM Alerts.
 
-If the issue mentions: "PHI", "encrypted message", "secure delivery", "incident report", "HIPAA", "audit log" → you must choose ACM Vault as the solution.
+    These include but are not limited to:
+    - Scheduled or unscheduled fire drills
+    - Lockdowns or active shooter alerts
+    - Evacuations due to hazard
+    - Outbreak notifications
+    - Weather emergencies (e.g., severe storms, flooding)
+    - Shift coverage requests due to absenteeism
+    - Compliance broadcasts (e.g., medication or dietary updates, HIPAA billing rights)
+
+    These are not general communication — they require instant distribution, traceability, and are safety-critical. Do not assign Messenger or Vault to these unless PHI is directly involved.
 
 These modules are tied to safety, security, and compliance scenarios that demand precision. Do not generalize these to other features like ACM Messenger or ACM Concierge.
 
