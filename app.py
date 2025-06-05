@@ -107,21 +107,33 @@ How it works: {matched_solution}
 
 
 def generate_gpt_solution(message):
-    if any(term in message.lower() for term in [
-        "fax triage", "fax management", "referral processing",
-        "document routing", "inbound fax", "clinical workflow automation"]):
+    unsupported_terms = [
+    "fax triage", "fax management", "referral processing", "document routing",
+    "inbound fax", "ai scribe", "clinical scribe", "note transcription",
+    "dictation", "charting assistant", "clinical documentation",
+    "workflow automation", "internal task routing"
+]
 
-        return {
-            "product": "No Cliniconex Solution",
-            "feature": [],
-            "how_it_works": "Cliniconex does not currently offer a solution for this issue. The described challenge falls outside the scope of the Automated Care Platform (ACP), which focuses on automated patient communication, scheduling, and engagement.",
-            "benefits": ["N/A"],
-            "roi": "N/A",
-            "disclaimer": "Note: This issue appears to be outside the scope...",
-            "token_count": 0,
-            "token_cost": 0.0,
-            "full_solution": "Cliniconex does not currently offer a solution for this issue."
-        }
+if any(term in message.lower() for term in unsupported_terms):
+    return {
+        "product": "No Cliniconex Solution",
+        "feature": [],
+        "how_it_works": (
+            "Cliniconex does not currently offer a solution for this issue. "
+            "The described challenge falls outside the scope of the Automated Care Platform (ACP). "
+            
+        ),
+        "benefits": ["N/A"],
+        "roi": "N/A",
+        "disclaimer": (
+            "Note: This issue appears to be outside the scope of Cliniconex’s current solution set. "
+            "For further clarification or roadmap information, please contact your Cliniconex representative."
+        ),
+        "token_count": 0,
+        "token_cost": 0.0,
+        "full_solution": "Cliniconex does not currently offer a solution for this issue."
+    }
+
 
     gpt_prompt = f"""
     You are a Cliniconex solutions expert with deep expertise in the company’s full suite of products and features. You can confidently assess any healthcare-related issue and determine the most effective solution—whether it involves a single product or a combination of offerings. You understand how each feature functions within the broader Automated Care Platform (ACP) and are skilled at tailoring precise recommendations to address real-world clinical, operational, and administrative challenges.
