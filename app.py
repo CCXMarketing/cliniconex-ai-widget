@@ -126,10 +126,13 @@ def generate_gpt_solution(message):
     🧠 Special Instruction: 
     If the input mentions "no shows", "missed appointments", or "missed visits", prioritize **ACM Alerts** as the most appropriate feature for real-time confirmation and attendance optimization. 
     Only recommend **ACM Messenger** when the context refers specifically to routine appointment reminders well in advance. 
+    
     🧠 Special Instruction:
     When evaluating operational inefficiencies, high manual workloads, or staff burden (e.g., excessive calls, appointment follow-ups, or administrative tasks), prioritize **ACM Alerts** as the core feature for real-time automation and relief of manual communication. 
     Only recommend **ACM Messenger** when the need is specifically tied to **scheduled outreach** (e.g., routine appointment reminders sent in advance).
     Use contextual judgment rather than strict keywords—understand the nature of the problem to recommend the most fitting feature.
+    
+    🧠 Special Instruction: When a problem involves patient readiness, lack of preparation, or confusion before an appointment, consider using ACS Forms to collect necessary information in advance and ACM Alerts to send real-time confirmations or last-minute instructions. Use ACM Messenger only when scheduled reminders or information well ahead of time are most appropriate.
 
 
 
