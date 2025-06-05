@@ -249,7 +249,20 @@ def get_solution():
         gpt_response = generate_gpt_solution(message)
         token_count = gpt_response.pop("token_count", 0)
         token_cost = gpt_response.pop("token_cost", 0)
-        full_solution = gpt_response.pop("full_solution", "")
+        product = gpt_response.get("product", "N/A")
+        features = gpt_response.get("feature", [])
+        feature_str = ', '.join(features) if isinstance(features, list) else features
+        how_it_works = gpt_response.get("how_it_works", "N/A")
+
+        full_solution = f"""Recommended Product: {product}
+
+
+        Features: {feature_str}
+
+
+        How it works: {how_it_works}
+        """
+
 
         use_matrix = (
             matrix_score >= 2 and matrix_item and
