@@ -114,7 +114,7 @@ def generate_gpt_solution(message):
         return {
             "product": "No Cliniconex Solution",
             "feature": [],
-            "how_it_works": "Cliniconex does not currently offer a solution for this issue...",
+            "how_it_works": "Cliniconex does not currently offer a solution for this issue. The described challenge falls outside the scope of the Automated Care Platform (ACP), which focuses on automated patient communication, scheduling, and engagement.",
             "benefits": ["N/A"],
             "roi": "N/A",
             "disclaimer": "Note: This issue appears to be outside the scope...",
