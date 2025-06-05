@@ -66,7 +66,6 @@ def log_to_google_sheets(prompt, page_url, product, feature, status, matched_iss
         timestamp = datetime.now(ZoneInfo("America/Toronto")).strftime("%Y-%m-%d %H:%M:%S")
         feature_str = ', '.join(feature) if isinstance(feature, list) else feature
 
-        # Format the full solution in a human-readable layout
         formatted_full_solution = f"""Recommended Product: {product}
 
 
@@ -76,7 +75,6 @@ Features: {feature_str}
 How it works: {matched_solution}
 """
 
-        # Override if a custom full_solution is passed
         full_solution_to_log = full_solution if full_solution else formatted_full_solution
 
         values = [[
@@ -105,31 +103,21 @@ How it works: {matched_solution}
         print("❌ Error logging to Google Sheets:", str(e))
         traceback.print_exc()
 
-
 def generate_gpt_solution(message):
     unsupported_terms = [
-    "fax triage", "fax management", "referral processing", "document routing",
-    "inbound fax", "ai scribe", "clinical scribe", "note transcription",
-    "dictation", "charting assistant", "clinical documentation",
-    "workflow automation", "internal task routing"
-]
+        "fax triage", "fax management", "referral processing", "document routing",
+        "inbound fax", "ai scribe", "clinical scribe", "note transcription",
+        "dictation", "charting assistant", "clinical documentation",
+        "workflow automation", "internal task routing"
+    ]
 
-if any(term in message.lower() for term in unsupported_terms):
-    return {
-        "product": "No Cliniconex Solution",
-        "feature": [],
-        "how_it_works": "Cliniconex does not currently offer a solution for this issue. The described challenge falls outside the scope of the Automated Care Platform (ACP).",
-        "benefits": ["N/A"],
-        "roi": "N/A",
-        "disclaimer": (
-            "Note: This issue appears to be outside the scope of Cliniconex’s current solution set. "
-        ),
-        "token_count": 0,
-        "token_cost": 0.0,
-        "full_solution": "Cliniconex does not currently offer a solution for this issue."
-    }
-
-
+    if any(term in message.lower() for term in unsupported_terms):
+        return {
+            "product": "No Cliniconex Solution",
+            "feature": [],
+            "how_it_works": "Cliniconex does not currently offer a solution for this issue. The described challenge falls outside the scope of the Automated Care Platform (ACP).",
+      
+        }
 
     gpt_prompt = f"""
     You are a Cliniconex solutions expert with deep expertise in the company’s full suite of products and features. You can confidently assess any healthcare-related issue and determine the most effective solution—whether it involves a single product or a combination of offerings. You understand how each feature functions within the broader Automated Care Platform (ACP) and are skilled at tailoring precise recommendations to address real-world clinical, operational, and administrative challenges.
