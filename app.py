@@ -61,20 +61,50 @@ def extract_json(text):
         match = re.search(r'{.*}', text, re.DOTALL)
         return json.loads(match.group(0)) if match else None
 
-def log_to_google_sheets(prompt, page_url, product, feature, status, matched_issue, matched_solution, keyword, full_solution, token_count, token_cost):
+def log_to_google_sheets(prompt, page_url, product, feature, status, matched_issue, matched_solution, keyword, full_solution=None, token_count=None, token_cost=None):
     try:
         timestamp = datetime.now(ZoneInfo("America/Toronto")).strftime("%Y-%m-%d %H:%M:%S")
         feature_str = ', '.join(feature) if isinstance(feature, list) else feature
-        values = [[timestamp, prompt, product, feature_str, status, matched_issue, matched_solution, page_url, keyword, full_solution, token_count, token_cost]]
+
+        # Format the full solution in a human-readable layout
+        formatted_full_solution = f"""Recommended Product: {product}
+
+
+Features: {feature_str}
+
+
+How it works: {matched_solution}
+"""
+
+        # Override if a custom full_solution is passed
+        full_solution_to_log = full_solution if full_solution else formatted_full_solution
+
+        values = [[
+            timestamp,
+            prompt,
+            product,
+            feature_str,
+            status,
+            matched_issue,
+            matched_solution,
+            page_url,
+            keyword,
+            full_solution_to_log,
+            token_count or "N/A",
+            token_cost or "N/A"
+        ]]
+
         sheet.values().append(
             spreadsheetId=SHEET_ID,
             range="Advisor Logs!A1",
             valueInputOption="RAW",
             body={"values": values}
         ).execute()
+
     except Exception as e:
         print("❌ Error logging to Google Sheets:", str(e))
         traceback.print_exc()
+
 
 def generate_gpt_solution(message):
     gpt_prompt = f"""
