@@ -171,7 +171,7 @@ def generate_gpt_solution(message):
         response = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[{"role": "system", "content": gpt_prompt}],
-            temperature=0.7
+            temperature=0.3
         )
         raw_output = response['choices'][0]['message']['content']
         print("\U0001f9e0 GPT raw output:\n", raw_output)
