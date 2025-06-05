@@ -233,7 +233,13 @@ def get_solution():
         matrix_score, matrix_item, keyword = get_best_matrix_match(message)
         gpt_response = generate_gpt_solution(message)
         token_count = gpt_response.pop("token_count", 0)
-        full_solution = gpt_response.pop("full_solution", "")
+
+        # 🧩 Construct full_solution string in the desired format
+        full_solution = (
+            f"Recommended Product: {gpt_response.get('product', 'N/A')}\n\n"
+            f"Features: {', '.join(gpt_response.get('feature', [])) if isinstance(gpt_response.get('feature', []), list) else gpt_response.get('feature', 'N/A')}\n\n"
+            f"How it works: {gpt_response.get('how_it_works', 'N/A')}"
+        )
 
         use_matrix = (
             matrix_score >= 2 and matrix_item and
@@ -267,9 +273,11 @@ def get_solution():
             log_to_google_sheets(message, page_url, gpt_response.get("product", "N/A"), gpt_response.get("feature", []), status, matched_issue, gpt_response.get("product", "N/A"), "N/A", full_solution, token_count)
 
         return jsonify(response)
+
     except Exception as e:
         print("❌ Error:", str(e))
         return jsonify({"error": "An error occurred."}), 500
+
 
 if __name__ == "__main__":
     print(f"✅ Starting Cliniconex AI widget on port {PORT}")
