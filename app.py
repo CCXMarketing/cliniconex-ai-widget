@@ -132,8 +132,10 @@ def generate_gpt_solution(message):
     Only recommend **ACM Messenger** when the need is specifically tied to **scheduled outreach** (e.g., routine appointment reminders sent in advance).
     Use contextual judgment rather than strict keywords—understand the nature of the problem to recommend the most fitting feature.
     
-    🧠 Special Instruction: When a problem involves patient readiness, lack of preparation, or confusion before an appointment, consider using ACS Forms to collect necessary information in advance and ACM Alerts to send real-time confirmations or last-minute instructions. Use ACM Messenger only when scheduled reminders or information well ahead of time are most appropriate.
-
+    🧠 Special Instruction: When an issue involves patients being unprepared, confused, or lacking important information before an appointment, consider recommending:
+    - ACS Forms to collect necessary information in advance.
+    - ACM Alerts if real-time instructions or reminders shortly before the appointment would reduce no-shows or confusion.
+    Use ACM Messenger only when scheduled communication several days in advance is the clearest fit.
 
 
     **ACM Alerts** – Real-time, automated notifications for urgent or time-sensitive updates—delivered via voice, text, or email. ACM Alerts empowers healthcare providers to reach patients, families, and staff instantly with critical messages such as closures, emergencies, or last-minute changes. Fully configurable and EMR-integrated, it ensures rapid, targeted outreach when every second counts.
