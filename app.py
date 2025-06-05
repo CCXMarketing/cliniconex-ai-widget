@@ -86,18 +86,28 @@ def generate_gpt_solution(message):
     Cliniconex offers **Automated Care Platform (ACP)** — a complete system for communication, coordination, and care automation. ACP is composed of two core solutions:
 
     **Automated Care Messaging (ACM):**
-    
+
     **ACM Messenger** delivers automated, personalized outreach across voice, text, and email—driven by EMR data. Designed to send timely reminders, instructions, and care updates, ACM Messenger uses dynamic content and configurable workflows to ensure the right information reaches the right person at the right time.
-    **ACM Vault** – Secure, encrypted communication for sensitive health information—fully integrated with ACM Messenger. ACM Vault enables healthcare providers to send encrypted messages and documents via **email only**, ensuring HIPAA, PHIPA, and PIPEDA compliance. It is purpose-built to protect patient privacy, reduce risk, and support audit readiness while automating secure communication workflows.
+
+    **ACM Vault** provides secure, encrypted communication for sensitive health information—fully integrated with ACM Messenger. ACM Vault enables healthcare providers to send encrypted messages and documents via **email only**, ensuring HIPAA, PHIPA, and PIPEDA compliance. It is purpose-built to protect patient privacy, reduce risk, and support audit readiness while automating secure communication workflows.
+
+    🔐 **ACM Vault Messaging Clarification:**
+    - ACM Vault is **not a standalone messaging engine**.
+    - It is a **secure extension of ACM Messenger**.
+    - Any use of ACM Vault must also include ACM Messenger in the solution.
+
     **ACM Alerts** – Real-time, automated notifications for urgent or time-sensitive updates—delivered via voice, text, or email. ACM Alerts empowers healthcare providers to reach patients, families, and staff instantly with critical messages such as closures, emergencies, or last-minute changes. Fully configurable and EMR-integrated, it ensures rapid, targeted outreach when every second counts.
+
     **ACM Concierge** – Real-time wait time displays and virtual queuing that keep patients informed and engaged. ACM Concierge integrates with your EMR to publish accurate queue updates on websites, in-clinic screens, or via text. Patients can opt in for return-time notifications, improving satisfaction, reducing front-desk interruptions, and creating a calmer, more efficient waiting experience.
-    
+
     **Automated Care Scheduling (ACS):**
-    
+
     **ACS Booking** – Lets patients book their own appointments online, anytime. Integrated with your EMR, it keeps schedules up to date, reduces no-shows, and saves staff time by cutting down on phone calls and manual entry. Simple for patients, easier for your team.
+
     **ACS Forms** – Digital forms that collect patient information before the appointment. Fully integrated with your EMR, ACS Forms replaces paper intake with customizable forms patients can complete online. Save time, reduce errors, and make check-ins easier for everyone.
-    **ACS Surveys – Automatically sends surveys to patients after visits or key events. Collects feedback, tracks trends, and helps you understand where to improve. Easy to set up, fully integrated with your EMR, and built to support better care through real insights.
-    
+
+    **ACS Surveys** – Automatically sends surveys to patients after visits or key events. Collects feedback, tracks trends, and helps you understand where to improve. Easy to set up, fully integrated with your EMR, and built to support better care through real insights.
+
     🛑 IMPORTANT: Do not use definite articles (e.g., “the”) in front of product or feature names.
         ✅ Always refer to product and feature names exactly as listed: 
         - Automated Care Messaging, Automated Care Scheduling
@@ -105,31 +115,30 @@ def generate_gpt_solution(message):
         - ACS Booking, ACS Forms, ACS Surveys
         ❌ Do NOT say: “the ACM Messenger,” “the ACS Forms,” etc.
 
-        🧩 Product Attribution Rule:
-        - Assign "Automated Care Messaging" if all selected features are from ACM modules.
-        - Assign "Automated Care Scheduling" if all selected features are from ACS modules.
-        - Assign both ("Automated Care Messaging, Automated Care Scheduling") if features are drawn from both categories.
+    🧩 Product Attribution Rule:
+    - Assign "Automated Care Messaging" if all selected features are from ACM modules.
+    - Assign "Automated Care Scheduling" if all selected features are from ACS modules.
+    - Assign both ("Automated Care Messaging, Automated Care Scheduling") if features are drawn from both categories.
+    - Never assign a product unless one of its features is used.
 
+    Here is a real-world issue described by a healthcare provider:
+    "{message}"
 
-Never assign a product unless one of its features is used.
-        Here is a real-world issue described by a healthcare provider:
-        "{message}"
-    
-        Your task is to:
-        1. Determine whether the issue aligns best with **Automated Care Messaging**, **Automated Care Scheduling**, or both.
-        2. Select **one or more features** from the list above that are most relevant. If only one feature is needed to solve the issue, provide just that feature. If multiple features are needed, provide a list of all the relevant features.
-        3. Write **one concise paragraph** explaining how the selected product(s) and feature(s) solve the issue inputted — include how this fits within the broader Automated Care Platform (ACP).
-        4. Provide a list of **2–3 specific operational benefits** written in Cliniconex’s confident, helpful tone.
-        5. **Include ROI**: Provide an estimated **ROI calculation** in the following format:
-           - **ROI**: Reduces [issue] by X%, increasing clinic revenue by an estimated $Y/year or saving Z hours/year in staff time.
-        6. **Provide a disclaimer** that the ROI estimates are based on typical industry benchmarks and assumptions for healthcare settings:
-           - **Disclaimer**: "Note: The ROI estimates provided are based on typical industry benchmarks and assumptions for healthcare settings. Actual ROI may vary depending on clinic size, patient volume, and specific operational factors."
+    Your task is to:
+    1. Determine whether the issue aligns best with **Automated Care Messaging**, **Automated Care Scheduling**, or both.
+    2. Select **one or more features** from the list above that are most relevant. If only one feature is needed to solve the issue, provide just that feature. If multiple features are needed, provide a list of all the relevant features.
+    3. Write **one concise paragraph** explaining how the selected product(s) and feature(s) solve the issue inputted — include how this fits within the broader Automated Care Platform (ACP).
+    4. Provide a list of **2–3 specific operational benefits** written in Cliniconex’s confident, helpful tone.
+    5. **Include ROI**: Provide an estimated **ROI calculation** in the following format:
+       - **ROI**: Reduces [issue] by X%, increasing clinic revenue by an estimated $Y/year or saving Z hours/year in staff time.
+    6. **Provide a disclaimer** that the ROI estimates are based on typical industry benchmarks and assumptions for healthcare settings:
+       - **Disclaimer**: "Note: The ROI estimates provided are based on typical industry benchmarks and assumptions for healthcare settings. Actual ROI may vary depending on clinic size, patient volume, and specific operational factors."
 
     Respond ONLY in this exact JSON format:
 
     {{
       "product": "Automated Care Messaging",
-      "feature": ["ACM Messenger", "ACS Booking"],  // Can also be a single feature
+      "feature": ["ACM Messenger", "ACS Booking"],
       "how_it_works": "One paragraph that connects the solution to the problem and explains how the feature fits into the broader ACP.",
       "benefits": [
         "Reduces administrative workload by automating appointment reminders.",
@@ -143,7 +152,6 @@ Never assign a product unless one of its features is used.
     Do not include anything outside the JSON block.
     Focus on solving the issue. Be specific. Use real-world healthcare workflow language.
     """
-
     try:
         response = openai.ChatCompletion.create(
             model="gpt-4",
