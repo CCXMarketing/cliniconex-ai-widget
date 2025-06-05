@@ -11,38 +11,31 @@ from google.oauth2 import service_account
 from googleapiclient.discovery import build
 import tiktoken
 
-# ✅ Flask setup
 app = Flask(__name__)
-
-# ✅ CORS configuration to allow only specific origin (replace with actual frontend URL)
 CORS(app, resources={r"/*": {"origins": "https://cliniconex.com"}})
 
-# ✅ Environment and API setup
 openai.api_key = os.getenv("OPENAI_API_KEY")
-PORT = int(os.getenv("PORT", 10000))  # Ensure this is set properly from environment or defaults to 10000
+PORT = int(os.getenv("PORT", 10000))
 SHEET_ID = "1jL-iyQiVcttmEMfy7j8DA-cyMM-5bcj1TLHLrb4Iwsg"
 SERVICE_ACCOUNT_FILE = "service_account.json"
 
-# ✅ Load solution matrix
 with open("cliniconex_solutions.json", "r", encoding="utf-8") as f:
     solution_matrix = json.load(f)
 
-# ✅ Google Sheets setup
 credentials = service_account.Credentials.from_service_account_file(
     SERVICE_ACCOUNT_FILE, scopes=["https://www.googleapis.com/auth/spreadsheets"]
 )
 sheet = build("sheets", "v4", credentials=credentials).spreadsheets()
 
-# ✅ Utility Functions
 def normalize(text):
     return text.lower().strip()
-    
+
 def count_tokens(text, model="gpt-4"):
     try:
         encoding = tiktoken.encoding_for_model(model)
     except KeyError:
         encoding = tiktoken.get_encoding("cl100k_base")
-    return len(encoding.encode(text))    
+    return len(encoding.encode(text))
 
 def score_keywords(message, item):
     return sum(1 for k in item.get("keywords", []) if k.lower() in message)
@@ -68,14 +61,11 @@ def extract_json(text):
         match = re.search(r'{.*}', text, re.DOTALL)
         return json.loads(match.group(0)) if match else None
 
-def log_to_google_sheets(prompt, page_url, product, feature, status, matched_issue, matched_solution, keyword, full_solution, token_count):
+def log_to_google_sheets(prompt, page_url, product, feature, status, matched_issue, matched_solution, keyword, full_solution, token_count, token_cost):
     try:
         timestamp = datetime.now(ZoneInfo("America/Toronto")).strftime("%Y-%m-%d %H:%M:%S")
-        
         feature_str = ', '.join(feature) if isinstance(feature, list) else feature
-        
-        values = [[timestamp, prompt, product, feature_str, status, matched_issue, matched_solution, page_url, keyword, full_solution, token_count]]
-        
+        values = [[timestamp, prompt, product, feature_str, status, matched_issue, matched_solution, page_url, keyword, full_solution, token_count, token_cost]]
         sheet.values().append(
             spreadsheetId=SHEET_ID,
             range="Advisor Logs!A1",
@@ -170,12 +160,8 @@ def generate_gpt_solution(message):
     Focus on solving the issue. Be specific. Use real-world healthcare workflow language.
     """
     # Log token usage before making the OpenAI API call
-    token_count = count_tokens(gpt_prompt)
-    print(f"\U0001f522 Token count for GPT prompt: {token_count}")
-
-   # Log token usage before making the OpenAI API call
-    token_count = count_tokens(gpt_prompt)
-    print(f"\U0001f522 Token count for GPT prompt: {token_count}")
+    input_token_count = count_tokens(gpt_prompt)
+    print(f"\U0001f522 Token count for GPT prompt: {input_token_count}")
 
     try:
         response = openai.ChatCompletion.create(
@@ -184,47 +170,43 @@ def generate_gpt_solution(message):
             temperature=0.3
         )
         raw_output = response['choices'][0]['message']['content']
-        print("\U0001f9e0 GPT raw output:\n", raw_output)
-
         parsed = extract_json(raw_output)
-
         if parsed is None:
             parsed = {
                 "product": "Automated Care Messaging",
-                "feature": ["ACM Messenger", "ACS Booking"],
-                "how_it_works": "Placeholder solution based on the issue description.",
-                "benefits": [
-                    "Automates communications to reduce administrative workload.",
-                    "Improves patient engagement by providing reminders."
-                ],
-                "roi": "Reduces no-show rates by 20%, increasing clinic revenue by an estimated $50,000/year due to more patients attending follow-ups.",
-                "disclaimer": "Note: The ROI estimates provided are based on typical industry benchmarks and assumptions for healthcare settings. Actual ROI may vary depending on clinic size, patient volume, and specific operational factors."
+                "feature": ["ACM Messenger"],
+                "how_it_works": "Fallback.",
+                "benefits": ["Benefit A", "Benefit B"],
+                "roi": "Fallback ROI",
+                "disclaimer": "Standard disclaimer."
             }
-
         if "roi" not in parsed:
-            parsed["roi"] = "Estimated ROI placeholder: Reduces operational inefficiencies, saving significant staff time."
+            parsed["roi"] = "Estimated ROI placeholder."
         if "disclaimer" not in parsed:
-            parsed["disclaimer"] = "The ROI estimates provided are based on typical industry benchmarks and assumptions for healthcare settings. Actual ROI may vary depending on clinic size, patient volume, and specific operational factors."
+            parsed["disclaimer"] = "Standard disclaimer."
 
-        parsed["token_count"] = token_count
+        output_token_count = count_tokens(raw_output)
+        total_token_count = input_token_count + output_token_count
+        token_cost_usd = round((total_token_count / 1000) * 0.03, 5)
+
+        parsed["token_count"] = total_token_count
+        parsed["token_cost"] = token_cost_usd
         parsed["full_solution"] = raw_output
         return parsed
     except Exception as e:
         print("❌ GPT fallback error:", str(e))
         return {
             "product": "Automated Care Messaging",
-            "feature": ["ACM Messenger", "ACS Booking"],
-            "how_it_works": "Error in generating solution, please try again.",
-            "benefits": [
-                "Automates communications to reduce administrative workload.",
-                "Improves patient engagement by providing reminders."
-            ],
-            "roi": "Reduces no-show rates by 20%, increasing clinic revenue by an estimated $50,000/year.",
-            "disclaimer": "Note: The ROI estimates provided are based on typical industry benchmarks and assumptions for healthcare settings. Actual ROI may vary depending on clinic size, patient volume, and specific operational factors.",
-            "token_count": token_count,
-            "full_solution": "Error: GPT output not available due to fallback."
+            "feature": ["ACM Messenger"],
+            "how_it_works": "Error.",
+            "benefits": ["Fallback benefit"],
+            "roi": "Fallback ROI",
+            "disclaimer": "Standard disclaimer.",
+            "token_count": input_token_count,
+            "token_cost": round((input_token_count / 1000) * 0.03, 5),
+            "full_solution": "Error"
         }
-# ✅ Main AI Route
+
 @app.route("/ai", methods=["POST"])
 def get_solution():
     try:
@@ -232,19 +214,11 @@ def get_solution():
         message = data.get("message", "").lower()
         page_url = data.get("page_url", "")
 
-        print("📩 /ai endpoint hit")
-        print("🔍 Message received:", message)
-
         matrix_score, matrix_item, keyword = get_best_matrix_match(message)
         gpt_response = generate_gpt_solution(message)
         token_count = gpt_response.pop("token_count", 0)
-
-        # 🧩 Construct full_solution string in the desired format
-        full_solution = (
-            f"Recommended Product: {gpt_response.get('product', 'N/A')}\n\n"
-            f"Features: {', '.join(gpt_response.get('feature', [])) if isinstance(gpt_response.get('feature', []), list) else gpt_response.get('feature', 'N/A')}\n\n"
-            f"How it works: {gpt_response.get('how_it_works', 'N/A')}"
-        )
+        token_cost = gpt_response.pop("token_cost", 0)
+        full_solution = gpt_response.pop("full_solution", "")
 
         use_matrix = (
             matrix_score >= 2 and matrix_item and
@@ -262,7 +236,7 @@ def get_solution():
                 "benefits": matrix_item.get("benefits", "N/A"),
                 "keyword": keyword or "N/A"
             }
-            log_to_google_sheets(message, page_url, matrix_item.get("product", "N/A"), matrix_item.get("features", []), status, matched_issue, "N/A", keyword, full_solution, token_count)
+            log_to_google_sheets(message, page_url, matrix_item.get("product", "N/A"), matrix_item.get("features", []), status, matched_issue, "N/A", keyword, full_solution, token_count, token_cost)
         else:
             status = "fallback"
             matched_issue = "N/A"
@@ -273,16 +247,15 @@ def get_solution():
                 "solution": gpt_response.get("how_it_works", "N/A"),
                 "benefits": "\n".join(gpt_response.get("benefits", [])) or "N/A",
                 "roi": gpt_response.get("roi", "N/A"),
-                "disclaimer": gpt_response.get("disclaimer", "N/A")
+                "disclaimer": "The ROI estimates provided are based on typical industry benchmarks and assumptions for healthcare settings..."
+
             }
-            log_to_google_sheets(message, page_url, gpt_response.get("product", "N/A"), gpt_response.get("feature", []), status, matched_issue, gpt_response.get("product", "N/A"), "N/A", full_solution, token_count)
+            log_to_google_sheets(message, page_url, gpt_response.get("product", "N/A"), gpt_response.get("feature", []), status, matched_issue, gpt_response.get("product", "N/A"), "N/A", full_solution, token_count, token_cost)
 
         return jsonify(response)
-
     except Exception as e:
         print("❌ Error:", str(e))
         return jsonify({"error": "An error occurred."}), 500
-
 
 if __name__ == "__main__":
     print(f"✅ Starting Cliniconex AI widget on port {PORT}")
