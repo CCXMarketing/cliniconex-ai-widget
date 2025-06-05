@@ -118,21 +118,17 @@ if any(term in message.lower() for term in unsupported_terms):
     return {
         "product": "No Cliniconex Solution",
         "feature": [],
-        "how_it_works": (
-            "Cliniconex does not currently offer a solution for this issue. "
-            "The described challenge falls outside the scope of the Automated Care Platform (ACP). "
-            
-        ),
+        "how_it_works": "Cliniconex does not currently offer a solution for this issue. The described challenge falls outside the scope of the Automated Care Platform (ACP).",
         "benefits": ["N/A"],
         "roi": "N/A",
         "disclaimer": (
             "Note: This issue appears to be outside the scope of Cliniconex’s current solution set. "
-            "For further clarification or roadmap information, please contact your Cliniconex representative."
         ),
         "token_count": 0,
         "token_cost": 0.0,
         "full_solution": "Cliniconex does not currently offer a solution for this issue."
     }
+
 
 
     gpt_prompt = f"""
