@@ -103,6 +103,11 @@ def generate_gpt_solution(message):
     - It is a **secure extension of ACM Messenger**.
     - Any use of ACM Vault must also include ACM Messenger in the solution.
 
+    🧠 Special Instruction: 
+    If the input mentions "no shows", "missed appointments", or "missed visits", prioritize **ACM Alerts** as the most appropriate feature for real-time confirmation and attendance optimization. 
+    Only recommend **ACM Messenger** when the context refers specifically to routine appointment reminders well in advance. 
+
+
     **ACM Alerts** – Real-time, automated notifications for urgent or time-sensitive updates—delivered via voice, text, or email. ACM Alerts empowers healthcare providers to reach patients, families, and staff instantly with critical messages such as closures, emergencies, or last-minute changes. Fully configurable and EMR-integrated, it ensures rapid, targeted outreach when every second counts.
 
     **ACM Concierge** – Real-time wait time displays and virtual queuing that keep patients informed and engaged. ACM Concierge integrates with your EMR to publish accurate queue updates on websites, in-clinic screens, or via text. Patients can opt in for return-time notifications, improving satisfaction, reducing front-desk interruptions, and creating a calmer, more efficient waiting experience.
