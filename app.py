@@ -131,6 +131,12 @@ def generate_gpt_solution(message):
     When evaluating operational inefficiencies, high manual workloads, or staff burden (e.g., excessive calls, appointment follow-ups, or administrative tasks), prioritize **ACM Alerts** as the core feature for real-time automation and relief of manual communication. 
     Only recommend **ACM Messenger** when the need is specifically tied to **scheduled outreach** (e.g., routine appointment reminders sent in advance).
     Use contextual judgment rather than strict keywords—understand the nature of the problem to recommend the most fitting feature.
+
+    🧠 Special Instruction:
+    When the issue involves improving efficiency, reducing staff workload, or enhancing message quality, emphasize the role of **AI Message Assistant** within **ACM Messenger**. This tool helps healthcare staff craft clear, effective messages faster and with less cognitive burden—ideal for clinics dealing with message fatigue, inconsistent outreach, or tight staff schedules.
+    Mention the use of AI **only when relevant**—do not force it into solutions where automation alone (e.g., alerts or scheduling) is sufficient. Use **AI Message Assistant** when communication clarity, message optimization, or staff messaging time is a central concern.
+    Avoid generic AI statements. Instead, specify that the AI is embedded in ACM Messenger and used for **smart message generation** and **communication enhancement**.
+
     
     🧠 Special Instruction: When an issue involves patients being unprepared, confused, or lacking important information before an appointment, consider recommending:
     - ACS Forms to collect necessary information in advance.
@@ -166,33 +172,42 @@ def generate_gpt_solution(message):
     Here is a real-world issue described by a healthcare provider:
     "{message}"
 
-    Your task is to:
-    1. Determine whether the issue aligns best with **Automated Care Messaging**, **Automated Care Scheduling**, or both.
-    2. Select **one or more features** from the list above that are most relevant. If only one feature is needed to solve the issue, provide just that feature. If multiple features are needed, provide a list of all the relevant features.
-    3. Write **one concise paragraph** explaining how the selected product(s) and feature(s) solve the issue inputted — include how this fits within the broader Automated Care Platform (ACP).
-    4. Provide a list of **2–3 specific operational benefits** written in Cliniconex’s confident, helpful tone.
-    5. **Include ROI**: Provide an estimated **ROI calculation** in the following format:
-       - **ROI**: Reduces [issue] by X%, increasing clinic revenue by an estimated $Y/year or saving Z hours/year in staff time.
-    6. **Provide a disclaimer** that the ROI estimates are based on typical industry benchmarks and assumptions for healthcare settings:
-       - **Disclaimer**: "Note: The ROI estimates provided are based on typical industry benchmarks and assumptions for healthcare settings. Actual ROI may vary depending on clinic size, patient volume, and specific operational factors."
+   Your job is to:
 
-    Respond ONLY in this exact JSON format:
+1. **Determine the best product(s)**: Choose between Automated Care Messaging, Automated Care Scheduling, or both.
+2. **Select features** from the list below that best solve the issue. Include all relevant features but avoid unnecessary ones.
+3. **Explain how the solution works** in one clear paragraph—connect the feature to the provider's challenge and show how it fits in ACP.
+4. **List 2–3 operational benefits** tailored to the problem. Avoid repeating phrases from other solutions.
+5. **Estimate ROI** tailored to the input:
+   - Focus on quantifiable gains: fewer calls, reduced no-shows, saved staff hours, increased patient throughput.
+   - Anchor estimates to the specific issue described.
+   - Keep numbers conservative and realistic (e.g., 10–25% efficiency gains).
+   - Vary the format to avoid repetition. Use hours/year, % improvement, $ saved, or reduced manual workload.
 
-    {{
-      "product": "Automated Care Messaging",
-      "feature": ["ACM Messenger", "ACS Booking"],
-      "how_it_works": "One paragraph that connects the solution to the problem and explains how the feature fits into the broader ACP.",
-      "benefits": [
-        "Reduces administrative workload by automating appointment reminders.",
-        "Improves patient satisfaction and care by reducing missed appointments.",
-        "Optimizes resource allocation by reducing no-shows and prompt rescheduling."
-      ],
-      "roi": "Reduces no-show rates by 20%, increasing clinic revenue by an estimated $50,000/year due to more patients attending follow-ups.",
-      "Note": "The ROI estimates provided are based on typical industry benchmarks and assumptions for healthcare settings. Actual ROI may vary depending on clinic size, patient volume, and specific operational factors."
-    }}
+🛑 IMPORTANT: Do not use definite articles (“the”) before feature or product names.
+
+🧩 Product Attribution Rule:
+- Use "Automated Care Messaging" if all features are from ACM modules.
+- Use "Automated Care Scheduling" if all features are from ACS modules.
+- Use both if applicable.
+
+Respond ONLY in this exact JSON format:
+
+{{
+  "product": "Automated Care Messaging",
+  "feature": ["ACM Alerts", "ACS Forms"],
+  "how_it_works": "One paragraph tailored to the problem.",
+  "benefits": [
+    "Tailored benefit based on input.",
+    "Another tailored operational gain.",
+    "Optional third, if useful."
+  ],
+  "roi": "Anchored to the specific challenge, e.g., Saves 250 hours/year by reducing phone calls for patient instructions.",
+  "disclaimer": "Note: The ROI estimates provided are based on typical industry benchmarks and assumptions for healthcare settings. Actual ROI may vary depending on clinic size, patient volume, and specific operational factors."
+}}
 
     Do not include anything outside the JSON block.
-    Focus on solving the issue. Be specific. Use real-world healthcare workflow language.
+    Focus on solving the issue. Be specific. Avoid generic or repeated phrases. Use real-world healthcare workflow language.
     """
     # Log token usage before making the OpenAI API call
     input_token_count = count_tokens(gpt_prompt)
