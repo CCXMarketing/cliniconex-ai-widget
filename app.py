@@ -112,11 +112,20 @@ def generate_gpt_solution(message):
     ]
 
     if any(term in message.lower() for term in unsupported_terms):
+        gpt_prompt = f"""You are a Cliniconex solutions expert... "{message}" ..."""  # Use the full actual prompt here
+        input_token_count = count_tokens(gpt_prompt)
+        token_cost_usd = round((input_token_count / 1000) * 0.03, 5)
+
         return {
             "product": "No Cliniconex Solution",
             "feature": [],
             "how_it_works": "Cliniconex does not currently offer a solution for this issue. The described challenge falls outside the scope of the Automated Care Platform (ACP).",
-      
+            "benefits": ["Not applicable"],
+            "roi": "Not applicable",
+            "disclaimer": "Not applicable",
+            "token_count": input_token_count,
+            "token_cost": token_cost_usd,
+            "full_solution": "No solution generated due to unsupported request."
         }
 
     gpt_prompt = f"""
