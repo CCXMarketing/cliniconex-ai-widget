@@ -209,6 +209,7 @@ def generate_gpt_solution(message):
 
 @app.route("/ai", methods=["POST"])
 def get_solution():
+    print("🔔 🔔🔔 /ai called with payload:", request.get_json())
     try:
         data = request.get_json()
         message = data.get("message", "").lower()
