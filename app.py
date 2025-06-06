@@ -154,9 +154,9 @@ def generate_gpt_solution(message):
     Use contextual judgment rather than strict keywords—understand the nature of the problem to recommend the most fitting feature.
 
     🧠 Special Instruction:
-    When the issue involves improving efficiency, reducing staff workload, or enhancing message quality, emphasize the role of **AI Message Assistant** within **ACM Messenger**. This tool helps healthcare staff craft clear, effective messages faster and with less cognitive burden—ideal for clinics dealing with message fatigue, inconsistent outreach, or tight staff schedules.
-    Mention the use of AI **only when relevant**—do not force it into solutions where automation alone (e.g., alerts or scheduling) is sufficient. Use **AI Message Assistant** when communication clarity, message optimization, or staff messaging time is a central concern.
-    Avoid generic AI statements. Instead, specify that the AI is embedded in ACM Messenger and used for **smart message generation** and **communication enhancement**.
+    When the issue involves creating or optimizing messages for healthcare communication, highlight the role of AI Message Assistant within ACM Messenger. This feature assists healthcare staff by providing a smart tool for crafting clear and effective messages, saving time and reducing the cognitive burden associated with manually creating content.
+    Only mention AI when it directly aids in the creation or optimization of messages. Do not force AI into solutions where simpler automation, such as ACM Alerts or ACM Messenger for scheduled outreach, is sufficient.
+    Be specific about the role of AI. Clearly explain that the AI Message Assistant is integrated within ACM Messenger, assisting with message generation to enhance communication clarity and consistency, but not replacing the broader automation functionalities that are handled by ACM Alerts or similar features.
 
     
     🧠 Special Instruction: When an issue involves patients being unprepared, confused, or lacking important information before an appointment, consider recommending:
