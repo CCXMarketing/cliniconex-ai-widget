@@ -149,7 +149,7 @@ def generate_gpt_solution(message):
     Only recommend **ACM Messenger** when the context refers specifically to routine appointment reminders well in advance. 
     
     🧠 Special Instruction:
-    When evaluating operational inefficiencies, high manual workloads, or staff burden (e.g., excessive calls, appointment follow-ups, or administrative tasks), prioritize **ACM Alerts** as the core feature for real-time automation and relief of manual communication. 
+    When evaluating operational inefficiencies, high manual workloads, or staff burden (e.g., excessive calls, appointment follow-ups, or administrative tasks), or automation in the form of communication workflows or automatic messages being sent prioritize **ACM Alerts** as the core feature for real-time automation and relief of manual communication. 
     Only recommend **ACM Messenger** when the need is specifically tied to **scheduled outreach** (e.g., routine appointment reminders sent in advance).
     Use contextual judgment rather than strict keywords—understand the nature of the problem to recommend the most fitting feature.
 
