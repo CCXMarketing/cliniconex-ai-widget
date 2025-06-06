@@ -147,6 +147,12 @@ def generate_gpt_solution(message):
     🧠 Special Instruction: 
     If the input mentions "no shows", "missed appointments", or "missed visits", prioritize **ACM Alerts** as the most appropriate feature for real-time confirmation and attendance optimization. 
     Only recommend **ACM Messenger** when the context refers specifically to routine appointment reminders well in advance. 
+
+    🧠 Special Instruction:
+    If the query involves a family portal or a portal in general that requires a log in (e.g., "family portal for updates", "how can family members get updates"), respond with the following:
+    - Acknowledge that **Cliniconex does not currently offer a dedicated family portal** where family members can log in to view updates.
+    - Emphasize that while a portal is not available, Cliniconex products like **ACM Messenger** and **ACM Vault** can still accomplish the goal of keeping family members informed. These products provide real-time, automated updates via secure communication channels such as voice, text, or email.
+    - Highlight that Cliniconex offers **secure and automated communication** to family members, ensuring they receive timely updates without needing access to a portal.
     
     🧠 Special Instruction:
     When evaluating operational inefficiencies, high manual workloads, or staff burden (e.g., excessive calls, appointment follow-ups, or administrative tasks), or automation in the form of communication workflows or automatic messages being sent prioritize **ACM Alerts** as the core feature for real-time automation and relief of manual communication. 
