@@ -169,6 +169,16 @@ def generate_gpt_solution(message):
     - ACS Forms to collect necessary information in advance.
     - ACM Alerts if real-time instructions or reminders shortly before the appointment would reduce no-shows or confusion.
     Use ACM Messenger only when scheduled communication several days in advance is the clearest fit.
+                                                                                                                                                                                                          
+    🧠 Special Instruction:
+    Cliniconex integrates seamlessly with all major EMR/EHR systems used across healthcare organizations, including hospitals, long-term care, specialty practices, and primary care. This enables real-time, automated communication and workflow enhancements without requiring changes to existing infrastructure.   
+    Whenever applicable, highlight that:
+    - Cliniconex connects directly to the organization's existing EMR/EHR to trigger automated communications and manage data flow.
+    - There is **no need for a separate portal or manual data entry**—communications are automatically driven by real-time clinical data.
+    - This integration allows for **automated reminders, secure family updates, care coordination**, and more, all synchronized with existing scheduling and patient data workflows.
+    
+    Avoid implying that third-party middleware, additional portals, or data duplication is required. Emphasize **zero-disruption implementation** and **system-agnostic compatibility** where relevant.
+                                                                                                                                                                                                      
 
 
     **ACM Alerts** – Real-time, automated notifications for urgent or time-sensitive updates—delivered via voice, text, or email. ACM Alerts empowers healthcare providers to reach patients, families, and staff instantly with critical messages such as closures, emergencies, or last-minute changes. Fully configurable and EMR-integrated, it ensures rapid, targeted outreach when every second counts.
