@@ -53,6 +53,7 @@ def score_keywords(message, item):
 def tag_input(message):
     tags = []
     msg = message.lower()
+
     if "overtime" in msg:
         tags.append("overtime")
     if "check-in" in msg:
@@ -61,8 +62,18 @@ def tag_input(message):
         tags.append("secure")
     if "portal" in msg or "family login" in msg:
         tags.append("no_portal")
-    if "real-time" in msg or "last minute" in msg:
+    if (
+        "real-time" in msg or 
+        "last minute" in msg or 
+        "same day" in msg or 
+        "urgent" in msg or 
+        "automated reminders" in msg or 
+        "automated appointment reminders" in msg or
+        "automatic notifications" in msg or
+        "appointment reminders" in msg
+    ):
         tags.append("alerts")
+
     return tags
 
 def generate_dynamic_instructions(tags):
