@@ -203,8 +203,6 @@ def generate_gpt_solution(message):
 Special Instructions:
 {special_instructions}
 
-Your job is to:
-
 Your response must include:
 1. product
 2. feature
@@ -212,6 +210,9 @@ Your response must include:
 4. benefits (2-3 concise bullet points)
 5. roi (quantified, realistic)
 6. disclaimer (standardized)
+
+Your job is to:
+
 1. **Determine the best product(s)**: Choose between Automated Care Messaging, Automated Care Scheduling, or both.
 2. **Select features** from the list below that best solve the issue. Include all relevant features but avoid unnecessary ones.
 3. **Explain how the solution works** in one clear paragraph—connect the feature to the provider's challenge and show how it fits in ACP.
