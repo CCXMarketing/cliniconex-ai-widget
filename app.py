@@ -68,6 +68,60 @@ def generate_dynamic_instructions(tags):
     if "alerts" in tags:
         rules.append("Use ACM Alerts for real-time communications, not ACM Messenger.")
     return "\n".join(rules)
+def rule_acm_vault():
+    return """🔐 ACM Vault Messaging Clarification:
+- ACM Vault is **not a standalone messaging engine**.
+- It is a **secure extension of ACM Messenger**.
+- Any use of ACM Vault must also include ACM Messenger in the solution.
+"""
+
+def rule_no_shows():
+    return """🧠 Special Instruction:
+If the input mentions \"no shows\", \"missed appointments\", or \"missed visits\", prioritize **ACM Alerts** as the most appropriate feature for real-time confirmation and attendance optimization.
+Only recommend **ACM Messenger** when the context refers specifically to routine appointment reminders well in advance.
+"""
+
+def rule_family_portal():
+    return """🧠 Special Instruction:
+If the query involves a family portal or a portal in general that requires a log in (e.g., \"family portal for updates\", \"how can family members get updates\"), respond with the following:
+- Acknowledge that **Cliniconex does not currently offer a dedicated family portal** where family members can log in to view updates.
+- Emphasize that while a portal is not available, Cliniconex products like **ACM Messenger** and **ACM Vault** can still accomplish the goal of keeping family members informed. These products provide real-time, automated updates via secure communication channels such as voice, text, or email.
+- Highlight that Cliniconex offers **secure and automated communication** to family members, ensuring they receive timely updates without needing access to a portal.
+"""
+
+def rule_operational_burden():
+    return """🧠 Special Instruction:
+When evaluating operational inefficiencies, high manual workloads, or staff burden (e.g., excessive calls, appointment follow-ups, or administrative tasks), or automation in the form of communication workflows or automatic messages being sent prioritize **ACM Alerts** as the core feature for real-time automation and relief of manual communication.
+Only recommend **ACM Messenger** when the need is specifically tied to **scheduled outreach** (e.g., routine appointment reminders sent in advance).
+Use contextual judgment rather than strict keywords—understand the nature of the problem to recommend the most fitting feature.
+"""
+
+def rule_ai_assistant():
+    return """🧠 Special Instruction:
+When the issue involves creating or optimizing messages for healthcare communication, highlight the role of AI Message Assistant within ACM Messenger. This feature assists healthcare staff by providing a smart tool for crafting clear and effective messages, saving time and reducing the cognitive burden associated with manually creating content.
+Only mention AI when it directly aids in the creation or optimization of messages. Do not force AI into solutions where simpler automation, such as ACM Alerts or ACM Messenger for scheduled outreach, is sufficient.
+Be specific about the role of AI. Clearly explain that the AI Message Assistant is integrated within ACM Messenger, assisting with message generation to enhance communication clarity and consistency, but not replacing the broader automation functionalities that are handled by ACM Alerts or similar features.
+"""
+
+def rule_unprepared_patients():
+    return """🧠 Special Instruction:
+When an issue involves patients being unprepared, confused, or lacking important information before an appointment, consider recommending:
+- ACS Forms to collect necessary information in advance.
+- ACM Alerts if real-time instructions or reminders shortly before the appointment would reduce no-shows or confusion.
+Use ACM Messenger only when scheduled communication several days in advance is the clearest fit.
+"""
+
+def rule_emr_integration():
+    return """🧠 Special Instruction:
+Cliniconex integrates seamlessly with all major EMR/EHR systems used across healthcare organizations, including hospitals, long-term care, specialty practices, and primary care. This enables real-time, automated communication and workflow enhancements without requiring changes to existing infrastructure.
+Whenever applicable, highlight that:
+- Cliniconex connects directly to the organization's existing EMR/EHR to trigger automated communications and manage data flow.
+- There is **no need for a separate portal or manual data entry**—communications are automatically driven by real-time clinical data.
+- This integration allows for **automated reminders, secure family updates, care coordination**, and more, all synchronized with existing scheduling and patient data workflows.
+
+Avoid implying that third-party middleware, additional portals, or data duplication is required. Emphasize **zero-disruption implementation** and **system-agnostic compatibility** where relevant.
+"""
+    
 
 def get_best_matrix_match(message):
     best_score, best_item, best_keyword = 0, None, None
@@ -156,48 +210,6 @@ def generate_gpt_solution(message):
     **ACM Messenger** delivers automated, personalized outreach across voice, text, and email—driven by EMR data. Designed to send timely reminders, instructions, and care updates, ACM Messenger uses dynamic content and configurable workflows to ensure the right information reaches the right person at the right time.
 
     **ACM Vault** provides secure, encrypted communication for sensitive health information—fully integrated with ACM Messenger. ACM Vault enables healthcare providers to send encrypted messages and documents via **email only**, ensuring HIPAA, PHIPA, and PIPEDA compliance. It is purpose-built to protect patient privacy, reduce risk, and support audit readiness while automating secure communication workflows.
-
-    🔐 **ACM Vault Messaging Clarification:**
-    - ACM Vault is **not a standalone messaging engine**.
-    - It is a **secure extension of ACM Messenger**.
-    - Any use of ACM Vault must also include ACM Messenger in the solution.
-
-    🧠 Special Instruction: 
-    If the input mentions "no shows", "missed appointments", or "missed visits", prioritize **ACM Alerts** as the most appropriate feature for real-time confirmation and attendance optimization. 
-    Only recommend **ACM Messenger** when the context refers specifically to routine appointment reminders well in advance. 
-
-    🧠 Special Instruction:
-    If the query involves a family portal or a portal in general that requires a log in (e.g., "family portal for updates", "how can family members get updates"), respond with the following:
-    - Acknowledge that **Cliniconex does not currently offer a dedicated family portal** where family members can log in to view updates.
-    - Emphasize that while a portal is not available, Cliniconex products like **ACM Messenger** and **ACM Vault** can still accomplish the goal of keeping family members informed. These products provide real-time, automated updates via secure communication channels such as voice, text, or email.
-    - Highlight that Cliniconex offers **secure and automated communication** to family members, ensuring they receive timely updates without needing access to a portal.
-    
-    🧠 Special Instruction:
-    When evaluating operational inefficiencies, high manual workloads, or staff burden (e.g., excessive calls, appointment follow-ups, or administrative tasks), or automation in the form of communication workflows or automatic messages being sent prioritize **ACM Alerts** as the core feature for real-time automation and relief of manual communication. 
-    Only recommend **ACM Messenger** when the need is specifically tied to **scheduled outreach** (e.g., routine appointment reminders sent in advance).
-    Use contextual judgment rather than strict keywords—understand the nature of the problem to recommend the most fitting feature.
-
-    🧠 Special Instruction:
-    When the issue involves creating or optimizing messages for healthcare communication, highlight the role of AI Message Assistant within ACM Messenger. This feature assists healthcare staff by providing a smart tool for crafting clear and effective messages, saving time and reducing the cognitive burden associated with manually creating content.
-    Only mention AI when it directly aids in the creation or optimization of messages. Do not force AI into solutions where simpler automation, such as ACM Alerts or ACM Messenger for scheduled outreach, is sufficient.
-    Be specific about the role of AI. Clearly explain that the AI Message Assistant is integrated within ACM Messenger, assisting with message generation to enhance communication clarity and consistency, but not replacing the broader automation functionalities that are handled by ACM Alerts or similar features.
-
-    
-    🧠 Special Instruction: When an issue involves patients being unprepared, confused, or lacking important information before an appointment, consider recommending:
-    - ACS Forms to collect necessary information in advance.
-    - ACM Alerts if real-time instructions or reminders shortly before the appointment would reduce no-shows or confusion.
-    Use ACM Messenger only when scheduled communication several days in advance is the clearest fit.
-                                                                                                                                                                                                          
-    🧠 Special Instruction:
-    Cliniconex integrates seamlessly with all major EMR/EHR systems used across healthcare organizations, including hospitals, long-term care, specialty practices, and primary care. This enables real-time, automated communication and workflow enhancements without requiring changes to existing infrastructure.   
-    Whenever applicable, highlight that:
-    - Cliniconex connects directly to the organization's existing EMR/EHR to trigger automated communications and manage data flow.
-    - There is **no need for a separate portal or manual data entry**—communications are automatically driven by real-time clinical data.
-    - This integration allows for **automated reminders, secure family updates, care coordination**, and more, all synchronized with existing scheduling and patient data workflows.
-    
-    Avoid implying that third-party middleware, additional portals, or data duplication is required. Emphasize **zero-disruption implementation** and **system-agnostic compatibility** where relevant.
-                                                                                                                                                                                                      
-
 
     **ACM Alerts** – Real-time, automated notifications for urgent or time-sensitive updates—delivered via voice, text, or email. ACM Alerts empowers healthcare providers to reach patients, families, and staff instantly with critical messages such as closures, emergencies, or last-minute changes. Fully configurable and EMR-integrated, it ensures rapid, targeted outreach when every second counts.
 
