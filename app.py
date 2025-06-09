@@ -40,6 +40,35 @@ def count_tokens(text, model="gpt-4"):
 def score_keywords(message, item):
     return sum(1 for k in item.get("keywords", []) if k.lower() in message)
 
+def tag_input(message):
+    tags = []
+    msg = message.lower()
+    if "overtime" in msg:
+        tags.append("overtime")
+    if "check-in" in msg:
+        tags.append("check_in")
+    if "secure message" in msg or "encrypted" in msg:
+        tags.append("secure")
+    if "portal" in msg or "family login" in msg:
+        tags.append("no_portal")
+    if "real-time" in msg or "last minute" in msg:
+        tags.append("alerts")
+    return tags
+
+def generate_dynamic_instructions(tags):
+    rules = []
+    if "overtime" in tags:
+        rules.append("Use ACM Alerts for real-time efficiency. Suggest ACS Booking only for self-service scheduling.")
+    if "check_in" in tags:
+        rules.append("ACS Forms are for information collection, not for check-in.")
+    if "secure" in tags:
+        rules.append("ACM Vault is part of ACM Messenger. Only Vault handles encryption, not Messenger.")
+    if "no_portal" in tags:
+        rules.append("Cliniconex does not offer a login portal for family updates.")
+    if "alerts" in tags:
+        rules.append("Use ACM Alerts for real-time communications, not ACM Messenger.")
+    return "\n".join(rules)
+
 def get_best_matrix_match(message):
     best_score, best_item, best_keyword = 0, None, None
     for item in solution_matrix:
@@ -66,14 +95,7 @@ def log_to_google_sheets(prompt, page_url, product, feature, status, matched_iss
         timestamp = datetime.now(ZoneInfo("America/Toronto")).strftime("%Y-%m-%d %H:%M:%S")
         feature_str = ', '.join(feature) if isinstance(feature, list) else feature
 
-        formatted_full_solution = f"""Recommended Product: {product}
-
-
-Features: {feature_str}
-
-
-How it works: {matched_solution}
-"""
+        formatted_full_solution = f"""Recommended Product: {product}\n\n\nFeatures: {feature_str}\n\n\nHow it works: {matched_solution}"""
 
         full_solution_to_log = full_solution if full_solution else formatted_full_solution
 
@@ -112,10 +134,6 @@ def generate_gpt_solution(message):
     ]
 
     if any(term in message.lower() for term in unsupported_terms):
-        gpt_prompt = f"""You are a Cliniconex solutions expert... "{message}" ..."""  # Use the full actual prompt here
-        input_token_count = count_tokens(gpt_prompt)
-        token_cost_usd = round((input_token_count / 1000) * 0.03, 5)
-
         return {
             "product": "No Cliniconex Solution",
             "feature": [],
@@ -123,11 +141,11 @@ def generate_gpt_solution(message):
             "benefits": ["Not applicable"],
             "roi": "Not applicable",
             "disclaimer": "Not applicable",
-            "token_count": input_token_count,
-            "token_cost": token_cost_usd,
             "full_solution": "No solution generated due to unsupported request."
         }
 
+    tags = tag_input(message)
+    special_instructions = generate_dynamic_instructions(tags)
     gpt_prompt = f"""
     You are a Cliniconex solutions expert with deep expertise in the company’s full suite of products and features. You can confidently assess any healthcare-related issue and determine the most effective solution—whether it involves a single product or a combination of offerings. You understand how each feature functions within the broader Automated Care Platform (ACP) and are skilled at tailoring precise recommendations to address real-world clinical, operational, and administrative challenges.
 
@@ -209,8 +227,18 @@ def generate_gpt_solution(message):
     Here is a real-world issue described by a healthcare provider:
     "{message}"
 
+Special Instructions:
+{special_instructions}
+
 Your job is to:
 
+Your response must include:
+1. product
+2. feature
+3. how_it_works (1 paragraph)
+4. benefits (2-3 concise bullet points)
+5. roi (quantified, realistic)
+6. disclaimer (standardized)
 1. **Determine the best product(s)**: Choose between Automated Care Messaging, Automated Care Scheduling, or both.
 2. **Select features** from the list below that best solve the issue. Include all relevant features but avoid unnecessary ones.
 3. **Explain how the solution works** in one clear paragraph—connect the feature to the provider's challenge and show how it fits in ACP.
@@ -246,8 +274,7 @@ Respond ONLY in this exact JSON format:
     Do not include anything outside the JSON block.
     Focus on solving the issue. Be specific. Avoid generic or repeated phrases. Use real-world healthcare workflow language.
     """
-    # Log token usage before making the OpenAI API call
-    input_token_count = count_tokens(gpt_prompt)
+   input_token_count = count_tokens(gpt_prompt)
     print(f"\U0001f522 Token count for GPT prompt: {input_token_count}")
 
     try:
@@ -258,19 +285,16 @@ Respond ONLY in this exact JSON format:
         )
         raw_output = response['choices'][0]['message']['content']
         parsed = extract_json(raw_output)
-        if parsed is None:
-            parsed = {
-                "product": "Automated Care Messaging",
-                "feature": ["ACM Messenger"],
-                "how_it_works": "Fallback.",
-                "benefits": ["Benefit A", "Benefit B"],
-                "roi": "Fallback ROI",
-                "disclaimer": "Standard disclaimer."
-            }
+
+        if not parsed:
+            raise ValueError("Invalid JSON from GPT")
+
         if "roi" not in parsed:
             parsed["roi"] = "Estimated ROI placeholder."
         if "disclaimer" not in parsed:
             parsed["disclaimer"] = "Standard disclaimer."
+
+        parsed["full_solution"] = raw_output
 
         output_token_count = count_tokens(raw_output)
         total_token_count = input_token_count + output_token_count
@@ -278,8 +302,9 @@ Respond ONLY in this exact JSON format:
 
         parsed["token_count"] = total_token_count
         parsed["token_cost"] = token_cost_usd
-        parsed["full_solution"] = raw_output
+
         return parsed
+
     except Exception as e:
         print("❌ GPT fallback error:", str(e))
         return {
@@ -311,15 +336,7 @@ def get_solution():
         feature_str = ', '.join(features) if isinstance(features, list) else features
         how_it_works = gpt_response.get("how_it_works", "N/A")
 
-        full_solution = f"""Recommended Product: {product}
-
-
-        Features: {feature_str}
-
-
-        How it works: {how_it_works}
-        """
-
+        full_solution = f"""Recommended Product: {product}\n\n\n        Features: {feature_str}\n\n\n        How it works: {how_it_works}"""
 
         use_matrix = (
             matrix_score >= 2 and matrix_item and
@@ -348,8 +365,7 @@ def get_solution():
                 "solution": gpt_response.get("how_it_works", "N/A"),
                 "benefits": "\n".join(gpt_response.get("benefits", [])) or "N/A",
                 "roi": gpt_response.get("roi", "N/A"),
-                "disclaimer": "The ROI estimates provided are based on typical industry benchmarks and assumptions for healthcare settings..."
-
+                "disclaimer": gpt_response.get("disclaimer", "")
             }
             log_to_google_sheets(message, page_url, gpt_response.get("product", "N/A"), gpt_response.get("feature", []), status, matched_issue, gpt_response.get("product", "N/A"), "N/A", full_solution, token_count, token_cost)
 
