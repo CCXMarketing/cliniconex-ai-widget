@@ -18,6 +18,7 @@ from instructions import (
     ai_message_assistant_instruction,
     unprepared_patient_instruction,
     ehr_integration_instruction
+    acm_alerts_instruction
 )
 
 app = Flask(__name__)
