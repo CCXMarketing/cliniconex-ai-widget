@@ -1,6 +1,6 @@
-# instruction.py
+# instructions.py
 
-def acm_vault_clarification():
+def acm_vault_instruction():
     return (
         "\n🔐 ACM Vault Messaging Clarification:\n"
         "- ACM Vault is not a standalone messaging engine.\n"
@@ -53,17 +53,18 @@ def ehr_integration_instruction():
         "Cliniconex integrates seamlessly with all major EMR/EHR systems.\n"
         "Highlight zero-disruption implementation, real-time communication from clinical data, and no need for manual entry or portals."
     )
-def acm_vault_instruction():
-    return (
-        "\n🔐 ACM Vault Messaging Clarification:\n"
-        "ACM Vault is not a standalone messaging engine.\n"
-        "It is a secure extension of ACM Messenger.\n"
-        "Any use of ACM Vault must also include ACM Messenger in the solution."
-    )
 
-def no_show_instruction():
+def acm_alerts_instruction():
     return (
         "\n🧠 Special Instruction:\n"
-        "If input mentions 'no shows', 'missed appointments', or 'missed visits', use ACM Alerts.\n"
-        "Only recommend ACM Messenger for scheduled reminders sent days in advance."
+        "ACM Alerts is designed for **immediate, event-driven communications** that respond to real-world changes. "
+        "Use it when communication needs to be fast, flexible, and critical to same-day or urgent workflows.\n\n"
+        "✅ Ideal for:\n"
+        "- Weather-related or emergency closures\n"
+        "- Same-day provider cancellations or shift changes\n"
+        "- Day-of instructions or reminders (e.g., fasting reminders, arrival time updates)\n\n"
+        "❌ Do not recommend ACM Alerts for:\n"
+        "- Standard reminders sent days in advance\n"
+        "- Scheduled communication workflows (use ACM Messenger instead)\n\n"
+        "ACM Alerts integrates with your EMR to deliver messages instantly via voice, text, or email. It’s fully configurable, so it can adapt to operational realities without needing manual input."
     )
