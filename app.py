@@ -275,7 +275,7 @@ Respond ONLY in this exact JSON format:
     Focus on solving the issue. Be specific. Avoid generic or repeated phrases. Use real-world healthcare workflow language.
     """
    input_token_count = count_tokens(gpt_prompt)
-    print(f"\U0001f522 Token count for GPT prompt: {input_token_count}")
+   print(f"\U0001f522 Token count for GPT prompt: {input_token_count}")
 
     try:
         response = openai.ChatCompletion.create(
