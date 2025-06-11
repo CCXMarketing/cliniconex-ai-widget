@@ -1,3 +1,4 @@
+
 import os
 import json
 import re
@@ -38,17 +39,25 @@ def extract_json(text):
         match = re.search(r'{.*}', text, re.DOTALL)
         return json.loads(match.group(0)) if match else None
 
-def log_to_google_sheets(prompt, page_url, product, feature, status, matched_issue, matched_solution, full_solution=None, token_count=None, token_cost=None):
+def log_to_google_sheets(prompt, page_url, product, module, status, matched_issue, matched_solution, full_solution=None, token_count=None, token_cost=None):
     try:
         timestamp = datetime.now(ZoneInfo("America/Toronto")).strftime("%Y-%m-%d %H:%M:%S")
-        feature_str = ', '.join(feature) if isinstance(feature, list) else feature
-        formatted_solution = f"Recommended Product: {product}\n\nFeatures: {feature_str}\n\nHow it works: {matched_solution}"
+        module_str = ', '.join(module) if isinstance(module, list) else module
+        formatted_solution = f"Recommended Product: {product}\n\nModules: {module_str}\n\nHow it works: {matched_solution}"
 
         values = [[
-            timestamp, prompt, product, feature_str, status,
-            matched_issue, matched_solution, page_url,
-            "N/A", formatted_solution,
-            token_count or "N/A", token_cost or "N/A"
+            timestamp,
+            prompt,
+            product,
+            module_str,
+            status,
+            matched_issue,
+            matched_solution,
+            page_url,
+            "N/A",
+            formatted_solution,
+            token_count or "N/A",
+            token_cost or "N/A"
         ]]
 
         sheet.values().append(
@@ -73,7 +82,7 @@ def generate_gpt_solution(message):
     if any(term in message.lower() for term in unsupported_terms):
         return {
             "product": "No Cliniconex Solution",
-            "feature": [],
+            "module": [],
             "how_it_works": "Cliniconex does not currently offer a solution for this issue. The described challenge falls outside the scope of the Automated Care Platform (ACP).",
             "benefits": ["Not applicable"],
             "roi": "Not applicable",
@@ -215,7 +224,7 @@ Respond ONLY in this exact JSON format:
     Focus on solving the issue. Be specific. Avoid generic or repeated phrases. Use real-world healthcare workflow language.
     """
     input_token_count = count_tokens(gpt_prompt)
-    print(f"\U0001f522 Token count for GPT prompt: {input_token_count}")
+    print(f"🔢 Token count for GPT prompt: {input_token_count}")
 
     try:
         response = openai.ChatCompletion.create(
@@ -235,6 +244,7 @@ Respond ONLY in this exact JSON format:
             parsed["disclaimer"] = "Standard disclaimer."
 
         parsed["full_solution"] = raw_output
+        parsed["module"] = parsed.pop("feature", [])
 
         output_token_count = count_tokens(raw_output)
         total_token_count = input_token_count + output_token_count
@@ -249,7 +259,7 @@ Respond ONLY in this exact JSON format:
         print("❌ GPT fallback error:", str(e))
         return {
             "product": "Automated Care Messaging",
-            "feature": ["ACM Messenger"],
+            "module": ["ACM Messenger"],
             "how_it_works": "Error.",
             "benefits": ["Fallback benefit"],
             "roi": "Fallback ROI",
@@ -272,23 +282,23 @@ def get_solution():
         token_cost = gpt_response.pop("token_cost", 0)
 
         product = gpt_response.get("product", "N/A")
-        features = gpt_response.get("feature", [])
-        feature_str = ', '.join(features) if isinstance(features, list) else features
+        modules = gpt_response.get("module", [])
+        module_str = ', '.join(modules) if isinstance(modules, list) else modules
         how_it_works = gpt_response.get("how_it_works", "N/A")
 
-        full_solution = f"Recommended Product: {product}\n\nFeatures: {feature_str}\n\nHow it works: {how_it_works}"
+        full_solution = f"Recommended Product: {product}\n\nModules: {module_str}\n\nHow it works: {how_it_works}"
 
         response = {
             "type": "solution",
-            "module": product,
-            "feature": feature_str or "N/A",
+            "product": product,
+            "module": module_str or "N/A",
             "solution": how_it_works or "N/A",
             "benefits": "\n".join(gpt_response.get("benefits", [])) or "N/A",
             "roi": gpt_response.get("roi", "N/A"),
             "disclaimer": gpt_response.get("disclaimer", "")
         }
 
-        log_to_google_sheets(message, page_url, product, features, "gpt", product, how_it_works, full_solution, token_count, token_cost)
+        log_to_google_sheets(message, page_url, product, modules, "gpt", product, how_it_works, full_solution, token_count, token_cost)
         return jsonify(response)
 
     except Exception as e:
