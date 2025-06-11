@@ -10,16 +10,6 @@ import openai
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 import tiktoken
-from instructions import (
-    acm_vault_instruction,
-    no_show_instruction,
-    family_portal_instruction,
-    automation_efficiency_instruction,
-    ai_message_assistant_instruction,
-    unprepared_patient_instruction,
-    ehr_integration_instruction,
-    acm_alerts_instruction
-)
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "https://cliniconex.com"}})
@@ -29,16 +19,13 @@ PORT = int(os.getenv("PORT", 10000))
 SHEET_ID = "1jL-iyQiVcttmEMfy7j8DA-cyMM-5bcj1TLHLrb4Iwsg"
 SERVICE_ACCOUNT_FILE = "service_account.json"
 
-with open("cliniconex_solutions.json", "r", encoding="utf-8") as f:
-    solution_matrix = json.load(f)
-
 credentials = service_account.Credentials.from_service_account_file(
     SERVICE_ACCOUNT_FILE, scopes=["https://www.googleapis.com/auth/spreadsheets"]
 )
 sheet = build("sheets", "v4", credentials=credentials).spreadsheets()
 
-def normalize(text):
-    return text.lower().strip()
+with open("cliniconex_solutions.json", "r", encoding="utf-8") as f:
+    solution_matrix = json.load(f)
 
 def count_tokens(text, model="gpt-4"):
     try:
@@ -47,68 +34,6 @@ def count_tokens(text, model="gpt-4"):
         encoding = tiktoken.get_encoding("cl100k_base")
     return len(encoding.encode(text))
 
-def score_keywords(message, item):
-    return sum(1 for k in item.get("keywords", []) if k.lower() in message)
-
-def tag_input(message):
-    tags = []
-    msg = message.lower()
-
-    if "overtime" in msg:
-        tags.append("overtime")
-    if "check-in" in msg:
-        tags.append("check_in")
-    if "secure message" in msg or "encrypted" in msg:
-        tags.append("secure")
-    if "portal" in msg or "family login" in msg:
-        tags.append("no_portal")
-    if (
-        "real-time" in msg or 
-        "last minute" in msg or 
-        "same day" in msg or 
-        "urgent" in msg or 
-        "automated reminders" in msg or 
-        "automated appointment reminders" in msg or
-        "automatic notifications" in msg or
-        "appointment reminders" in msg
-    ):
-        tags.append("alerts")
-
-    return tags
-
-def generate_dynamic_instructions(tags):
-    rules = []
-    if "overtime" in tags:
-        rules.append(automation_efficiency_instruction())
-    if "check_in" in tags:
-        rules.append(unprepared_patient_instruction())
-    if "secure" in tags:
-        rules.append(acm_vault_instruction())
-    if "no_portal" in tags:
-        rules.append(family_portal_instruction())
-    if "alerts" in tags:
-        rules.append(no_show_instruction())
-    # Add catch-all rules or context-based instructions
-    rules.extend([
-        ehr_integration_instruction(),
-        ai_message_assistant_instruction()
-    ])
-    return "\n".join(rules)
-
-def get_best_matrix_match(message):
-    best_score, best_item, best_keyword = 0, None, None
-    for item in solution_matrix:
-        score = score_keywords(message, item)
-        if score > best_score:
-            best_score = score
-            best_item = item
-            best_keyword = next((k for k in item.get("keywords", []) if k.lower() in message), None)
-    return best_score, best_item, best_keyword
-
-def validate_gpt_response(parsed):
-    required_keys = {"product", "feature", "how_it_works", "benefits"}
-    return all(k in parsed and parsed[k] for k in required_keys)
-
 def extract_json(text):
     try:
         return json.loads(text)
@@ -116,28 +41,21 @@ def extract_json(text):
         match = re.search(r'{.*}', text, re.DOTALL)
         return json.loads(match.group(0)) if match else None
 
-def log_to_google_sheets(prompt, page_url, product, feature, status, matched_issue, matched_solution, keyword, full_solution=None, token_count=None, token_cost=None):
+def validate_gpt_response(parsed):
+    required_keys = {"product", "feature", "how_it_works", "benefits", "roi", "disclaimer"}
+    return all(k in parsed and parsed[k] for k in required_keys)
+
+def log_to_google_sheets(prompt, page_url, product, feature, status, matched_issue, matched_solution, full_solution=None, token_count=None, token_cost=None):
     try:
         timestamp = datetime.now(ZoneInfo("America/Toronto")).strftime("%Y-%m-%d %H:%M:%S")
         feature_str = ', '.join(feature) if isinstance(feature, list) else feature
-
-        formatted_full_solution = f"""Recommended Product: {product}\n\n\nFeatures: {feature_str}\n\n\nHow it works: {matched_solution}"""
-
-        full_solution_to_log = full_solution if full_solution else formatted_full_solution
+        formatted_solution = f"Recommended Product: {product}\n\nFeatures: {feature_str}\n\nHow it works: {matched_solution}"
 
         values = [[
-            timestamp,
-            prompt,
-            product,
-            feature_str,
-            status,
-            matched_issue,
-            matched_solution,
-            page_url,
-            keyword,
-            full_solution_to_log,
-            token_count or "N/A",
-            token_cost or "N/A"
+            timestamp, prompt, product, feature_str, status,
+            matched_issue, matched_solution, page_url,
+            "N/A", formatted_solution,
+            token_count or "N/A", token_cost or "N/A"
         ]]
 
         sheet.values().append(
@@ -150,7 +68,6 @@ def log_to_google_sheets(prompt, page_url, product, feature, status, matched_iss
     except Exception as e:
         print("❌ Error logging to Google Sheets:", str(e))
         traceback.print_exc()
-
 
 def generate_gpt_solution(message):
     unsupported_terms = [
@@ -213,7 +130,53 @@ def generate_gpt_solution(message):
     "{message}"
 
 Special Instructions:
-{special_instructions}
+Here is a refined version of your special instructions to embed in the system prompt:
+
+### 🧠 Special Instructions for Accurate Feature Selection and Solution Formation:
+
+1. **ACM Vault Usage Rule**  
+   - ACM Vault is **not a standalone messaging tool**.  
+   - It is a **secure extension of ACM Messenger** used for encrypted communications via email.  
+   - **Always include ACM Messenger** when recommending ACM Vault. Never present Vault in isolation.
+
+2. **Handling No-Shows or Missed Appointments**  
+   - If the input refers to “no shows,” “missed appointments,” or “missed visits,” recommend **ACM Alerts** for same-day, real-time reminders.  
+   - Recommend **ACM Messenger** only when the issue involves **routine appointment reminders** sent **days in advance**.
+
+3. **Family Portals and Login Requests**  
+   - Cliniconex **does not offer a dedicated login portal** for families.  
+   - Instead, emphasize that **ACM Messenger** and **ACM Vault** provide **secure, automated updates** to family members via voice, text, or email—without requiring logins or portals.
+
+4. **High Manual Workload or Need for Automation**  
+   - If the input involves operational inefficiencies, communication bottlenecks, or staff burden from repetitive tasks (e.g., calling patients), prioritize **ACM Alerts**.  
+   - Use **ACM Messenger** only for predictable, advance-scheduled outreach.
+
+5. **Message Creation, Optimization, or Staff Support with Communication**  
+   - Recommend the **AI Message Assistant** only when the task involves **creating or refining** healthcare messages.  
+   - Clearly state it is a feature within **ACM Messenger**, helping staff write effective messages quickly.  
+   - Do not force AI into solutions unless explicitly relevant.
+
+6. **Patient Confusion or Unpreparedness Before Appointments**  
+   - If the issue is patients arriving unprepared or confused:  
+     - Recommend **ACS Forms** for collecting information beforehand.  
+     - Recommend **ACM Alerts** for just-in-time, real-time instructions close to the appointment.  
+     - Use **ACM Messenger** only for well-in-advance scheduled communication.
+
+7. **EMR/EHR Integration and Workflow Compatibility**  
+   - Cliniconex integrates **directly with major EMR/EHR systems** to enable real-time, automated communication.  
+   - Highlight **zero-disruption implementation** and **no need for middleware or portals**.  
+   - Emphasize that communications are **driven by live clinical data**—not manual input.
+
+8. **Clarifying ACM Alerts Use Cases**  
+   - ACM Alerts is for **event-triggered, dynamic messaging**—ideal for same-day updates, urgent changes, or appointment confirmations.  
+   - Use it for:
+     - Last-minute changes (e.g., provider cancellations, new availability)
+     - Timely reminders (e.g., “arrive 15 min early,” “don’t forget fasting”)
+     - Waitlist offers or urgent campaigns  
+   - Do **not** recommend ACM Alerts for:
+     - Routine reminders sent days in advance
+     - Static workflows (use ACM Messenger instead)
+
 
 Your response must include:
 1. product
