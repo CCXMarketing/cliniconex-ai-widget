@@ -74,7 +74,7 @@ def generate_gpt_solution(message):
         return {
             "product": "No Cliniconex Solution",
             "module": [],
-            "how_it_works": "Cliniconex does not currently offer a solution for this issue. The described challenge falls outside the scope of the Automated Care Platform (ACP).",
+            "how_it_works": "Cliniconex does not currently offer a solution for this issue.",
             "benefits": ["Not applicable"],
             "roi": "Not applicable",
             "disclaimer": "Not applicable",
@@ -113,6 +113,25 @@ A product within ACP that streamlines scheduling, intake, and post-visit engagem
 - **ACS Surveys**
   Automatically sends surveys to patients after visits or key events. Collects feedback, tracks trends, and helps you understand where to improve. Easy to set up, fully integrated with your EMR, and built to support better care through real insights.
 
+Your job is to:
+
+1. **Determine the best product(s)**: Choose between Automated Care Messaging, Automated Care Scheduling, or both.
+2. **Select modules** from the list below that best solve the issue. Include all relevant modules but avoid unnecessary ones.
+3. **Explain how the solution works** in one clear paragraph—connect the module to the provider's challenge and show how it fits in ACP.
+4. **List 2–3 operational benefits** tailored to the problem. Avoid repeating phrases from other solutions.
+5. **Estimate ROI** tailored to the input:
+   - Focus on quantifiable gains: fewer calls, reduced no-shows, saved staff hours, increased patient throughput.
+   - Anchor estimates to the specific issue described.
+   - Keep numbers conservative and realistic (e.g., 10–25% efficiency gains).
+   - Vary the format to avoid repetition. Use hours/year, % improvement, $ saved, or reduced manual workload.
+
+Your response must include:
+1. product
+2. module
+3. how_it_works (1 paragraph)
+4. benefits (2–3 concise bullet points)
+5. roi (quantified, realistic)
+6. disclaimer (standardized)
 ### 🧠special_instructions:
 
 1. **ACM Vault Usage Rule**  
@@ -170,26 +189,6 @@ A product within ACP that streamlines scheduling, intake, and post-visit engagem
         - Use: `"product": "Automated Care Messaging, Automated Care Scheduling"`
         - Use: `"module": ["ACM Messenger", "ACM Vault", "ACM Alerts", "ACS Forms", "ACS Booking", "ACS Surveys"]`
 
-Your job is to:
-
-1. **Determine the best product(s)**: Choose between Automated Care Messaging, Automated Care Scheduling, or both.
-2. **Select modules** from the list below that best solve the issue. Include all relevant modules but avoid unnecessary ones.
-3. **Explain how the solution works** in one clear paragraph—connect the module to the provider's challenge and show how it fits in ACP.
-4. **List 2–3 operational benefits** tailored to the problem. Avoid repeating phrases from other solutions.
-5. **Estimate ROI** tailored to the input:
-   - Focus on quantifiable gains: fewer calls, reduced no-shows, saved staff hours, increased patient throughput.
-   - Anchor estimates to the specific issue described.
-   - Keep numbers conservative and realistic (e.g., 10–25% efficiency gains).
-   - Vary the format to avoid repetition. Use hours/year, % improvement, $ saved, or reduced manual workload.
-
-Your response must include:
-1. product
-2. module
-3. how_it_works (1 paragraph)
-4. benefits (2–3 concise bullet points)
-5. roi (quantified, realistic)
-6. disclaimer (standardized)
-
 🛑 IMPORTANT: Do not use definite articles ("the") before feature or product names.
 
 🧩 Product Attribution Rule:
@@ -231,13 +230,7 @@ Focus on solving the issue. Be specific. Avoid generic or repeated phrases. Use 
         if not parsed:
             raise ValueError("Invalid JSON from GPT")
 
-        if "roi" not in parsed:
-            parsed["roi"] = "Estimated ROI placeholder."
-        if "disclaimer" not in parsed:
-            parsed["disclaimer"] = "Standard disclaimer."
-
         parsed["full_solution"] = raw_output
-
         output_token_count = count_tokens(raw_output)
         total_token_count = input_token_count + output_token_count
         token_cost_usd = round((total_token_count / 1000) * 0.03, 5)
@@ -263,7 +256,6 @@ Focus on solving the issue. Be specific. Avoid generic or repeated phrases. Use 
 
 @app.route("/ai", methods=["POST"])
 def get_solution():
-    print("🔔 🔔🔔 /ai called with payload:", request.get_json())
     try:
         data = request.get_json()
         message = data.get("message", "").lower()
@@ -274,23 +266,21 @@ def get_solution():
         token_cost = gpt_response.pop("token_cost", 0)
 
         product = gpt_response.get("product", "N/A")
-        features = gpt_response.get("module", [])
-        feature_str = ', '.join(features) if isinstance(features, list) else features
+        modules = gpt_response.get("module", [])
+        module_str = ', '.join(modules) if isinstance(modules, list) else modules
         how_it_works = gpt_response.get("how_it_works", "N/A")
-
-        full_solution = f"Recommended Product: {product}\n\nFeatures: {feature_str}\n\nHow it works: {how_it_works}"
 
         response = {
             "type": "solution",
-            "module": product,
-            "feature": feature_str or "N/A",
+            "product": product,
+            "module": module_str or "N/A",
             "solution": how_it_works or "N/A",
             "benefits": "\n".join(gpt_response.get("benefits", [])) or "N/A",
             "roi": gpt_response.get("roi", "N/A"),
             "disclaimer": gpt_response.get("disclaimer", "")
         }
 
-        log_to_google_sheets(message, page_url, product, features, "gpt", product, how_it_works, full_solution, token_count, token_cost)
+        log_to_google_sheets(message, page_url, product, modules, "gpt", product, how_it_works, gpt_response.get("full_solution"), token_count, token_cost)
         return jsonify(response)
 
     except Exception as e:
