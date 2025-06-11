@@ -38,11 +38,12 @@ def extract_json(text):
         match = re.search(r'{.*}', text, re.DOTALL)
         return json.loads(match.group(0)) if match else None
 
-def log_to_google_sheets(prompt, page_url, product, feature, status, matched_issue, matched_solution, full_solution=None, token_count=None, token_cost=None):
+def log_to_google_sheets(prompt, page_url, product, module, status, matched_issue, matched_solution, full_solution=None, token_count=None, token_cost=None):
     try:
         timestamp = datetime.now(ZoneInfo("America/Toronto")).strftime("%Y-%m-%d %H:%M:%S")
-        module_str = ', '.join(feature) if isinstance(feature, list) else feature
-        formatted_solution = f"Recommended Product: {product}\n\nFeatures: {module_str}\n\nHow it works: {matched_solution}"
+        module_str = ', '.join(module) if isinstance(module, list) else module
+        formatted_solution = f"Recommended Product: {product}\n\nModules: {module_str}\n\nHow it works: {matched_solution}"
+
 
         values = [[
             timestamp, prompt, product, module_str, status,
