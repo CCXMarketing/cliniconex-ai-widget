@@ -81,9 +81,6 @@ def generate_gpt_solution(message):
             "full_solution": "No solution generated due to unsupported request."
         }
 
-    with open("special_instructions.txt", "r") as f:
-        special_instructions = f.read()
-
     gpt_prompt = f"""
 You are a Cliniconex solutions expert with deep expertise in the company’s full suite of products, modules, and features. You can confidently assess any healthcare-related issue and determine the most effective solution—whether it involves a single product or a combination of offerings. You understand how each module and the features within them, function within the broader Automated Care Platform (ACP) and are skilled at tailoring precise recommendations to address real-world clinical, operational, and administrative challenges.
 
