@@ -169,6 +169,11 @@ Here is a refined version of your special instructions to embed in the system pr
      - Routine reminders sent days in advance
      - Static workflows (use ACM Messenger instead)
 
+ 9. Check-in Capability:
+- Patients **cannot check in from home** using ACS Forms alone.
+- ACS Forms supports **intake**, not actual appointment check-in.
+- Recommend ACS Booking only if “remote check-in” implies full online appointment workflows.
+
 
 Your response must include:
 1. product
