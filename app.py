@@ -176,6 +176,11 @@ Here is a refined version of your special instructions to embed in the system pr
    - Do **not** recommend ACM Alerts for:
      - Routine reminders sent days in advance
      - Static workflows (use ACM Messenger instead)
+                                                                   
+ 9. **Clarifying ACS Booking Capabilities**
+   - ACS Booking allows patients to **schedule** appointments online.
+   - It does **not support** virtual check-in or patient arrivals from home.
+   - Do not recommend ACS Booking for "check in" workflows. Instead, explore options involving ACS Forms or flag as unsupported if check-in from home is explicitly required.                                                               
 
 
 Your response must include:
