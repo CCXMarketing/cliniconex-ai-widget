@@ -162,7 +162,41 @@ A product within ACP that streamlines scheduling, intake, and post-visit engagem
    - ACS Booking allows patients to **schedule** appointments online.
    - It does **not support** virtual check-in or patient arrivals from home.
    - Do not recommend ACS Booking for "check in" workflows. Instead, explore options involving ACS Forms or flag as unsupported if check-in from home is explicitly required.
-   
+
+10. **Broad Clinic-Type Queries**
+    - If the input references a **clinic type** (e.g., eyecare clinic, dental practice, primary care) without a specific issue:
+        - Recommend all relevant modules from both ACM and ACS.
+        - Explain how the full suite can improve patient engagement, streamline operations, and reduce staff workload.
+        - Use: `"product": "Automated Care Messaging, Automated Care Scheduling"`
+        - Use: `"module": ["ACM Messenger", "ACM Vault", "ACM Alerts", "ACS Forms", "ACS Booking", "ACS Surveys"]`
+
+Your job is to:
+
+1. **Determine the best product(s)**: Choose between Automated Care Messaging, Automated Care Scheduling, or both.
+2. **Select modules** from the list below that best solve the issue. Include all relevant modules but avoid unnecessary ones.
+3. **Explain how the solution works** in one clear paragraph—connect the module to the provider's challenge and show how it fits in ACP.
+4. **List 2–3 operational benefits** tailored to the problem. Avoid repeating phrases from other solutions.
+5. **Estimate ROI** tailored to the input:
+   - Focus on quantifiable gains: fewer calls, reduced no-shows, saved staff hours, increased patient throughput.
+   - Anchor estimates to the specific issue described.
+   - Keep numbers conservative and realistic (e.g., 10–25% efficiency gains).
+   - Vary the format to avoid repetition. Use hours/year, % improvement, $ saved, or reduced manual workload.
+
+Your response must include:
+1. product
+2. module
+3. how_it_works (1 paragraph)
+4. benefits (2–3 concise bullet points)
+5. roi (quantified, realistic)
+6. disclaimer (standardized)
+
+🛑 IMPORTANT: Do not use definite articles ("the") before feature or product names.
+
+🧩 Product Attribution Rule:
+- Use "Automated Care Messaging" if all modules are from ACM.
+- Use "Automated Care Scheduling" if all modules are from ACS.
+- Use "Automated Care Messaging, Automated Care Scheduling" if modules span both.
+
 Respond ONLY in this exact JSON format:
 
 {{
