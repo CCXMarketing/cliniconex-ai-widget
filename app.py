@@ -182,6 +182,12 @@ Here is a refined version of your special instructions to embed in the system pr
    - It does **not support** virtual check-in or patient arrivals from home.
    - Do not recommend ACS Booking for "check in" workflows. Instead, explore options involving ACS Forms or flag as unsupported if check-in from home is explicitly required.                                                               
 
+ 10. **Strict Product Mapping Rule**
+    - Always map modules to their parent products.
+    - If recommended modules span both ACM and ACS, list **both products** in the product field:
+        - Use: “Automated Care Messaging, Automated Care Scheduling”
+    - Never list individual modules in the **product** field.
+      
 
 Your response must include:
 1. product
