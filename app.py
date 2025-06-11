@@ -24,9 +24,6 @@ credentials = service_account.Credentials.from_service_account_file(
 )
 sheet = build("sheets", "v4", credentials=credentials).spreadsheets()
 
-with open("cliniconex_solutions.json", "r", encoding="utf-8") as f:
-    solution_matrix = json.load(f)
-
 def count_tokens(text, model="gpt-4"):
     try:
         encoding = tiktoken.encoding_for_model(model)
@@ -40,10 +37,6 @@ def extract_json(text):
     except json.JSONDecodeError:
         match = re.search(r'{.*}', text, re.DOTALL)
         return json.loads(match.group(0)) if match else None
-
-def validate_gpt_response(parsed):
-    required_keys = {"product", "feature", "how_it_works", "benefits", "roi", "disclaimer"}
-    return all(k in parsed and parsed[k] for k in required_keys)
 
 def log_to_google_sheets(prompt, page_url, product, feature, status, matched_issue, matched_solution, full_solution=None, token_count=None, token_cost=None):
     try:
@@ -88,8 +81,6 @@ def generate_gpt_solution(message):
             "full_solution": "No solution generated due to unsupported request."
         }
 
-    tags = tag_input(message)
-    special_instructions = generate_dynamic_instructions(tags)
     gpt_prompt = f"""
     You are a Cliniconex solutions expert with deep expertise in the company’s full suite of products and features. You can confidently assess any healthcare-related issue and determine the most effective solution—whether it involves a single product or a combination of offerings. You understand how each feature functions within the broader Automated Care Platform (ACP) and are skilled at tailoring precise recommendations to address real-world clinical, operational, and administrative challenges.
 
@@ -223,8 +214,8 @@ Respond ONLY in this exact JSON format:
     Do not include anything outside the JSON block.
     Focus on solving the issue. Be specific. Avoid generic or repeated phrases. Use real-world healthcare workflow language.
     """
-    input_token_count = count_tokens(gpt_prompt)
-    print(f"\U0001f522 Token count for GPT prompt: {input_token_count}")
+   input_token_count = count_tokens(gpt_prompt)
+   print(f"\U0001f522 Token count for GPT prompt: {input_token_count}")
 
     try:
         response = openai.ChatCompletion.create(
@@ -276,49 +267,30 @@ def get_solution():
         message = data.get("message", "").lower()
         page_url = data.get("page_url", "")
 
-        matrix_score, matrix_item, keyword = get_best_matrix_match(message)
         gpt_response = generate_gpt_solution(message)
         token_count = gpt_response.pop("token_count", 0)
         token_cost = gpt_response.pop("token_cost", 0)
+
         product = gpt_response.get("product", "N/A")
         features = gpt_response.get("feature", [])
         feature_str = ', '.join(features) if isinstance(features, list) else features
         how_it_works = gpt_response.get("how_it_works", "N/A")
 
-        full_solution = f"""Recommended Product: {product}\n\n\n        Features: {feature_str}\n\n\n        How it works: {how_it_works}"""
+        full_solution = f"Recommended Product: {product}\n\nFeatures: {feature_str}\n\nHow it works: {how_it_works}"
 
-        use_matrix = (
-            matrix_score >= 2 and matrix_item and
-            gpt_response.get("product", "").lower() in matrix_item.get("product", "").lower()
-        )
+        response = {
+            "type": "solution",
+            "module": product,
+            "feature": feature_str or "N/A",
+            "solution": how_it_works or "N/A",
+            "benefits": "\n".join(gpt_response.get("benefits", [])) or "N/A",
+            "roi": gpt_response.get("roi", "N/A"),
+            "disclaimer": gpt_response.get("disclaimer", "")
+        }
 
-        if use_matrix:
-            status = "matrix"
-            matched_issue = matrix_item.get("product", "N/A")
-            response = {
-                "type": "solution",
-                "module": matrix_item.get("product", "N/A"),
-                "feature": ", ".join(matrix_item.get("features", [])) or "N/A",
-                "solution": matrix_item.get("solution", "N/A"),
-                "benefits": matrix_item.get("benefits", "N/A"),
-                "keyword": keyword or "N/A"
-            }
-            log_to_google_sheets(message, page_url, matrix_item.get("product", "N/A"), matrix_item.get("features", []), status, matched_issue, "N/A", keyword, full_solution, token_count, token_cost)
-        else:
-            status = "fallback"
-            matched_issue = "N/A"
-            response = {
-                "type": "solution",
-                "module": gpt_response.get("product", "N/A"),
-                "feature": ", ".join(gpt_response.get("feature", [])) or "N/A",
-                "solution": gpt_response.get("how_it_works", "N/A"),
-                "benefits": "\n".join(gpt_response.get("benefits", [])) or "N/A",
-                "roi": gpt_response.get("roi", "N/A"),
-                "disclaimer": gpt_response.get("disclaimer", "")
-            }
-            log_to_google_sheets(message, page_url, gpt_response.get("product", "N/A"), gpt_response.get("feature", []), status, matched_issue, gpt_response.get("product", "N/A"), "N/A", full_solution, token_count, token_cost)
-
+        log_to_google_sheets(message, page_url, product, features, "gpt", product, how_it_works, full_solution, token_count, token_cost)
         return jsonify(response)
+
     except Exception as e:
         print("❌ Error:", str(e))
         return jsonify({"error": "An error occurred."}), 500
