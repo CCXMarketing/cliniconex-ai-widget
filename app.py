@@ -174,6 +174,10 @@ Here is a refined version of your special instructions to embed in the system pr
 - ACS Forms supports **intake**, not actual appointment check-in.
 - Recommend ACS Booking only if “remote check-in” implies full online appointment workflows.
 
+9. Reminder Communication Rule:
+- If the input includes “automated reminders,” “custom reminders,” “real-time alerts,” or “same-day updates,” prioritize ACM Alerts.
+- ACS Forms supports **intake**, not actual appointment check-in.
+- Use ACM Messenger only if the context clearly describes reminders sent well in advance of the appointment (e.g., routine scheduling).                   
 
 Your response must include:
 1. product
