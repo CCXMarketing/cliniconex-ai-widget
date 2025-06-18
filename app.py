@@ -121,8 +121,7 @@ def generate_gpt_solution(message):
     Here is a real-world issue described by a healthcare provider:
     "{message}"
 
-Special Instructions:
-Here is a refined version of your special instructions to embed in the system prompt:
+IMPORTANT: Be sure you pay attention to the special instructions below.
 
 ### 🧠 Special Instructions for Accurate Feature Selection and Solution Formation:
 
@@ -184,10 +183,17 @@ Here is a refined version of your special instructions to embed in the system pr
     - Two-way responses are supported via voice, text, and email — depending on the patient’s original communication channel.
     - Do not imply that all ACM Messenger messages allow replies.
 
+12. Audience Filtering and Targeted Communication
+    - All ACM modules (Messenger, Alerts, Vault) support audience filtering based on EMR data such as: Resident or patient location (e.g., floor, unit, clinic), Appointment type or provider, Visit status or scheduling logic
+    - If the challenge involves notifying specific groups (e.g., only 2nd floor residents, flu shot recipients, patients of a specific provider), emphasize that Cliniconex can target communications precisely to avoid sending irrelevant or broad messages.
+    - This filtering is essential to reducing message fatigue, ensuring compliance, and improving engagement.
+
+                 
+
 Clarify this is an optional, configurable feature for interactive outreach.
 Your response must include:
 1. product
-2. feature
+2. Module
 3. how_it_works (1 paragraph)
 4. benefits (2-3 concise bullet points)
 5. roi (quantified, realistic)
